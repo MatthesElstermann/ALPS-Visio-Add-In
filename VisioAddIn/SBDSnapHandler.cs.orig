@@ -1,0 +1,285 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Office.Interop.Visio;
+using Model;
+using VisioAddIn1;
+
+namespace Controller
+{
+    /// <summary>
+    /// manages the snapping of state extensions to states on sbd pages.
+    /// </summary>
+    public class SBDSnapHandler : SnapHandler
+    {
+        private SBDPage ForegroundPage;
+        private SBDPage BackPage;
+
+        private ModelController ModelController;
+
+        public SBDSnapHandler(SBDPage foregroundPage, ModelController modelController) : base()
+        {
+            ForegroundPage = foregroundPage;
+            ModelController = modelController;
+
+            BackPage = null;
+        }
+
+        /// <summary>
+        /// checks for given shape if it should snap
+        /// shapes should snap when they are state extensions.
+        /// </summary>
+        /// <param name="shape">shape to check</param>
+        /// <returns>true if snappable, false otherwise</returns>
+        private bool IsShapeSnappable(Shape shape)
+        {
+            if (shape.HasCategory(GlobalVariables.StateExtension))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        override protected void SetBackPage(DiagramPage newProperty)
+        {
+            this.BackPage = (SBDPage)newProperty;
+        }
+        
+        public void BackgroundShapeMoved(Shape snapToShape)
+        {
+            //if something is snapped to this shape.
+            if (SnappedShapes.ContainsValue(snapToShape))
+            {
+                Shape shape = SnappedShapes.FirstOrDefault(x => x.Value == snapToShape).Key;
+                if (!CheckBorders(shape, snapToShape))
+                {
+                    AdjustSize(shape, snapToShape);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// checks for the given shape if it should be snapping to a shape on the given backPage
+        /// </summary>
+        /// <param name="shape">given shape</param>
+        override public void CheckForSnapping(Shape shape)
+        {
+            //check if on the backPage is sth it could be snapping to.
+            List<Shape> snapToShapes = CheckBackPage(BackPage);
+            if (IsShapeSnappable(shape))
+            {
+                //eventually unsnap here.
+                if (SnappedShapes.ContainsKey(shape))
+                {
+                    if (!CheckRange(shape, SnappedShapes[shape]))
+                    {
+                        SnapMaintenance snapMain = SnapMaintenance.GetSnapMaint(this, shape, SnappedShapes[shape]);
+                        snapMain.Show();
+                    }
+                }
+                foreach (Shape snapToShape in snapToShapes)
+                {
+                    bool snap = CheckRange(shape, snapToShape);
+                    if (snap && !CheckXRange(shape, snapToShape, 0.1))
+                    {
+                        SnapConfirmation snapConf = SnapConfirmation.GetSnapConf(this, shape, snapToShape);
+                        snapConf.Show();
+                    } //else: no snapping.
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// snaps the shape to a another one, specified by name.
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <param name="snapTo"></param>
+        override public void Snap(Shape shape, string snapTo)
+        {
+            if (IsShapeSnappable(shape))
+            {
+                snapTo = snapTo.Trim(new Char[] { '\\', '"' });
+                if ((SnappedShapes.ContainsKey(shape) && !SnappedShapes[shape].Name.Equals(snapTo)) || !SnappedShapes.ContainsKey(shape))
+                {
+                    if (string.IsNullOrWhiteSpace(snapTo))
+                    {
+                        if (SnappedShapes.ContainsKey(shape))
+                        {
+                            Unsnap(shape);
+                        }
+                    }
+                    else
+                    {
+                        List<Shape> snappableShapes = CheckBackPage(BackPage);
+                        bool found = false;
+
+                        foreach (Shape snappable in snappableShapes)
+                        {
+                            if (snappable.Name.Equals(snapTo))
+                            {
+                                ButtonClicked(true, shape, snappable);
+                                found = true;
+                            }
+                        }
+                        if (found == false)
+                        {
+                                UserInputNotFound notFound = UserInputNotFound.GetInstance(ModelController, snapTo, shape.NameU);
+                                notFound.Show();
+                        }
+                    }
+                }
+            }
+        }
+
+        public void MaintainSnap(Shape shape, Shape snapToShape)
+        {
+            if (!CheckBorders(shape, snapToShape))
+            {
+                AdjustSize(shape, snapToShape);
+            }
+        }
+
+        /// <summary>
+        /// checks if the corners of two shapes are near to each other
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <param name="snapToShape"></param>
+        /// <returns>true if minimum one corner is near, false otherwise</returns>
+        private bool CheckBorders(Shape shape, Shape snapToShape)
+        {
+            //check if one of the borders is near
+            //subj ext: *0.5, Width, Height
+            //state the same. :)
+
+            //Check if outer borders are near to each other.
+            double shapePinX = shape.CellsU[GlobalVariables.PinX].Result[Microsoft.Office.Interop.Visio.VisUnitCodes.visMillimeters];
+            double shapePinY = shape.CellsU[GlobalVariables.PinY].Result[Microsoft.Office.Interop.Visio.VisUnitCodes.visMillimeters];
+            double shapeWidth = shape.CellsU[GlobalVariables.Width].Result[Microsoft.Office.Interop.Visio.VisUnitCodes.visMillimeters];
+            double shapeHeight = shape.CellsU[GlobalVariables.Height].Result[Microsoft.Office.Interop.Visio.VisUnitCodes.visMillimeters];
+
+            double shapeLeft = shapePinX - (0.5 * shapeWidth);
+            double shapeRight = shapePinX + (0.5 * shapeWidth);
+            double shapeTop = shapePinY + (0.5 * shapeHeight);
+            double shapeBottom = shapePinY - (0.5 * shapeHeight);
+
+            double snapToPinX = snapToShape.CellsU[GlobalVariables.PinX].Result[Microsoft.Office.Interop.Visio.VisUnitCodes.visMillimeters];
+            double snapToPinY = snapToShape.CellsU[GlobalVariables.PinY].Result[Microsoft.Office.Interop.Visio.VisUnitCodes.visMillimeters];
+            double snapToWidth = snapToShape.CellsU[GlobalVariables.Width].Result[Microsoft.Office.Interop.Visio.VisUnitCodes.visMillimeters];
+            double snapToHeight = snapToShape.CellsU[GlobalVariables.Height].Result[Microsoft.Office.Interop.Visio.VisUnitCodes.visMillimeters];
+
+            double snapToLeft = snapToPinX - (0.5 * snapToWidth);
+            double snapToRight = snapToPinX + (0.5 * snapToWidth);
+            double snapToTop = snapToPinY + (0.5 * snapToHeight);
+            double snapToBottom = snapToPinY - (0.5 * snapToHeight);
+
+            //check if one corner is near to the others.
+            Vector2D shapeULC = new Vector2D(shapeLeft, shapeTop);
+            Vector2D shapeBLC = new Vector2D(shapeLeft, shapeBottom);
+            Vector2D shapeURC = new Vector2D(shapeRight, shapeTop);
+            Vector2D shapeBRC = new Vector2D(shapeRight, shapeBottom);
+
+            Vector2D snapToULC = new Vector2D(snapToLeft, snapToTop);
+            Vector2D snapToBLC = new Vector2D(snapToLeft, snapToBottom);
+            Vector2D snapToURC = new Vector2D(snapToRight, snapToTop);
+            Vector2D snapToBRC = new Vector2D(snapToRight, snapToBottom);
+
+            if (shapeULC.IsNearTo(snapToULC)
+                || shapeBLC.IsNearTo(snapToBLC)
+                || shapeURC.IsNearTo(snapToURC)
+                || shapeBRC.IsNearTo(snapToBRC))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// unsnaps a shape
+        /// </summary>
+        /// <param name="shape"></param>
+        override public void Unsnap(Shape shape)
+        {
+            SnappedShapes.Remove(shape);
+            if (shape.CellExistsU[GlobalVariables.ExtendsProp, 0] != 0)
+            {
+                Cell cell = shape.CellsU[GlobalVariables.ExtendsProp];
+                cell.Formula = "";
+            }
+        }
+
+        /// <summary>
+        /// called from SnapConfirmation.
+        /// </summary>
+        /// <param name="snap">true if it should snap, false if not</param>
+        override public void ButtonClicked(bool snap, Shape shape, Shape snapToShape)
+        {
+            if (snap)
+            {
+                if (!SnappedShapes.ContainsKey(shape))
+                {
+                    SnappedShapes.Add(shape, snapToShape);
+                }
+                else if (SnappedShapes[shape] != snapToShape)
+                {
+                    SnappedShapes.Remove(shape);
+                    SnappedShapes.Add(shape, snapToShape);
+                }
+
+                AdjustSize(shape, snapToShape);
+               
+                if (shape.CellExistsU[GlobalVariables.ExtendsProp, 0] != 0)
+                {
+                    Cell cell = shape.CellsU[GlobalVariables.ExtendsProp];
+<<<<<<< HEAD
+                    cell.Formula = "\"" + snapToShape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeModelComponentID + ".Value"].ResultStr[""] + "\"";
+=======
+                    string snapToShapeId = snapToShape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeModelComponentID + ".Value"].ResultStr[""];
+                    cell.Formula = "\"" + BackPage.GetModelUri().Trim(new Char[] { '\\', '"' }) + "#" + snapToShapeId + "\"";
+>>>>>>> extension-fix
+                }
+                if (shape.CellExistsU[GlobalVariables.LableProp, 0] != 0)
+                {
+                    Cell cell = shape.CellsU[GlobalVariables.LableProp];
+                    string snapToShapeLable = snapToShape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeLable + ".Value"].ResultStr[""];
+                    cell.Formula = "\"" + GlobalVariables.LableExtension + snapToShapeLable + "\"";
+                }
+            }
+            else
+            {
+                if (SnappedShapes.ContainsKey(shape))
+                {
+                    Unsnap(shape);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// checks for a given page if there are states shapes should be snapping to.
+        /// </summary>
+        /// <param name="backPage">back page</param>
+        /// <returns></returns>
+        private List<Shape> CheckBackPage(SBDPage backPage)
+        {
+            SBDPageController backPageC = ModelController.GetSBDPageController(backPage);
+
+            List<Shape> snapToShapes = new List<Shape>();
+            if (backPageC != null)
+            {
+                foreach (Shape shape in backPageC.GetPage().Shapes)
+                {
+                    if (shape.HasCategory(GlobalVariables.AlpsSBDState))
+                    {
+                        snapToShapes.Add(shape);
+                    }
+                }
+            }
+            return snapToShapes;
+
+        }
+
+    }
+}

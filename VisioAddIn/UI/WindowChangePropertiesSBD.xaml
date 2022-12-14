@@ -1,0 +1,23 @@
+﻿<Window x:Class="VisioAddIn.WindowChangePropertiesSbd"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Input" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen">
+    <Grid Margin="15" VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Label Name="chooseSep" Grid.ColumnSpan="3"></Label>
+        <Button Name="btnNoSeparation" ToolTip="TODO" Grid.Row="1" MinWidth="90" Click="ButtonNoSep_Click" Margin="0,16,8,0"></Button>
+        <Button Name="btnNormalSeparation" ToolTip="TODO" Grid.Column="1" MinWidth="90" Grid.Row="1" Click="ButtonStandardSep_Click" Margin="8,16,8,0"></Button>
+        <Button Name="btnFullSeparation" ToolTip="TODO" Grid.Column="2" MinWidth="90" Grid.Row="1" Click="ButtonFullSep_Click" Margin="8,16,0,0"></Button>
+        <Button IsDefault="True" Name="btnDialogOK" Click="buttonOK_Click" MinWidth="60" Grid.Row="2" Grid.Column="2" Margin="8,32,0,0"></Button>
+
+    </Grid>
+</Window>

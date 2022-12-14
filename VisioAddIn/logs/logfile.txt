@@ -1,0 +1,69 @@
+2022-12-13 21:27:11.823 +01:00 [INF] Beginnig to create parsing structure matching...
+2022-12-13 21:27:11.955 +01:00 [INF] Read all structure defining ontology graphs.
+2022-12-13 21:27:11.956 +01:00 [INF] Merging all input graphs...
+2022-12-13 21:27:11.979 +01:00 [INF] Creating owl inheritance tree from merged graphs...
+2022-12-13 21:27:13.328 +01:00 [INF] Dynamically created owl class tree
+2022-12-13 21:27:13.328 +01:00 [INF] Creating c# class inheritance tree from classes known to the assembly...
+2022-12-13 21:27:13.422 +01:00 [INF] Dynamically created c# class tree
+2022-12-13 21:27:13.445 +01:00 [INF] ##########################################
+2022-12-13 21:27:13.445 +01:00 [INF] Created parsing structure for owl classes.
+2022-12-13 21:27:13.460 +01:00 [INF] 94 classes could be mapped correctly
+2022-12-13 21:27:13.460 +01:00 [INF] 40 were not mapped correctly
+2022-12-13 21:27:13.460 +01:00 [INF] ##########################################
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map MandatoryToEndChoiceSegmentPath correctly, mapped with ChoiceSegmentPath instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map MandatoryToStartChoiceSegmentPath correctly, mapped with ChoiceSegmentPath instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map OptionalToEndChoiceSegmentPath correctly, mapped with ChoiceSegmentPath instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map OptionalToStartChoiceSegmentPath correctly, mapped with ChoiceSegmentPath instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map EndState correctly, mapped with State instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map InitialStateOfBehavior correctly, mapped with State instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map AbstractDoState correctly, mapped with DoState;DoState instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map AbstractReceiveState correctly, mapped with ReceiveState;ReceiveState instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map AbstractSendState correctly, mapped with SendState;SendState instead
+2022-12-13 21:27:13.463 +01:00 [WRN] Could not map AbstractState correctly, mapped with State instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map GeneralAbstractState correctly, mapped with State instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map FinalizedState correctly, mapped with State instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map FinalizedReceiveTransition correctly, mapped with ReceiveTransition;ReceiveTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map PrecedenceReceiveTransition correctly, mapped with ReceiveTransition;ReceiveTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map TriggerReceiveTransition correctly, mapped with ReceiveTransition;ReceiveTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map FinalizedSendTransition correctly, mapped with SendTransition;SendTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map PrecedenceSendTransition correctly, mapped with SendTransition;SendTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map TriggerSendTransition correctly, mapped with SendTransition;SendTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map FinalizedDoTransition correctly, mapped with DoTransition;DoTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map PrecedenceDoTransition correctly, mapped with DoTransition;DoTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map TriggerDoTransition correctly, mapped with DoTransition;DoTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map ReminderTransition correctly, mapped with TimeTransition;TimeTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map CalendarBasedReminderTransition correctly, mapped with TimeTransition;TimeTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map TimeBasedReminderTransition correctly, mapped with TimeTransition;TimeTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map TimerTransition correctly, mapped with TimeTransition;TimeTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map BusinessDayTimerTransition correctly, mapped with TimeTransition;TimeTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map DayTimeTimerTransition correctly, mapped with TimeTransition;TimeTransition instead
+2022-12-13 21:27:13.464 +01:00 [WRN] Could not map YearMonthTimerTransition correctly, mapped with TimeTransition;TimeTransition instead
+2022-12-13 21:27:13.465 +01:00 [WRN] Could not map AbstractPASSTransition correctly, mapped with Transition instead
+2022-12-13 21:27:13.465 +01:00 [WRN] Could not map AdviceTransitionType correctly, mapped with Transition instead
+2022-12-13 21:27:13.465 +01:00 [WRN] Could not map AdviceDoTransistion correctly, mapped with Transition instead
+2022-12-13 21:27:13.465 +01:00 [WRN] Could not map AdviceReceiveTransition correctly, mapped with Transition instead
+2022-12-13 21:27:13.465 +01:00 [WRN] Could not map AdviceSendTransition correctly, mapped with Transition instead
+2022-12-13 21:27:13.466 +01:00 [WRN] Could not map FinalizedTransitionType correctly, mapped with Transition instead
+2022-12-13 21:27:13.470 +01:00 [WRN] Could not map FlowRestrictor correctly, mapped with Transition instead
+2022-12-13 21:27:13.470 +01:00 [WRN] Could not map PrecedenceTransitionType correctly, mapped with Transition instead
+2022-12-13 21:27:13.470 +01:00 [WRN] Could not map TriggerTransitionType correctly, mapped with Transition instead
+2022-12-13 21:27:13.471 +01:00 [WRN] Could not map ReminderEventTransitionCondition correctly, mapped with TimeTransitionCondition instead
+2022-12-13 21:27:13.471 +01:00 [WRN] Could not map CalendarBasedReminderTransitionCondition correctly, mapped with TimeTransitionCondition instead
+2022-12-13 21:27:13.471 +01:00 [WRN] Could not map TimeBasedReminderTransitionCondition correctly, mapped with TimeTransitionCondition instead
+2022-12-13 21:27:13.471 +01:00 [WRN] Could not map TimerTransitionCondition correctly, mapped with TimeTransitionCondition instead
+2022-12-13 21:27:13.471 +01:00 [WRN] Could not map BusinessDayTimerTransitionCondition correctly, mapped with TimeTransitionCondition instead
+2022-12-13 21:27:13.471 +01:00 [WRN] Could not map DayTimeTimerTransitionCondition correctly, mapped with TimeTransitionCondition instead
+2022-12-13 21:27:13.471 +01:00 [WRN] Could not map YearMonthTimerTransitionCondition correctly, mapped with TimeTransitionCondition instead
+2022-12-13 21:27:13.472 +01:00 [WRN] Could not map StandAloneMacroSubject correctly, mapped with FullySpecifiedSubject;FullySpecifiedSubject instead
+2022-12-13 21:27:13.472 +01:00 [WRN] Could not map AbstractMultiSubject correctly, mapped with MultiSubject instead
+2022-12-13 21:27:13.472 +01:00 [WRN] Could not map AbstractSingleSubject correctly, mapped with SingleSubject instead
+2022-12-13 21:27:13.472 +01:00 [WRN] Could not map StartSubject correctly, mapped with Subject instead
+2022-12-13 21:27:13.472 +01:00 [WRN] Could not map AbstractSubject correctly, mapped with Subject instead
+2022-12-13 21:27:13.473 +01:00 [WRN] Could not map AbstractLayer correctly, mapped with ModelLayer;ModelLayer instead
+2022-12-13 21:27:13.473 +01:00 [WRN] Could not map BaseLayer correctly, mapped with ModelLayer;ModelLayer instead
+2022-12-13 21:27:13.473 +01:00 [WRN] Could not map ExtensionLayer correctly, mapped with ModelLayer;ModelLayer instead
+2022-12-13 21:27:13.473 +01:00 [WRN] Could not map GuardLayer correctly, mapped with ModelLayer;ModelLayer instead
+2022-12-13 21:27:13.473 +01:00 [WRN] Could not map MacroLayer correctly, mapped with ModelLayer;ModelLayer instead
+2022-12-13 21:27:13.473 +01:00 [WRN] Could not map Simple2DVisualistionPathPoint correctly, mapped with Simple2DVisualizationPoint;Simple2DVisualizationPoint instead
+2022-12-13 21:27:13.473 +01:00 [INF] Finished class mapping
+2022-12-13 21:27:19.089 +01:00 [INF] Done reading the new File: F:\Documents\KIT\IMI\YetAnotherTest.owl
