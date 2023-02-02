@@ -1,1 +1,1 @@
-See [docs/publish-install.md](docs/publish-install.md) for installing instructions.
+See [docs/publish-install.md](docs/AddIn installation-guide.pdf) for installing instructions.
