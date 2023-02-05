@@ -1,6 +1,7 @@
 ﻿using alps.net.api.ALPS;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using VisioAddIn.OwlShapes;
 using Visio = Microsoft.Office.Interop.Visio;
 
@@ -274,6 +275,7 @@ namespace VisioAddIn
         /// <param name="subjectShape">the subject the page belongs to</param>
         public static Visio.Page CreateSBDPage(Visio.Page sidPage, string name, string nameU, Visio.Shape subjectShape)
         {
+            Debug.Print ("creating new SBD page");
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
             page.Name = name;
             page.NameU = nameU;

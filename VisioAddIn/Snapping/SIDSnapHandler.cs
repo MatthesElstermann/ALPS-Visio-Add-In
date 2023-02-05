@@ -1,8 +1,10 @@
 ﻿using Microsoft.Office.Interop.Visio;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 using VisioAddIn;
 
 namespace VisioAddIn.Snapping
@@ -27,6 +29,7 @@ namespace VisioAddIn.Snapping
 
         public SidSnapHandler(ModelController modelController, SIDPage foregroundPage) : base()
         {
+            Debug.Print("Creating SidSnapHandler for: " + foregroundPage.getNameU());
             this.foregroundPage = foregroundPage;
             this.modelController = modelController;
 
@@ -50,6 +53,8 @@ namespace VisioAddIn.Snapping
         protected override bool isShapeSnappable(IVShape shape)
         {
             //check for category of snappingShape - should it snap to other shapes?
+            //Debug.Print("testing shape: " + shape.NameU + " - is snappable: " + shape.HasCategory(ALPSConstants.alpsShapeCategoryActorExtension) + 
+            //             " in page: " + this.foregroundPage.getNameU() + " with background: " + this.referencedBackgroundPage.getNameU());
             return shape.HasCategory(ALPSConstants.alpsShapeCategoryActorExtension);
         }
 
@@ -64,12 +69,13 @@ namespace VisioAddIn.Snapping
         /// </summary>
         /// <param name="snappingShape">snappingShape to snap</param>
         /// <param name="backgroundReferenceShapeName">background snappingShape</param>
-        public override void snap(Shape snappingShape, string backgroundReferenceShapeName)
+        public override void snap(Microsoft.Office.Interop.Visio.Shape snappingShape, string backgroundReferenceShapeName)
         {
             if (!isShapeSnappable(snappingShape)) return;
 
             backgroundReferenceShapeName = backgroundReferenceShapeName.Trim('\\', '"');
 
+            //Debug.Print("backgroundReferenceShapeName: " + backgroundReferenceShapeName);
             if (snappedShapes.ContainsKey(snappingShape) && snappedShapes[snappingShape].Name.Equals(backgroundReferenceShapeName)) return;
 
             if (string.IsNullOrWhiteSpace(backgroundReferenceShapeName))
@@ -106,6 +112,7 @@ namespace VisioAddIn.Snapping
             SBDPage shapePage = null;
             SBDPage snapToShapePage = null;
 
+            /*
             if (shape.CellExistsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD, 0] != 0)
             {
                 shapePage = foregroundPage.getSbdPage(shape.CellsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD].Formula);
@@ -114,21 +121,35 @@ namespace VisioAddIn.Snapping
             if (referenceBackgroundShape.CellExistsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD, 0] != 0)
             {
                 snapToShapePage = referencedBackgroundPage.getSbdPage(referenceBackgroundShape.CellsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD].Formula);
+            }*/
+
+            if (shape.CellExistsU["Hyperlink." + ALPSConstants.alpsHyperlinkTypeLinkedSBD, 0] != 0)
+            {
+                shapePage = foregroundPage.getSbdPage(shape.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinkTypeLinkedSBD].SubAddress);
+            }
+            if (referenceBackgroundShape.CellExistsU["Hyperlink." + ALPSConstants.alpsHyperlinkTypeLinkedSBD, 0] != 0)
+            {
+                snapToShapePage = referencedBackgroundPage.getSbdPage(referenceBackgroundShape.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinkTypeLinkedSBD].SubAddress);
             }
 
 
 
-            if (shapePage != null && snapToShapePage != null)
+            if (shapePage != null )
             {
-                modelController.getSbdPageController(shapePage).setExtends(null);
-                modelController.getSbdPageController(snapToShapePage).setNotExtended();
-
+                Debug.Print("setting to null");
+                modelController.getSbdPageController(shapePage).setExtends(null);               
                 snappedShapes.Remove(shape);
+            }
+            if(snapToShapePage != null)
+            {
+                modelController.getSbdPageController(snapToShapePage).setNotExtended();
             }
 
             // Clear snappingShape contents that are related to snapping
-            if (shape.CellExistsU[ALPSConstants.cellSubAdressHyperlinkExtendedSubject, 0] != 0)
-                shape.CellsU[ALPSConstants.cellSubAdressHyperlinkExtendedSubject].Formula = "";
+            //if (shape.CellExistsU[ALPSConstants.cellSubAdressHyperlinkExtendedSubject, 0] != 0)
+            //shape.CellsU[ALPSConstants.cellSubAdressHyperlinkExtendedSubject].Formula = "";
+            if (shape.CellExistsU["Hyperlink." + ALPSConstants.alpsHyperlinksExtendedSubject, 0] != 0)
+                shape.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinksExtendedSubject].SubAddress = "";
 
             if (shape.CellExistsU[ALPSConstants.cellValuePropertyExtends, 0] != 0)
                 shape.CellsU[ALPSConstants.cellValuePropertyExtends].Formula = "";
@@ -169,34 +190,51 @@ namespace VisioAddIn.Snapping
         public override void performSnap(Shape snappingShape, Shape backgroundReferenceShape)
         {
             base.performSnap(snappingShape, backgroundReferenceShape);
+            //Debug.Print("perform snap for: " + snappingShape.NameU + " and: " + backgroundReferenceShape.NameU);
 
-            if (snappingShape.CellExistsU[ALPSConstants.cellSubAdressHyperlinkExtendedSubject, 0] != 0)
+
+            //if (snappingShape.CellExistsU[ALPSConstants.cellSubAdressHyperlinkExtendedSubject, 0] != 0)
+            if (snappingShape.CellExistsU["Hyperlink." + ALPSConstants.alpsHyperlinksExtendedSubject, 0] != 0)
             {
-                Cell snappingShapeExtendedSubjectCell = snappingShape.CellsU[ALPSConstants.cellSubAdressHyperlinkExtendedSubject];
-                snappingShapeExtendedSubjectCell.Formula = "\"" + referencedBackgroundPage.getLayerForUser() + "/" + backgroundReferenceShape.NameU + "\"";
+                //Debug.Print("Writing cellSubAdressHyperlinkExtendedSubject");
+                //Cell snappingShapeExtendedSubjectCell = snappingShape.CellsU[ALPSConstants.cellSubAdressHyperlinkExtendedSubject];
+                //snappingShapeExtendedSubjectCell.Formula = "\"" + referencedBackgroundPage.getLayerForUser() + "/" + backgroundReferenceShape.NameU + "\"";
+                snappingShape.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinksExtendedSubject].SubAddress =  referencedBackgroundPage.getLayerForUser() + "/" + backgroundReferenceShape.NameU;
             }
+
+            
+
             if (snappingShape.CellExistsU[ALPSConstants.cellValuePropertyExtends, 0] != 0)
             {
+                //Debug.Print(" Writing Extends");
                 Cell snappingShapeExtendsCell = snappingShape.CellsU[ALPSConstants.cellValuePropertyExtends];
                 snappingShapeExtendsCell.Formula = "\"" + referencedBackgroundPage.getModelUriForUser() + "#" + backgroundReferenceShape.NameU + "\"";
             }
+            /*
             if (snappingShape.CellExistsU[ALPSConstants.cellValuePropertyLabel, 0] != 0)
             {
-                //Cell cell = snappingShape.CellsU[GlobalVariables.LableProp];
-                //cell.Formula = "\"" + GlobalVariables.LableExtension + snapToShape.nameU + "\"";
-            }
+                Cell cell = snappingShape.CellsU[GlobalVariables.LableProp];
+                cell.Formula = "\"" + GlobalVariables.LableExtension + snapToShape.nameU + "\"";
+            }*/
 
             SBDPage shapePage = null;
             SBDPage snapToShapePage = null;
 
-            if (snappingShape.CellExistsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD, 0] != 0)
+            //Debug.Print("shape: " + snappingShape.NameU + " Link cell: " + (snappingShape.CellExistsU["Hyperlink.linkedSBD", 0] != 0) + " SubLink cell: " + (snappingShape.CellExistsU["Hyperlink.linkedSBD.SubAddress", 0] != 0));
+           // Debug.Print(" - ALPSConstants.cellSubAdressHyperlinkLinkedSBD: " + ALPSConstants.cellSubAdressHyperlinkLinkedSBD);
+            if (snappingShape.CellExistsU["Hyperlink."+ALPSConstants.alpsHyperlinkTypeLinkedSBD, 0] != 0)
             {
-                shapePage = foregroundPage.getSbdPage(snappingShape.CellsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD].Formula);
+                //Debug.Print(" Hyperlink sub: " +snappingShape.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinkTypeLinkedSBD].SubAddress);
+                shapePage = foregroundPage.getSbdPage(snappingShape.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinkTypeLinkedSBD].SubAddress);
+                //shapePage = foregroundPage.getSbdPage(snappingShape.CellsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD].Formula);
+
             }
-            if (backgroundReferenceShape.CellExistsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD, 0] != 0)
+            if (backgroundReferenceShape.CellExistsU["Hyperlink." + ALPSConstants.alpsHyperlinkTypeLinkedSBD, 0] != 0)
             {
-                snapToShapePage = referencedBackgroundPage.getSbdPage(backgroundReferenceShape.CellsU[ALPSConstants.cellSubAdressHyperlinkLinkedSBD].Formula);
+                snapToShapePage = referencedBackgroundPage.getSbdPage(backgroundReferenceShape.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinkTypeLinkedSBD].SubAddress);
             }
+            //Debug.Print("foregroundPage: " + foregroundPage.getNameU() + " referencedBackgroundPage: " + referencedBackgroundPage.getNameU());
+           //Debug.Print("shapePage: " + shapePage.getNameU() + " - snapToShapePage: " + snapToShapePage.getNameU());
 
 
             if (shapePage == null || snapToShapePage == null) return;
@@ -210,9 +248,10 @@ namespace VisioAddIn.Snapping
             shapeType = shapeType.Replace("\"", "");
 
             // Do not set Extends for SBD if it is a makro extension
-            if (!shapeType.Equals(ALPSConstants.MacroExtension))
+            if (!snappingShape.HasCategory(ALPSConstants.MacroExtension))
             {
                 snapToShapePageC.setExtended(shapePage);
+                //Debug.Print("extension set");
                 shapePageC.setExtends(snapToShapePage);
             }
 

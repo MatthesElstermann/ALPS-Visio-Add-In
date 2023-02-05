@@ -31,6 +31,7 @@ namespace VisioAddIn.OwlShapes
             export.export(VisioHelper.ShapeType.SID, pageToExportTo, type,
                                 new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
 
+            
             // TODO
             //IPageExportHelper exportHelper = ExportHelperFactory.getExportHelperForPage(pageToExportTo);
             //shape = exportHelper.place(ALPSConstants.alpsSIDMasterStandardActor,
@@ -55,6 +56,14 @@ namespace VisioAddIn.OwlShapes
                     break;
                 }
 
+            }
+
+            //if there was no SBD page created (because no active listeners where there
+            //then create you own
+            if (currentSBDPage == null)
+            {
+                //(Visio.Page sidPage, string name, string nameU, Visio.Shape subjectShape)
+                currentSBDPage = VisioHelper.CreateSBDPage(pageToExportTo, ("SBD: " + getModelComponentID()), (""+getModelComponentID()), this.getShape());
             }
 
             // TODO 

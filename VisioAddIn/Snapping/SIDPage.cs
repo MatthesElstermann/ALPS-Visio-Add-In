@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace VisioAddIn.Snapping
@@ -9,6 +10,7 @@ namespace VisioAddIn.Snapping
     /// </summary>
     public class SIDPage : DiagramPage, IComparable<SIDPage>
     {
+        
         private int priorityOrder;
         private string modelUri;
 
@@ -25,6 +27,7 @@ namespace VisioAddIn.Snapping
         /// <param name="priorityOrder"></param>
         public SIDPage(string layer, string nameU, string modelUri, int priorityOrder) : base(layer, nameU)
         {
+            Debug.Print("Creating SIDPage for: " + nameU) ;
             this.priorityOrder = priorityOrder;
             this.modelUri = modelUri;
 

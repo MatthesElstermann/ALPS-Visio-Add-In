@@ -1,6 +1,7 @@
 ﻿using Microsoft.Office.Interop.Visio;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using VisioAddIn;
 
@@ -33,6 +34,7 @@ namespace VisioAddIn.Snapping
 
         private SIDPageController(ThisAddIn addIn, ModelController modelController, string modelUri, Page page) : base(page)
         {
+            Debug.Print("Creating SIDPageController for " + page.NameU);
             this.addIn = addIn;
             modelURri = modelUri;
 
@@ -131,6 +133,7 @@ namespace VisioAddIn.Snapping
                     if (!newXCoordinate.Equals(xCoordinate))
                     {
                         xCoordinate = newXCoordinate;
+                            
                         if (extends != null)
                         {
                             snapHandler.checkForSnapping(cell.Shape);
@@ -414,7 +417,7 @@ namespace VisioAddIn.Snapping
         /// </summary>
         public void setNotExtended()
         {
-            visioPage.Background = 0;
+            //visioPage.Background = 0;
             controlledSidPage.setForeground(null);
         }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Office.Interop.Visio;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using VisioAddIn;
@@ -23,6 +24,7 @@ namespace VisioAddIn.Snapping
 
         public ModelController(ThisAddIn addIn)
         {
+            Debug.Print("creating ModelController");
             this.addIn = addIn;
             this.models = new HashSet<IVisioProcessModel>();
             this.modelToSidController = new Dictionary<IVisioProcessModel, ISet<SIDPageController>>();
@@ -82,6 +84,7 @@ namespace VisioAddIn.Snapping
                 return false;
             }
             string pageType = page.PageSheet.CellsU[ALPSConstants.cellValuePropertyPageType].Formula;
+            
             return pageType.Contains("SubjectInteraction");
         }
 

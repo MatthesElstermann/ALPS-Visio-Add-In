@@ -1,4 +1,7 @@
 ﻿using Microsoft.Office.Tools.Ribbon;
+using System.Diagnostics;
+using System.Text;
+
 
 namespace VisioAddIn
 {
@@ -8,7 +11,7 @@ namespace VisioAddIn
 
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
-            this.openShapes.Image = VisioAddIn.Properties.Resources.openDocument7;
+            this.openShapes.Image = VisioAddIn.Properties.Resources.document_open_7;
             this.showDirectory.Image = VisioAddIn.Properties.Resources.pageSetup;
         }
 
@@ -50,5 +53,12 @@ namespace VisioAddIn
 
         }
 
+        private void button1_Click_2(object sender, RibbonControlEventArgs e)
+        {
+            System.Windows.MessageBox.Show("Hello World 3");
+            Debug.Print("Debug Printout");
+            Debug.WriteLine("write a line");
+
+        }
     }
 }

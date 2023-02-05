@@ -32,10 +32,10 @@
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <TargetFrameworkProfile />
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>F:\Documents\KIT\IMI\Zertifikat\example\</PublishUrl>
+    <PublishUrl>C:\Data\Try\</PublishUrl>
     <InstallUrl />
     <TargetCulture>de</TargetCulture>
-    <ApplicationVersion>1.0.0.241</ApplicationVersion>
+    <ApplicationVersion>1.0.0.243</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>false</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
@@ -50,22 +50,22 @@
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 und x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 und x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 und x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.8 %28x86 and x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.8 %28x86 und x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -75,7 +75,7 @@
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.VSTORuntime.4.0">
       <Visible>False</Visible>
-      <ProductName>Microsoft Visual Studio 2010 Tools for Office Runtime %28x86 and x64%29</ProductName>
+      <ProductName>Microsoft Visual Studio 2010-Tools für Office-Laufzeit %28x86 und x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
@@ -241,6 +241,17 @@
     <Compile Include="OwlShapes\InteractionDescribing\VisioMessageExchangeList.cs" />
     <Compile Include="OwlShapes\InteractionDescribing\VisioMessageSpecification.cs" />
     <Compile Include="OwlShapes\VisioSubjectBehavior.cs" />
+    <Compile Include="OWL\VerificationChecker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OWL\VerificationChecker.Designer.cs">
+      <DependentUpon>VerificationChecker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="UI\AnchorBarsUsage.cs" />
     <Compile Include="UI\DirectoryTreeViewItem.cs" />
     <Compile Include="UI\IDialogCallback.cs" />
@@ -263,27 +274,27 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="SiSi\GUI\SiSi_CockpitController.cs" />
-    <Compile Include="SiSi\GUI\SiSi_CockpitWindow.cs">
+    <Compile Include="OLD_SiSi\GUI\SiSi_CockpitController.cs" />
+    <Compile Include="OLD_SiSi\GUI\SiSi_CockpitWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SiSi\GUI\SiSi_CockpitWindow.Designer.cs">
+    <Compile Include="OLD_SiSi\GUI\SiSi_CockpitWindow.Designer.cs">
       <DependentUpon>SiSi_CockpitWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="SiSi\GUI\SiSi_ReportMessageDisplayController.cs" />
-    <Compile Include="SiSi\GUI\SiSi_ReportMessageDisplayWindow.cs">
+    <Compile Include="OLD_SiSi\GUI\SiSi_ReportMessageDisplayController.cs" />
+    <Compile Include="OLD_SiSi\GUI\SiSi_ReportMessageDisplayWindow.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SiSi\GUI\SiSi_ReportMessageDisplayWindow.Designer.cs">
+    <Compile Include="OLD_SiSi\GUI\SiSi_ReportMessageDisplayWindow.Designer.cs">
       <DependentUpon>SiSi_ReportMessageDisplayWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="SiSi\SiSi_Distribution.cs" />
-    <Compile Include="SiSi\SiSi_PathTree.cs" />
-    <Compile Include="SiSi\SiSi_ReportMessage.cs" />
-    <Compile Include="SiSi\SiSi_ResponseObject.cs" />
-    <Compile Include="SiSi\SiSi_ResponsePath.cs" />
-    <Compile Include="SiSi\SiSi_Subject.cs" />
-    <Compile Include="SiSi\SiSi_SimpleSim.cs" />
+    <Compile Include="OLD_SiSi\SiSi_Distribution.cs" />
+    <Compile Include="OLD_SiSi\SiSi_PathTree.cs" />
+    <Compile Include="OLD_SiSi\SiSi_ReportMessage.cs" />
+    <Compile Include="OLD_SiSi\SiSi_ResponseObject.cs" />
+    <Compile Include="OLD_SiSi\SiSi_ResponsePath.cs" />
+    <Compile Include="OLD_SiSi\SiSi_Subject.cs" />
+    <Compile Include="OLD_SiSi\SiSi_SimpleSim.cs" />
     <Compile Include="UI\WindowChangeLayerName.xaml.cs">
       <DependentUpon>WindowChangeLayerName.xaml</DependentUpon>
     </Compile>
@@ -309,11 +320,6 @@
     <Compile Include="Snapping\DiagramPage.cs" />
     <Compile Include="Snapping\DiagramPageController.cs" />
     <Compile Include="ShapeFinder.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Snapping\SBDPageController.cs" />
     <Compile Include="Snapping\SBDSnapHandler.cs" />
     <Compile Include="Snapping\SIDPageController.cs" />
@@ -333,6 +339,9 @@
     <EmbeddedResource Include="OWL\OWLImportDialog.resx">
       <DependentUpon>OWLImportDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="OWL\VerificationChecker.resx">
+      <DependentUpon>VerificationChecker.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
@@ -341,25 +350,26 @@
     <EmbeddedResource Include="Resources\strings.de.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>strings.de.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\strings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\ALPSRibbon.resx">
       <DependentUpon>ALPSRibbon.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SiSi\GUI\SiSi_CockpitWindow.resx">
+    <EmbeddedResource Include="OLD_SiSi\GUI\SiSi_CockpitWindow.resx">
       <DependentUpon>SiSi_CockpitWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SiSi\GUI\SiSi_ReportMessageDisplayWindow.resx">
+    <EmbeddedResource Include="OLD_SiSi\GUI\SiSi_ReportMessageDisplayWindow.resx">
       <DependentUpon>SiSi_ReportMessageDisplayWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\TemporaryModelExplorer.resx">
       <DependentUpon>TemporaryModelExplorer.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="certificate.pfx" />
-    <None Include="myCertificate.pfx" />
+    <None Include="ALPS_Certificate.pfx" />
     <None Include="Resources\Certificates\ALPS_Certificate.pfx" />
     <None Include="Resources\Certificates\ALPS_Visio_Add_In_1_TemporaryKey.pfx" />
     <None Include="Resources\Certificates\ALPS_Visio_Add_In_TemporaryKey.pfx" />
@@ -386,8 +396,6 @@
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="Resources\Abstract PASS SBD Visio Shapes v0.7.7.vssm" />
-    <None Include="Resources\Abstract PASS SID Visio Shapes v0.7.7.vssm" />
     <EmbeddedResource Include="Resources\standard-pass-ont.owl" />
     <EmbeddedResource Include="Resources\abstract-layered-pass-ont.owl" />
     <None Include="Resources\Certificates\SBPM-AddIn_TemporaryKey.pfx" />
@@ -400,15 +408,13 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\document-open-7.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\document-page-setup.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\owlIcon2.png" />
     <None Include="Resources\owlIcon2.bmp" />
     <None Include="Resources\go_arrow.png" />
+    <None Include="Resources\document-open-7.png" />
     <Content Include="Resources\OWL.png" />
   </ItemGroup>
   <ItemGroup>
@@ -439,7 +445,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="alps.net.api">
-      <Version>0.8.2.5</Version>
+      <Version>0.9.0</Version>
     </PackageReference>
     <PackageReference Include="dotNetRDF">
       <Version>2.7.5</Version>
@@ -454,10 +460,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>certificate.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ALPS_Certificate.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>5876DDFC42BFE0B9B5B96F30B366EDDEBE43082B</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>B66C84622148E1333A8D13E219E2F7C816DC3910</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestTimestampUrl>http://timestamp.digicert.com</ManifestTimestampUrl>

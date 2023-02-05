@@ -1,4 +1,6 @@
 ﻿using Microsoft.Office.Interop.Visio;
+using System;
+using System.Diagnostics;
 using VisioAddIn;
 
 namespace VisioAddIn.Snapping
@@ -13,6 +15,7 @@ namespace VisioAddIn.Snapping
 
         public SBDPageController(ModelController modelController, SIDPageController sidController, Page page) : base(page)
         {
+            Debug.Print("Creating SBDPageController for: " + page.NameU);
             this.modelController = modelController;
             this.sidController = sidController;
 
@@ -52,6 +55,7 @@ namespace VisioAddIn.Snapping
         /// <param name="cell">changed cell</param>
         private void onCellChanged(Cell cell)
         {
+            //Debug.Print("event ons SBD Page: " + this.sbdPage.getNameU());
             SBDPage extends = sbdPage.getExtends();
             if (cell.Name == ALPSConstants.cellValuePropertyExtends)
             {
@@ -62,8 +66,10 @@ namespace VisioAddIn.Snapping
             }
             else if (cell.Name == ALPSConstants.shapeCellShapeTransformPinX || cell.Name == ALPSConstants.shapeCellShapeTransformPinY)
             {
+                //Debug.Print("XY transform change even! Extends null: " + (extends == null));
                 if (extends != null)
                 {
+                    //Debug.Print("SBD Event check for snapping:");
                     snapHandler.checkForSnapping(cell.Shape);
                 }
                 //not else, bc a page could be in the middle (is extending and is extended)
@@ -95,7 +101,16 @@ namespace VisioAddIn.Snapping
 
         public string getNameU()
         {
-            return visioPage.NameU;
+            //Debug.Print(" visioPage is null: " + (visioPage == null));
+            //Debug.Print(" visioPage IDl: " + visioPage.ID);
+            if ((visioPage == null)||(visioPage.ID<0))
+            {
+                return "";
+            }
+            else
+            {
+                return visioPage.NameU;
+            }
         }
 
         /// <summary>
@@ -103,7 +118,7 @@ namespace VisioAddIn.Snapping
         /// </summary>
         public void setNotExtended()
         {
-            visioPage.Background = 0;
+            //visioPage.Background = 0;
             sbdPage.setForeground(null);
         }
 
@@ -121,8 +136,16 @@ namespace VisioAddIn.Snapping
         /// <param name="newProperty">new extends-property (background); can be null</param>
         public void setExtends(SBDPage newProperty)
         {
-
+            
             SBDPage extends = sbdPage.getExtends();
+
+            //Debug.Print("newProperty == null: " + (newProperty == null));
+           // Debug.Print("extends == null: " + (extends == null));
+
+            //Boolean demo = ( newProperty != null && extends != null && !extends.getLayer().Equals(newProperty.getLayer())
+               // || extends == null && newProperty != null);
+
+               // Debug.Print(" demo: " + demo);
 
             setBackgroundForThis("");
             //assure that there really IS a change in extends.
@@ -150,6 +173,7 @@ namespace VisioAddIn.Snapping
             {
                 setBackgroundForThis("");
                 deleteBackRectangle();
+                sbdPage.setExtends(null);
             }
             //SBDPage.SetExtends(newProperty);
             //SnapHandler.SetBackgroundPage(newProperty);

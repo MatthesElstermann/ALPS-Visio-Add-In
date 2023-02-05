@@ -1,6 +1,7 @@
 ﻿using Microsoft.Office.Interop.Visio;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace VisioAddIn.Snapping
@@ -59,7 +60,8 @@ namespace VisioAddIn.Snapping
                 bool snapValid = isLocatedClosely(snappingShape, possibleReferenceBackgroundShape);
 
                 // TODO why is a short x distance a criteria to skip this snappingShape? 
-                if (!snapValid || isLocatedCloselyInXDirection(snappingShape, possibleReferenceBackgroundShape, 0.1)) continue;
+                // ME: problem occurs when unsnapping...
+                if (!snapValid || isLocatedCloselyInXDirection(snappingShape, possibleReferenceBackgroundShape, 0.01)) continue;
 
                 // Bug: Method gets called 5 times, window can only be opened once
                 WindowSnapConfirmation snapConf = new WindowSnapConfirmation(this, snappingShape, possibleReferenceBackgroundShape);
@@ -127,6 +129,8 @@ namespace VisioAddIn.Snapping
             double snapToShapeX = snapToShape.CellsU["PinX"].Result[VisUnitCodes.visMillimeters];
             double snapToShapeY = snapToShape.CellsU["PinY"].Result[VisUnitCodes.visMillimeters];
 
+            //Debug.Print("Snapping distance between: " + shape.NameU + " and: " + snapToShape.NameU + " - calc xdif: " + Math.Abs(shapeX - snapToShapeX) + " YDiff: " + Math.Abs(shapeY - snapToShapeY));
+            //Debug.Print("-snaprange: " + SNAP_RANGE +  " do snap: " + (Math.Abs(shapeX - snapToShapeX) <= SNAP_RANGE && Math.Abs(shapeY - snapToShapeY) <= SNAP_RANGE));
             return Math.Abs(shapeX - snapToShapeX) <= SNAP_RANGE && Math.Abs(shapeY - snapToShapeY) <= SNAP_RANGE;
         }
 

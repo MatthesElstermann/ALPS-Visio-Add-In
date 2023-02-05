@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+using VDS.RDF.Query.Expressions.Functions.XPath.String;
 
 namespace VisioAddIn
 {
@@ -48,9 +50,11 @@ namespace VisioAddIn
             String path = Globals.ThisAddIn.Application.MyShapesPath;
             DirectoryInfo myShapes = new DirectoryInfo(path);
             String regex = prefix + versionPattern + ending;
+            // Debug.Print("regex: " + regex);
             List<FileInfo> possibleFiles = getMatchingFiles(myShapes, regex);
             if (possibleFiles == null || possibleFiles.Count == 0)
             {
+                //Debug.Print("in between: " + prefix + " v.x.x.x.x" + ending);
                 return prefix + " v.x.x.x.x" + ending;
             }
             FileInfo newestFile = possibleFiles.First();
@@ -62,6 +66,12 @@ namespace VisioAddIn
                     newestFile = fileInfo;
                 }
             }
+            //Debug.Print("newestFile.Name;: " + newestFile.Name + " - startswith: " + newestFile.Name.StartsWith("~$$"));
+            //if (newestFile.Name.StartsWith("~$$"))
+            //{
+            //    Debug.Print("delete!!!!");
+            //    newestFile.Delete();
+            //}
             return newestFile.Name;
         }
 
@@ -168,6 +178,7 @@ namespace VisioAddIn
                 List<FileInfo> fileObjects = new List<FileInfo>();
                 foreach (System.IO.FileInfo fi in files)
                 {
+                    //Debug.Print ("testing fi.name: " +fi.Name);  
                     if (rgx.IsMatch(fi.Name))
                     {
                         fileObjects.Add(fi);

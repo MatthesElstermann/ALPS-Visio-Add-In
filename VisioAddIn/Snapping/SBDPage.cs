@@ -1,4 +1,5 @@
-﻿using VisioAddIn.OwlShapes;
+﻿using System.Diagnostics;
+using VisioAddIn.OwlShapes;
 
 namespace VisioAddIn.Snapping
 {
@@ -14,6 +15,7 @@ namespace VisioAddIn.Snapping
         private readonly string modelUri;
         public SBDPage(string layer, string nameU, string modelUri) : base(layer, nameU)
         {
+            Debug.Print("Creating SBDPage for: " + nameU);
             this.extends = null;
             this.foreground = null;
             this.modelUri = modelUri;

@@ -80,7 +80,7 @@
         public const string InputNotFound = "Eingabe \"{0}\" wurde nicht gefunden. Ort der fehlerhaften Eingabe: \"{1}\"";
 
 
-        public const string MacroExtension = "MacrotExtension";
+        public const string MacroExtension = "MacroExtension";
 
 
         //ActNConnect Mods
@@ -292,7 +292,7 @@
         public const string alpsShapeCategoryGuardReceiveState = "GuardReceiveState";
         public const string alpsShapeCategoryGeneralAbstractState = "GeneralAbstractState";
         public const string alpsShapeCategoryStatePlaceHolder = "statePlaceHolder";
-        public const string alpsShapeCategoryStateExtension = "stateExtension";
+        public const string alpsShapeCategoryStateExtension = "StateExtension";
         public const string alpsShapeCategoryStandardTransition = "standardTransition";
         public const string alpsShapeCategoryTriggerTransition = "triggerTransition";
         public const string alpsShapeCategorySucessionTransition = "successionTransition";

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Office.Interop.Visio;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
@@ -15,14 +16,16 @@ namespace VisioAddIn.Snapping
     /// </summary>
     public class SbdSnapHandler : SnapHandler
     {
-
+        private SBDPage foregroundPage;
         private SBDPage referencedBackgroundPage;
 
         private readonly ModelController modelController;
 
         public SbdSnapHandler(SBDPage foregroundPage, ModelController modelController) : base()
         {
+            Debug.Print("Creating SbdSnapHandler for: " + foregroundPage.getNameU());
             this.modelController = modelController;
+            this.foregroundPage = foregroundPage;
 
             referencedBackgroundPage = null;
         }
@@ -35,6 +38,8 @@ namespace VisioAddIn.Snapping
         /// <returns>true if snappable, false otherwise</returns>
         protected override bool isShapeSnappable(IVShape shape)
         {
+            //Debug.Print("testing shape: " + shape.NameU + " - is snappable: " + shape.HasCategory(ALPSConstants.alpsShapeCategoryStateExtension) +
+                 //" on: " + this.foregroundPage.getNameU() + " with background: " + this.referencedBackgroundPage.getNameU());
             return shape.HasCategory(ALPSConstants.alpsShapeCategoryStateExtension);
         }
 
