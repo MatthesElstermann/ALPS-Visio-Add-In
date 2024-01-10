@@ -5,6 +5,7 @@ using alps.net.api.StandardPASS;
 using alps.net.api.util;
 using System.Collections.Generic;
 using System.Linq;
+using static alps.net.api.StandardPASS.ITransition;
 using Visio = Microsoft.Office.Interop.Visio;
 
 namespace VisioAddIn.OwlShapes
@@ -30,7 +31,19 @@ namespace VisioAddIn.OwlShapes
         public void exportToVisio(Visio.Page currentPage, ISimple2DVisualizationBounds bounds = null)
         {
             export.export(VisioHelper.ShapeType.SBD, currentPage, type,
-                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
+                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this );
+            //Model componten Type adjustment
+            byte indexNumber = 0;
+            switch (getTransitionType())
+            {
+                case TransitionType.Standard: indexNumber = 0; break;
+                case TransitionType.Trigger: indexNumber = 1; break;
+                case TransitionType.Precedence: indexNumber = 2; break;
+                case TransitionType.Finalized: indexNumber = 3; break;
+                case TransitionType.Advice: indexNumber = 4; break;
+            }
+            getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeModelComponentType].FormulaU = "=INDEX(" + indexNumber + ",Prop.modelComponentType.Format)";
+
         }
 
         public Visio.Shape getShape()

@@ -20,7 +20,7 @@ namespace VisioAddIn.OwlShapes
         {
             // Place a standard actor onto the SID page
             export.export(VisioHelper.ShapeType.SBD, currentPage, type,
-                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
+                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()

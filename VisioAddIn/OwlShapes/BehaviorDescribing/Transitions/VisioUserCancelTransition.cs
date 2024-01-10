@@ -29,7 +29,7 @@ namespace VisioAddIn.OwlShapes
         public void exportToVisio(Visio.Page currentPage, ISimple2DVisualizationBounds bounds = null)
         {
             export.export(VisioHelper.ShapeType.SBD, currentPage, type,
-                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
+                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this );
 
 
         }

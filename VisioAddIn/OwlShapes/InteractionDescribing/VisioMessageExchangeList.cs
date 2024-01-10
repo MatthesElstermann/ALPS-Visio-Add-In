@@ -18,12 +18,19 @@ namespace VisioAddIn.OwlShapes
 
         public void exportToVisio(Visio.Page currentPage, ISimple2DVisualizationBounds bounds = null)
         {
-            if (messageBoxShape != null) return;
+            if (messageBoxShape != null) return; //error because message box already exists
+
             Visio.Document sidShapes = VisioHelper.openStencil(VisioHelper.VisioStencils.SID_STENCIL); ;
             Visio.Master sidMaster = sidShapes.Masters.get_ItemU(ALPSConstants.alpsSIDMasterStandardMessageConnector);
             connector = currentPage.Drop(sidMaster, 4.25, 5.5);
 
+            
+            //if message exchange contains detailed simple2D routing information do special routing
 
+                //if only two connection/routing points make straight
+                // if multiple try to set them
+
+            //else do autorouting
             // Connect connector to the subjects
             if (messageExchanges.Values.Count > 0)
             {

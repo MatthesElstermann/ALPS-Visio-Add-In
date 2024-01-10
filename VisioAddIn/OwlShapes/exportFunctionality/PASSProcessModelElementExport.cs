@@ -1,7 +1,9 @@
 ﻿using alps.net.api;
 using alps.net.api.ALPS;
 using alps.net.api.StandardPASS;
+using Microsoft.Office.Interop.Visio;
 using System.Collections.Generic;
+using System.Diagnostics;
 using static VisioAddIn.VisioHelper;
 using Visio = Microsoft.Office.Interop.Visio;
 
@@ -14,13 +16,14 @@ namespace VisioAddIn.OwlShapes
 
         public PASSProcessModelElementExport(IPASSProcessModelElement element)
         {
+            //Debug.WriteLine("Constructor start: PASSProcessModelElementExport()");
             this.element = element;
+            //Debug.WriteLine("Constructor done: PASSProcessModelElementExport()");
         }
 
-
-        public virtual void export(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null)
+        public virtual void export(ShapeType shapeType, Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalModelElement = null)
         {
-            shape = place(shapeType, page, masterType, points);
+            shape = place(shapeType, page, masterType, points, originalModelElement);
 
             // Set the ModelComponentID
             shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeModelComponentID].Formula = "\"" + element.getModelComponentID() + "\"";
@@ -67,6 +70,8 @@ namespace VisioAddIn.OwlShapes
             // Add the type to the shape
             shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeModelComponentType].Formula = "\"" + element.GetType() + "\"";
         }
+
+       
 
         public Visio.Shape getShape()
         {

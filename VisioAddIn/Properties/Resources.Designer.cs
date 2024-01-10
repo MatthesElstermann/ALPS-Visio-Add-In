@@ -61,6 +61,16 @@ namespace VisioAddIn.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        public static byte[] ALPS_ont_v_0_8_0 {
+            get {
+                object obj = ResourceManager.GetObject("ALPS_ont_v_0_8_0", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
         public static System.Drawing.Bitmap document_open_7 {
@@ -97,6 +107,16 @@ namespace VisioAddIn.Properties {
             get {
                 object obj = ResourceManager.GetObject("pageSetup", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Byte[].
+        /// </summary>
+        public static byte[] standard_PASS_ont_v_1_1_0 {
+            get {
+                object obj = ResourceManager.GetObject("standard_PASS_ont_v_1_1_0", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

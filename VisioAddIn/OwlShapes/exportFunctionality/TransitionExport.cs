@@ -19,7 +19,7 @@ namespace VisioAddIn.OwlShapes
             this.transition = transition;
         }
 
-        public override void export(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null)
+        public override void export(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalElement = null)
         {
             base.export(shapeType, page, masterType, points);
 

@@ -22,8 +22,8 @@ namespace VisioAddIn.OwlShapes.util
                 {
                     if (!(point is ISimple2DVisualizationBounds))
                     {
-                        simpleXPos = point.getRelative2D_PosX();
-                        simpleYPos = point.getRelative2D_PosX();
+                        simpleXPos = point.getRelative2DPosX();
+                        simpleYPos = point.getRelative2DPosX();
                     }
                     else if (point is ISimple2DVisualizationBounds boundObject)
                     {
@@ -35,8 +35,8 @@ namespace VisioAddIn.OwlShapes.util
                 if (placedPoints.Count > 0)
                 {
                     ISimple2DVisualizationPoint lastPoint = placedPoints[placedPoints.Count - 1];
-                    simpleXPos = lastPoint.getRelative2D_PosX() + 4;
-                    simpleYPos = lastPoint.getRelative2D_PosY();
+                    simpleXPos = lastPoint.getRelative2DPosX() + 4;
+                    simpleYPos = lastPoint.getRelative2DPosY();
                     if (simpleXPos > 10)
                     {
                         simpleXPos = 2;
@@ -50,8 +50,8 @@ namespace VisioAddIn.OwlShapes.util
 
                 // Keep track of all the points shapes have been placed to page
                 ISimple2DVisualizationPoint placedPoint = new Simple2DVisualizationPoint();
-                placedPoint.setRelative2D_PosX(simpleXPos);
-                placedPoint.setRelative2D_PosY(simpleYPos);
+                placedPoint.setRelative2DPosX(simpleXPos);
+                placedPoint.setRelative2DPosY(simpleYPos);
                 placedPoints.Add(placedPoint);
 
                 // Drop the shape

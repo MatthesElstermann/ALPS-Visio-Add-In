@@ -1,7 +1,9 @@
 ﻿
 using alps.net.api.parsing;
+
 using alps.net.api.StandardPASS;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 //using System.Windows;
@@ -11,6 +13,8 @@ using Visio = Microsoft.Office.Interop.Visio;
 using alps.net.api;
 using System.Reflection;
 using alps.net.api.ALPS;
+using System.Diagnostics;
+using System.Text;
 
 namespace VisioAddIn
 {
@@ -18,7 +22,7 @@ namespace VisioAddIn
     /// Importer which calls the alps.net.api library to create a visio model out of a given owl file. 
     /// To use the importer you have to at least give the standard pass ont and the owl file with the model at the beginning.
     /// </summary>
-    class OWLImporter
+    public class OWLImporter
     {
 
 
@@ -32,6 +36,7 @@ namespace VisioAddIn
         private double defaultX = -1.25;
         private double defaultY = 5.5;
         IPASSReaderWriter owlGraph;
+        protected Boolean parsingWithSimple2DVisualisation = false;
 
 
         public OWLImporter(string fileName)
@@ -40,12 +45,16 @@ namespace VisioAddIn
 
             owlGraph = PASSReaderWriter.getInstance();
             owlGraph.setModelElementFactory(new VisioClassFactory());
+            //owlGraph.setModelElementFactory(new BasicPASSProcessModelElementFactory());
+
+            //tempList:
 
             // Load parsing structure initially (needed by the library)
             owlGraph.loadOWLParsingStructure(new List<String>
-                { "../../Resources/standard_PASS_ont_v_1.1.0.owl",
-                "../../Resources/abstract-layered-pass-ont.owl" });
-            
+                {   "../../Resources/standard_PASS_ont_v_1.1.0.owl",
+                    "../../Resources/ALPS_ont_v_0.8.0.owl" 
+                });
+
 
             this.fileName = fileName;
         }
@@ -64,12 +73,22 @@ namespace VisioAddIn
         /// </summary>
         public void parse(Visio.Page sIDPage, Visio.Document activeDoc)
         {
+            Debug.WriteLine("start parsing file: " + fileName);
+            List<String> myList = new List<String> {fileName};
+            passProcessModels = owlGraph.loadModels(myList);
 
-            passProcessModels = owlGraph.loadModels(new List<string> { fileName });
-
+            //necessary so the Visio VBA Listerners do not delete message on transitions before
+            // the complete model has been imported
+            VisioHelper.switchVBAListenersOFF();
             // New Code
+            
+            //TODO: let user choose if there are multiple models
             if (passProcessModels[0] is IVisioExportable exportable)
+            {
                 exportable.exportToVisio(sIDPage);
+            }
+            VisioHelper.switchVBAListenersON();
+                
 
             
 
@@ -104,8 +123,8 @@ namespace VisioAddIn
         //    if (!(points is null))
         //        foreach (ISimple2DVisualizationPoint point in points)
         //        {
-        //            simpleXPos = point.getRelative2D_PosX();
-        //            simpleYPos = point.getRelative2D_PosX();
+        //            simpleXPos = point.getRelative2DPosX();
+        //            simpleYPos = point.getRelative2DPosX();
         //        }
 
 

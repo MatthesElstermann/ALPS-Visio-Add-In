@@ -38,8 +38,8 @@ namespace VisioAddIn.Snapping
         /// <returns>true if snappable, false otherwise</returns>
         protected override bool isShapeSnappable(IVShape shape)
         {
-            //Debug.Print("testing shape: " + shape.NameU + " - is snappable: " + shape.HasCategory(ALPSConstants.alpsShapeCategoryStateExtension) +
-                 //" on: " + this.foregroundPage.getNameU() + " with background: " + this.referencedBackgroundPage.getNameU());
+            Debug.Print("testing shape: " + shape.NameU + " - is snappable: " + shape.HasCategory(ALPSConstants.alpsShapeCategoryStateExtension) +
+                 " on: " + this.foregroundPage.getNameU() + " with background: " + this.referencedBackgroundPage.getNameU());
             return shape.HasCategory(ALPSConstants.alpsShapeCategoryStateExtension);
         }
 

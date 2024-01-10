@@ -4,6 +4,7 @@ using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
 using alps.net.api.util;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Visio = Microsoft.Office.Interop.Visio;
 
@@ -27,15 +28,13 @@ namespace VisioAddIn.OwlShapes
 
         public void exportToVisio(Visio.Page pageToExportTo, ISimple2DVisualizationBounds bounds = null)
         {
-            // Place a standard actor onto the SID page
-            export.export(VisioHelper.ShapeType.SID, pageToExportTo, type,
-                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
 
+            // Place a standard actor onto the SID page
+            List<ISimple2DVisualizationPoint> myTempList = new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>());
+
+            Debug.WriteLine("Subject export: " + this.getModelComponentID() + " Point List count:  " + myTempList.Count);
             
-            // TODO
-            //IPageExportHelper exportHelper = ExportHelperFactory.getExportHelperForPage(pageToExportTo);
-            //shape = exportHelper.place(ALPSConstants.alpsSIDMasterStandardActor,
-            //                    new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
+            export.export(VisioHelper.ShapeType.SID, pageToExportTo, type, myTempList, this); 
 
 
             //shape = VisioHelper.place(VisioHelper.ShapeType.SID, pageToExportTo, ALPSConstants.alpsSIDMasterStandardActor,

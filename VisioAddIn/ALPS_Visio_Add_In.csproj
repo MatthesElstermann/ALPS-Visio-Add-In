@@ -207,6 +207,8 @@
     <Compile Include="OwlShapes\exportFunctionality\SubjectExport.cs" />
     <Compile Include="OwlShapes\exportFunctionality\TransitionExport.cs" />
     <Compile Include="OwlShapes\InteractionDescribing\alpsElements\VisioCommunicationChannel.cs" />
+    <Compile Include="OwlShapes\InteractionDescribing\alpsElements\VisioSubjectGroup.cs" />
+    <Compile Include="OwlShapes\InteractionDescribing\alpsElements\VisioSystemInterface.cs" />
     <Compile Include="OwlShapes\InteractionDescribing\VisioCommunicationRestriction.cs" />
     <Compile Include="OwlShapes\InteractionDescribing\alpsElements\VisioGuardExtension.cs" />
     <Compile Include="OwlShapes\InteractionDescribing\alpsElements\VisioMacroExtension.cs" />
@@ -219,8 +221,8 @@
     <Compile Include="OwlShapes\BehaviorDescribing\Transitions\VisioSendTransition.cs" />
     <Compile Include="OwlShapes\BehaviorDescribing\Transitions\VisioTimeTransition.cs" />
     <Compile Include="OwlShapes\BehaviorDescribing\Transitions\VisioUserCancelTransition.cs" />
+    <Compile Include="OwlShapes\InteractionDescribing\VisioStandAloneMacroSubject.cs" />
     <Compile Include="OwlShapes\util\DirectedGraphNode.cs" />
-    <Compile Include="OwlShapes\util\ExportHelperFactory.cs" />
     <Compile Include="OwlShapes\util\IGraphNode.cs" />
     <Compile Include="OwlShapes\ISimple2DVisualizationBounds.cs" />
     <Compile Include="OwlShapes\IVisioExportable.cs" />
@@ -240,6 +242,7 @@
     <Compile Include="OwlShapes\InteractionDescribing\VisioMessageExchange.cs" />
     <Compile Include="OwlShapes\InteractionDescribing\VisioMessageExchangeList.cs" />
     <Compile Include="OwlShapes\InteractionDescribing\VisioMessageSpecification.cs" />
+    <Compile Include="OwlShapes\VisioMacroBehavior.cs" />
     <Compile Include="OwlShapes\VisioSubjectBehavior.cs" />
     <Compile Include="OWL\VerificationChecker.cs">
       <SubType>Form</SubType>
@@ -370,6 +373,7 @@
       <DependentUpon>TemporaryModelExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="ALPS_Certificate.pfx" />
+    <None Include="Resources\ALPS_ont_v_0.8.0.owl" />
     <None Include="Resources\Certificates\ALPS_Certificate.pfx" />
     <None Include="Resources\Certificates\ALPS_Visio_Add_In_1_TemporaryKey.pfx" />
     <None Include="Resources\Certificates\ALPS_Visio_Add_In_TemporaryKey.pfx" />
@@ -396,9 +400,8 @@
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>
-    <EmbeddedResource Include="Resources\standard-pass-ont.owl" />
-    <EmbeddedResource Include="Resources\abstract-layered-pass-ont.owl" />
     <None Include="Resources\Certificates\SBPM-AddIn_TemporaryKey.pfx" />
+    <None Include="Resources\standard_PASS_ont_v_1.1.0.owl" />
     <None Include="ThisAddIn.Designer.xml">
       <DependentUpon>ThisAddIn.cs</DependentUpon>
     </None>
@@ -445,13 +448,23 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="alps.net.api">
-      <Version>0.9.0</Version>
+      <Version>0.9.1.6</Version>
     </PackageReference>
-    <PackageReference Include="dotNetRDF">
+    <PackageReference Include="dotNetRdf">
       <Version>2.7.5</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="Office1">
+      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>6</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

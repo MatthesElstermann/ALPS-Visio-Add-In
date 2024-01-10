@@ -167,6 +167,7 @@
 
         //DocumentLablesAsALPS
         public const string alpsPropertieTypeDocumentType = "abstractLayeredPASSProcessModel";
+        public const string alpsPropertieTypeInteropWithVSTOShouldListenersRun = "interopWithVSTOShouldListenersRun";
 
         //ModelPages Property Types
         public const string alpsPropertieTypePageType = "pageType";
@@ -218,7 +219,14 @@
         public const string alpsPropertieTypeMultiReceiveLowerBound = "multiReceiveLowerBound";
         public const string alpsPropertieTypeMultiReceiveUpperBound = "multiReceiveUpperBound";
         public const string alpsPropertieTypeReceiverSenderListForSubject = "receiverSenderListForSubject";
+        public const string alpsPropertieTypeReceiverSenderListForSubjectID = "receiverSenderListForSubjectID";
+
         public const string alpsPropertieTypePossibleMessageList = "possibleMessageList";
+        public const string alpsPropertieTypePossibleMessageListID = "possibleMessageListID";
+
+
+
+
         public const string alpsPropertieTypeSendType = "sendingType";
         public const string alpsPropertieTypeReceiveType = "receiveType";
         public const string alpsPropertieTypeTimeOutType = "timeOutType"; //in timeout transitions to determin what typ it is.
@@ -317,18 +325,25 @@
         ////////////////////////// Shape Masters
 
         //SID Shape Masters Names in the SID Stencils
-        public const string alpsSIDMasterStandardActor = "standardActor";
-        public const string alpsSIDMasterStandardMessageConnector = "standardMessageConnector";
-        public const string alpsSIDMasterMessageBox = "messageBox";
-        public const string alpsSIDMasterMessage = "message";
-        public const string alpsSIDMasterInterfaceActor = "interfaceActor";
+        public const string alpsSIDMasterStandardActor = "StandardActor";
+        public const string alpsSIDMasterStandardMessageConnector = "StandardMessageConnector";
+        public const string alpsSIDMasterMessageBox = "MessageBox";
+        public const string alpsSIDMasterMessage = "Message";
+        public const string alpsSIDMasterInterfaceActor = "InterfaceActor";
+        public const string alpsSIDMasterStandAloneMacro = "StandAloneMakro";
         //public const string alpsSIDMasterAbstractActor = "abstractActor";
-        public const string alpsSIDMasterActorPlaceHolder = "actorPlaceHolder";
-        public const string alpsSIDMasterActorExtension = "actorExtension";
+        public const string alpsSIDMasterActorPlaceHolder = "ActorPlaceHolder";
+        public const string alpsSIDMasterActorExtension = "ActorExtension";
+        public const string alpsSIDMasterActorMacroExtension = "MakroExtension";
+        public const string alpsSIDMasterActorGuardExtension = "GuardExtension";
         //public const string alpsSIDMasterAbstractMessageConnector = "abstractMessageConnector";
         //public const string alpsSIDMasterExclusiveMessageConnector = ";ExclusiveMessageConnector";
         public const string alpsSIDMasterCommunicationRestriction = "CommunicationRestriction";
         public const string alpsSIDMasterAbstractCommunicationChannel = "AbstractCommunicationChannel";
+        public const string alpsSIDMasterSystemInterfaceSubject = "SystemInterfaceSubject";
+        public const string alpsSIDMasterSubjectGroup = "SubjectGroup";
+        public const string alpsSIDMasterConnectorDirectionPattern = "ConnectorDirectionPattern";
+
 
         //SBD Shape.Masters Names in the SBD Stencils
         public const string alpsSBDMasterDoState = "FunctionState";

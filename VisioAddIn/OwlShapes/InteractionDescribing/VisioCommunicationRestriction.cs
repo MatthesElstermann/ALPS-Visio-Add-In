@@ -18,7 +18,7 @@ namespace VisioAddIn.OwlShapes
         {
             if (getShape() != null) return;
             export.export(VisioHelper.ShapeType.SID, currentPage, type,
-                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
+                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
 
             if (getCorrespondentA() != null && getCorrespondentA() is IVisioExportableWithShape exportableSender)
                 getShape().CellsU["BeginX"].GlueToPos(exportableSender.getShape(), 1, 0.5);

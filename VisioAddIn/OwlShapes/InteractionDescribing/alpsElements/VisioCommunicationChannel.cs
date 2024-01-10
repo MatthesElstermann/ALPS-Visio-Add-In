@@ -21,7 +21,7 @@ namespace VisioAddIn.OwlShapes
         {
             // Place the shape onto the SID page
             export.export(VisioHelper.ShapeType.SID, currentPage, type,
-                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
+                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
 
             // TODO on updated alps.net.api 8.2.6
 

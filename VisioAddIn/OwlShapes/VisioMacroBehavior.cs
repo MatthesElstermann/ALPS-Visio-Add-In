@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using alps.net.api.ALPS;
 using alps.net.api.parsing;
@@ -8,34 +7,39 @@ using alps.net.api.StandardPASS;
 using alps.net.api.util;
 using Microsoft.Office.Interop.Visio;
 using VisioAddIn.OwlShapes.util;
+using System.Diagnostics;
 
 namespace VisioAddIn.OwlShapes
 {
-    public class VisioSubjectBehavior : SubjectBehavior, IVisioExportableWithShape
+    public class VisioMacroBehavor : MacroBehavior, IVisioExportableWithShape
     {
+        private const string className = "VisioMacroBehavior";
         private Simple2DPosParser parser;
 
-        protected VisioSubjectBehavior()
+        protected VisioMacroBehavor()
         {
         }
 
-        public VisioSubjectBehavior(IModelLayer layer, string labelForID = null, ISubject subject = null,
-            ISet<IBehaviorDescribingComponent> behaviorDescribingComponents = null,
+        public VisioMacroBehavor(IModelLayer layer, string labelForID = null, ISubject subject = null,
+            ISet<IBehaviorDescribingComponent> behaviorDescribingComponents = null, ISet<IStateReference> stateReferences = null,
             IState initialStateOfBehavior = null,
             int priorityNumber = 0, string comment = null, string additionalLabel = null,
             IList<IIncompleteTriple> additionalAttribute = null)
-            : base(layer, labelForID, subject, behaviorDescribingComponents, initialStateOfBehavior, priorityNumber,
+            : base(layer, labelForID, subject, behaviorDescribingComponents, stateReferences, initialStateOfBehavior, priorityNumber,
                 comment,
                 additionalLabel, additionalAttribute)
         {
         }
 
-
         public void exportToVisio(Page currentPage, ISimple2DVisualizationBounds bounds = null)
         {
             foreach (var state in behaviorDescriptionComponents.Values.OfType<IState>())
+            {
+                Debug.WriteLine(" State in MB: " + state.getModelComponentID() + " - is exportable: " + (state is IVisioExportable));
                 if (state is IVisioExportable exportable)
                     exportable.exportToVisio(currentPage);
+            }
+
             foreach (var transition in behaviorDescriptionComponents.Values.OfType<ITransition>())
                 if (transition is IVisioExportable exportable)
                     exportable.exportToVisio(currentPage);
@@ -73,7 +77,6 @@ namespace VisioAddIn.OwlShapes
 
         private void exportTree(IGraphNode<IPASSProcessModelElement> rootNode, Page currentPage)
         {
-            
             double pageWidth = currentPage.PageSheet.CellsU["PageWidth"].Result[""];
             double pageHeight = currentPage.PageSheet.CellsU["PageHeight"].Result[""];
             __exportTree(rootNode, currentPage, 25, pageHeight - 25);
@@ -87,8 +90,8 @@ namespace VisioAddIn.OwlShapes
                 exportedShape.CellsU["PinX"].Result[""] = xpos;
                 exportedShape.CellsU["PinY"].Result[""] = ypos;
 
-                double newX = xpos + 70;
-                double newY = ypos;
+                var newX = xpos + 70;
+                var newY = ypos;
 
                 foreach (var childNode in rootNode.getOutputNodes())
                     newY = __exportTree(childNode, currentPage, newX, newY) - 40;
@@ -130,7 +133,7 @@ namespace VisioAddIn.OwlShapes
 
         public override IParseablePASSProcessModelElement getParsedInstance()
         {
-            return new VisioSubjectBehavior();
+            return new VisioMacroBehavor();
         }
 
 
@@ -142,5 +145,6 @@ namespace VisioAddIn.OwlShapes
                 return base.parseAttribute(predicate, objectContent, lang, dataType, element);
             return true;
         }
+
     }
 }

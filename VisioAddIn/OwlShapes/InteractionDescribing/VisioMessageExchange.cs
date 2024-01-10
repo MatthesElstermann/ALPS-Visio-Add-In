@@ -21,7 +21,7 @@ namespace VisioAddIn.OwlShapes
         {
             if (getShape() != null) return;
             export.export(VisioHelper.ShapeType.SID, currentPage, type,
-                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()));
+                                new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this  );
 
             if (getSender() != null && getSender() is IVisioExportableWithShape exportableSender)
                 getShape().CellsU["BeginX"].GlueToPos(exportableSender.getShape(), 1, 0.5);
@@ -31,6 +31,8 @@ namespace VisioAddIn.OwlShapes
             // Export the MessageSpecification (The message on the connector) to visio
             if (getMessageType() != null && getMessageType() is IVisioExportable exportable)
                 exportable.exportToVisio(currentPage);
+
+            //TODO: model without boxes.... (add new Connector)
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Visio = Microsoft.Office.Interop.Visio;
 using static VisioAddIn.VisioHelper;
+using alps.net.api.StandardPASS;
 
 namespace VisioAddIn.OwlShapes
 {
@@ -19,7 +20,7 @@ namespace VisioAddIn.OwlShapes
     /// </summary>
     public interface IExportFunctionality
     {
-        void export(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null);
+        void export(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalElement = null);
 
         Visio.Shape getShape();
 

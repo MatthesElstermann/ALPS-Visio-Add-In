@@ -1,6 +1,14 @@
-﻿using Microsoft.Office.Tools.Ribbon;
+﻿using alps.net.api;
+using alps.net.api.parsing;
+using alps.net.api.StandardPASS;
+using Microsoft.Office.Tools.Ribbon;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using VisioAddIn.OwlShapes;
 
 
 namespace VisioAddIn
@@ -55,10 +63,35 @@ namespace VisioAddIn
 
         private void button1_Click_2(object sender, RibbonControlEventArgs e)
         {
-            System.Windows.MessageBox.Show("Hello World 3");
+            System.Windows.MessageBox.Show("Hello World 3 from C#");
             Debug.Print("Debug Printout");
             Debug.WriteLine("write a line");
+            VisioHelper.toggleVBAListeners();
+            //tryMethod();
 
         }
+
+        private void tryMethod()
+        {
+            Debug.WriteLine("Trymethod Loading models");
+            ReflectiveEnumerator.addAssemblyToCheckForTypes(Assembly.GetExecutingAssembly());
+            IPASSReaderWriter owlGraph = PASSReaderWriter.getInstance();
+            owlGraph.setModelElementFactory(new VisioClassFactory());
+            IList<string> paths = new List<string>
+            {
+               "C:\\Users\\qs0196\\source\\repos\\alps.net.api\\src\\standard_PASS_ont_v_1.1.0.owl",
+               "C:\\Users\\qs0196\\source\\repos\\alps.net.api\\src\\ALPS_ont_v_0.8.0.owl",
+            };
+            owlGraph.loadOWLParsingStructure(paths);
+            IList<IPASSProcessModel> models = owlGraph.loadModels(new List<string> { "C:\\Users\\qs0196\\source\\repos\\alps.net.api\\src\\ExportImportTestSimple.owl" });
+            IDictionary<string, IPASSProcessModelElement> allElements = models[0].getAllElements();
+            ICollection<IPASSProcessModelElement> onlyElements = models[0].getAllElements().Values;
+            IList<BasicPASSProcessModelElementFactory> onlyAdditionalFunctionalityElements = models[0].getAllElements().Values.OfType<BasicPASSProcessModelElementFactory>().ToList();
+            Debug.WriteLine("Number ob Models loaded: " + models.Count);
+            Debug.WriteLine("Found " + onlyAdditionalFunctionalityElements.Count +
+                              " AdditionalFunctionalityElements in First model!");
+
+        }
+
     }
 }

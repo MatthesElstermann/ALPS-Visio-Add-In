@@ -822,7 +822,14 @@ The same information is part of the &quot;requiresPerformedMessageExchange&quot;
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasExecutionMappingDefinition">
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSModelDataProperty"/>
-        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     </owl:DatatypeProperty>
     
@@ -1872,13 +1879,6 @@ InputPoolConstraintStrategy-Drop - Sending of the message succeeds. However the 
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
-                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
-                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#StateReference"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#referencesMacroBehavior"/>
                 <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#MacroBehavior"/>
@@ -2454,15 +2454,15 @@ The condition  may be defined as frequency over a given interval. --&gt; e.g. 12
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition"/>
-                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minQualifiedCardinality>
-                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#SendingFailedTransition"/>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasFunctionSpecification"/>
+                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#SendFunction"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasFunctionSpecification"/>
-                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#SendFunction"/>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#SendingFailedTransition"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>

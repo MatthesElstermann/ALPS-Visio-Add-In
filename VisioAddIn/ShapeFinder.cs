@@ -67,11 +67,11 @@ namespace VisioAddIn
                 }
             }
             //Debug.Print("newestFile.Name;: " + newestFile.Name + " - startswith: " + newestFile.Name.StartsWith("~$$"));
-            //if (newestFile.Name.StartsWith("~$$"))
-            //{
-            //    Debug.Print("delete!!!!");
-            //    newestFile.Delete();
-            //}
+            if (newestFile.Name.StartsWith("~$$"))
+            {
+                //Debug.Print("delete!!!!");
+                newestFile.Delete();
+            }
             return newestFile.Name;
         }
 

@@ -67,16 +67,18 @@ namespace VisioAddIn.OwlShapes
             if (posXSet && posYSet && !posParsed)
             {
                 ISimple2DVisualizationPoint point = new Simple2DVisualizationPoint("PosFor" + element.getModelComponentID(), "", "RelativePosition");
-                point.setRelative2D_PosX(posX);
-                point.setRelative2D_PosY(posY);
+                //point.setRelative2DPosX(posX);
+                //point.setRelative2DPosY(posY);
+                point.setRelative2DPosX(posX);
+                point.setRelative2DPosY(posY);
                 posParsed = true;
                 element.addElementWithUnspecifiedRelation(point);
             }
             if (widthSet && heightSet && !boundsParsed)
             {
-                ISimple2DVisualizationPoint point = new Simple2DVisualizationPoint("BoundsFor" + element.getModelComponentID(), "", "Bounds");
-                point.setRelative2D_PosX(width);
-                point.setRelative2D_PosY(height);
+                ISimple2DVisualizationPoint point = new Simple2DVisualizationBounds("BoundsFor" + element.getModelComponentID(), "", "Bounds");
+                point.setRelative2DPosX(posX);
+                point.setRelative2DPosX(posX);
                 boundsParsed = true;
                 element.addElementWithUnspecifiedRelation(point);
             }

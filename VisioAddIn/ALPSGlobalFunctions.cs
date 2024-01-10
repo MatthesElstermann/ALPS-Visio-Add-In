@@ -211,6 +211,10 @@ namespace VisioAddIn
             return subjectName.Replace("\"", "");
         }
 
+        public static string prepareXMLLiteralForEntryIntoVisioShapeData(string inputXMLLiteral)
+        {
+            return inputXMLLiteral.Replace("\"", "\"&CHAR(13)&\"");
+        }
 
     }
 }

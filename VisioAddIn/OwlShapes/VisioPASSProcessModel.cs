@@ -26,6 +26,7 @@ namespace VisioAddIn.OwlShapes
             foreach (IModelLayer modelLayer in getAllElements().Values.OfType<IModelLayer>())
             {
                 Visio.Page currentPage = currentExportingPage;
+
                 if (!first)
                 {
                     // Create a new page for every model layer but the first
@@ -33,7 +34,18 @@ namespace VisioAddIn.OwlShapes
                     visioPages.Add(currentPage);
 
                 }
-                else first = false;
+                else
+                {
+                    first = false;
+                    if (currentPage.PageSheet.CellExistsU["Prop." + ALPSConstants.alpsPropertieTypePageType,0] == 0)
+                    {
+                        currentPage = VisioHelper.CreateSIDPage(modelLayer.getModelComponentID(), " ", modelLayer.getUriModelComponentID(), " ", " ", " ");
+                        visioPages.Add(currentPage);
+                    }
+                }
+
+
+                //TODO: rezise all Pages  if values available
 
                 if (modelLayer is IVisioExportable exportable) exportable.exportToVisio(currentPage);
             }

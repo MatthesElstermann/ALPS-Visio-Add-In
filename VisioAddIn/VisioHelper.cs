@@ -1,9 +1,16 @@
 ﻿using alps.net.api.ALPS;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VDS.RDF.Query.Expressions.Functions.Sparql.String;
 using VisioAddIn.OwlShapes;
 using Visio = Microsoft.Office.Interop.Visio;
+using static Microsoft.Office.Interop.Visio.VisSectionIndices;
+using static Microsoft.Office.Interop.Visio.VisRowTags;
+using alps.net.api.StandardPASS;
+using alps.net.api.util;
+using System.Globalization;
 
 namespace VisioAddIn
 {
@@ -70,113 +77,104 @@ namespace VisioAddIn
             return null;
         }
 
-        
-
-        ///// <summary>
-        ///// places a shape on the given visio page
-        ///// </summary>
-        ///// <param name="page">visio page</param>
-        ///// <param name="shapeName">master name of the shape</param>
-        //public static Visio.Shape PlaceSidShape(Visio.Page page, string shapeName, double xPos = 4.25, double yPos = 5.5)
-        //{
-        //    Visio.Document sidShapes = VisioHelper.openStencil(VisioStencils.SID_STENCIL);
-        //    Visio.Master sidMaster = sidShapes.Masters.get_ItemU(shapeName);
-        //    Visio.Shape shape = page.Drop(sidMaster, xPos, yPos);
-        //    return shape;
-        //}
-
-        ///// <summary>
-        ///// places a shape on the given visio page
-        ///// </summary>
-        ///// <param name="page">visio page</param>
-        ///// <param name="shapeName">master name of the shape</param>
-        //public static Visio.Shape PlaceSbdShape(Visio.Page page, string shapeName, double xPos = 4.25, double yPos = 5.5)
-        //{
-        //    Visio.Document sbdShapes = VisioHelper.openStencil(SBD);
-        //    Visio.Master sbdMaster = sbdShapes.Masters.get_ItemU(shapeName);
-        //    Visio.Shape shape = page.Drop(sbdMaster, xPos, yPos);
-        //    return shape;
-        //}
 
         public enum ShapeType
         {
             SBD, SID
         }
 
-        private static IDictionary<int, IList<ISimple2DVisualizationPoint>> placedPoints = new Dictionary<int, IList<ISimple2DVisualizationPoint>>();
+        private static IDictionary<int, IList<ISimple2DVisualizationPoint>> placedPointsOnPage = new Dictionary<int, IList<ISimple2DVisualizationPoint>>();
 
-        private static void placeSIDShape(Visio.Page page, out double simpleXPos, out double simpleYPos, IList<ISimple2DVisualizationPoint> points = null)
+        private static void determinPlacingCoordinatesOnSID(Visio.Page page, out double posX, out double posY, 
+            IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalModelElement = null)
         {
+            
             ISimple2DVisualizationBounds bound = null;
             double defaultX = 2;//4.25;
             double defaultY = 10;//5.5;
-            simpleXPos = defaultX;
-            simpleYPos = defaultY;
+            posX = defaultX;
+            posY = defaultY;
 
+            
             if (!(points is null) && (points.Count > 0))
+            {
                 foreach (ISimple2DVisualizationPoint point in points)
                 {
                     if (!(point is ISimple2DVisualizationBounds))
                     {
-                        simpleXPos = point.getRelative2D_PosX();
-                        simpleYPos = point.getRelative2D_PosX();
+                        posX = point.getRelative2DPosX();
+                        posY = point.getRelative2DPosY();
+
+                        
+                        //Scale for real page if applicable
+                        if (page.PageSheet.CellExistsU["User.OWLIMPORTINFORATIOMOD", 0] == -1)
+                        {
+                            Debug.WriteLine("Original posX/Y: (" + posX+","+posY+") , " +
+                                " pagewidht: " + page.PageSheet.CellsU["PageWidth"].Result[""] + 
+                                " pageHeight: " + page.PageSheet.CellsU["PageHeight"].Result[""]);
+                            posX = posX * page.PageSheet.CellsU[ALPSConstants.pageCellPagePropertiesPageWidth].Result[""];
+                            posY = posY * page.PageSheet.CellsU[ALPSConstants.pageCellPagePropertiesPageHeight].Result[""];
+                            Debug.WriteLine("Simple sim positioning " + originalModelElement.getModelComponentID() + " at(x,y): " + posX + "," + posY + ")");
+
+                        }
                     }
                     else if (point is ISimple2DVisualizationBounds boundObject)
                     {
                         bound = boundObject;
                     }
                 }
-            else if (placedPoints.TryGetValue(page.ID, out IList<ISimple2DVisualizationPoint> pointList))
+            }
+            /*
+            else if (hasSimple2DVisCoordinates(originalModelElement)) //for simple 2D Shapes 
+            {
+                if (page.PageSheet.CellExistsU["User.OWLIMPORTINFORATIOMOD", 0] == 1)
+                {
+                    IHasSimple2DVisualizationBox mySimp2D = (IHasSimple2DVisualizationBox)originalModelElement;
+                   
+                    //originalModelElement is IHasSimple2DVisualizationBox
+                    if (page.PageSheet.CellExistsU["User.OWLIMPORTINFORATIOMOD", 0] == 0)
+                    {
+                        posX = mySimp2D.getRelative2DPosX() * page.PageSheet.CellsU["PageWidth"].Result[""];
+                        posY = mySimp2D.getRelative2DPosY() * page.PageSheet.CellsU["PageHeight"].Result[""];
+                        Debug.WriteLine("Simple sim positioning " + originalModelElement.getModelComponentID() + " at(x,y): " + posX + "," + posY + ")");
+                    }
+
+                }
+            }*/
+            // Else automatic mode
+            else if (placedPointsOnPage.TryGetValue(page.ID, out IList<ISimple2DVisualizationPoint> pointList))
             {
                 ISimple2DVisualizationPoint lastPoint = pointList[pointList.Count - 1];
-                simpleXPos = lastPoint.getRelative2D_PosX() + 4;
-                simpleYPos = lastPoint.getRelative2D_PosY();
-                if (simpleXPos > 10)
+                posX = lastPoint.getRelative2DPosX() + 4;
+                posY = lastPoint.getRelative2DPosY() + 4;
+                if (posX > 10)
                 {
-                    simpleXPos = 2;
-                    simpleYPos -= 4;
+                    posX = 2;
+                    posY -= 4;
                 }
             }
         }
 
-        //private static void placeSBDShape(Visio.Page page, out double simpleXPos, out double simpleYPos, IList<ISimple2DVisualizationPoint> points = null)
-        //{
-        //    ISimple2DVisualizationBounds bound = null;
-        //    double defaultX = 2;//4.25;
-        //    double defaultY = 10;//5.5;
-        //    simpleXPos = defaultX;
-        //    simpleYPos = defaultY;
+        private static bool hasSimple2DVisCoordinates(IPASSProcessModelElement originalModelElement)
+        {
+            bool result = false;
 
-        //    if (!(points is null) && (points.Count > 0))
-        //        foreach (ISimple2DVisualizationPoint point in points)
-        //        {
-        //            if (!(point is ISimple2DVisualizationBounds))
-        //            {
-        //                simpleXPos = point.getRelative2D_PosX();
-        //                simpleYPos = point.getRelative2D_PosX();
-        //            }
-        //            else if (point is ISimple2DVisualizationBounds boundObject)
-        //            {
-        //                bound = boundObject;
-        //            }
-        //        }
-        //    else if (placedPoints.TryGetValue(page.ID, out IList<ISimple2DVisualizationPoint> pointList))
-        //    {
-        //        ISimple2DVisualizationPoint lastPoint = pointList[pointList.Count - 1];
-        //        simpleXPos = lastPoint.getRelative2D_PosX() + 4;
-        //        simpleYPos = lastPoint.getRelative2D_PosY();
-        //        if (simpleXPos > 10)
-        //        {
-        //            simpleXPos = 2;
-        //            simpleYPos -= 4;
-        //        }
-        //    }
-        //}
+            if (originalModelElement is IHasSimple2DVisualizationBox mySimp2D)
+            {
+                if(mySimp2D.get2DPageRatio() > 0)
+                {
+                    result = true;
+                }
+            }
 
-        public static Visio.Shape place(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null)
+            return result;
+        }
+
+        public static Visio.Shape place(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalElement = null)
         {
             Visio.Document shapes = null;
-            double simpleXPos = 0, simpleYPos = 0;
+            
+            double placingPosX = 0, placingPosY = 0;
             switch (shapeType)
             {
                 case ShapeType.SBD:
@@ -184,22 +182,34 @@ namespace VisioAddIn
                     break;
                 case ShapeType.SID:
                     shapes = VisioHelper.openStencil(VisioStencils.SID_STENCIL);
-                    placeSIDShape(page, out simpleXPos, out simpleYPos, points);
+                    determinPlacingCoordinatesOnSID(page, out placingPosX, out placingPosY, points, originalElement);
                     break;
             }
+
             if (shapes != null)
             {
                 Visio.Master sidMaster = shapes.Masters.get_ItemU(masterType);
 
                 // Keep track of all the points shapes have been placed to
-                ISimple2DVisualizationPoint placedPoint = new Simple2DVisualizationPoint();
-                placedPoint.setRelative2D_PosX(simpleXPos);
-                placedPoint.setRelative2D_PosY(simpleYPos);
-                if (placedPoints.ContainsKey(page.ID))
-                    placedPoints[page.ID].Add(placedPoint);
+                ISimple2DVisualizationPoint tempPlacingPoint = new Simple2DVisualizationPoint();
+                tempPlacingPoint.setRelative2DPosX(placingPosX);
+                tempPlacingPoint.setRelative2DPosY(placingPosY);
+
+                if (placedPointsOnPage.ContainsKey(page.ID))
+                    placedPointsOnPage[page.ID].Add(tempPlacingPoint);
                 else
-                    placedPoints.Add(page.ID, new List<ISimple2DVisualizationPoint> { placedPoint });
-                Visio.Shape droppedShape = page.Drop(sidMaster, simpleXPos, simpleYPos);
+                    placedPointsOnPage.Add(page.ID, new List<ISimple2DVisualizationPoint> { tempPlacingPoint });
+                
+                
+                Visio.Shape droppedShape = page.Drop(sidMaster, placingPosX, placingPosY);
+
+              
+
+                Debug.WriteLine("Dropped Shape:  " + masterType + " on Page: " + page.ID + " at coordinates (X/Y): (" + placingPosX + "," + placingPosY + ")" +
+                                                    " (name: " + page.NameU + 
+                                                    ", width: " + (page.PageSheet.CellsU["PageWidth"].FormulaU) + 
+                                                    ", height: "  + (page.PageSheet.CellsU["PageHeight"].FormulaU) + ")");
+
                 return droppedShape;
             }
             return null;
@@ -303,19 +313,61 @@ namespace VisioAddIn
             return page;
         }
 
-        //public static void refreshDocument()
-        //{
-        //    Visio.Application addin = Globals.ThisAddIn.Application;
-        //    Visio.Document document = addin.ActiveDocument;
-        //    Visio.Page page = Globals.ThisAddIn.Application.ActivePage;
-
-
-
-        //}
+      
 
         public static Visio.Pages getCurrentPages()
         {
             return ThisAddIn.getInstance().Application.ActiveDocument.Pages;
+        }
+
+        public static void toggleVBAListeners()
+        {
+            Debug.Print("Starting toggleVBAListeners");
+            Visio.IVDocument myActiveDocument = Globals.ThisAddIn.Application.ActiveDocument;
+            if (myActiveDocument.DocumentSheet.CellExistsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun, 0] == 0)
+            {
+                myActiveDocument.DocumentSheet.AddNamedRow((short)visSectionProp, ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun, (short)visTagDefault);
+            }
+
+            double status = 0.0;
+            status = myActiveDocument.DocumentSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun].Result[""];
+
+            Debug.Print("status before: " + status);
+
+            
+            if(status == 0.0) {
+                switchVBAListenersON();
+            }
+            else
+            {
+                switchVBAListenersOFF();
+            };
+
+            status = myActiveDocument.DocumentSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun].Result[""];
+
+            Debug.Print("status after: " + status);
+
+        }
+
+        public static void switchVBAListenersON() { setVBAListenersRunning(true); }
+        public static void switchVBAListenersOFF() { setVBAListenersRunning(false); }
+        public static void setVBAListenersRunning(Boolean newStatus)
+        {
+            Visio.IVDocument myActiveDocument = Globals.ThisAddIn.Application.ActiveDocument;
+
+            if (myActiveDocument.DocumentSheet.CellExistsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun, 0] == 0)
+            {
+                myActiveDocument.DocumentSheet.AddNamedRow((short)visSectionProp, ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun, (short)visTagDefault);
+            }
+
+            if (newStatus)
+            {
+                myActiveDocument.DocumentSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun].Formula = "-1";
+            }
+            else
+            {
+                myActiveDocument.DocumentSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun].Formula = "0";
+            };
         }
 
     }

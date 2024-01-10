@@ -1,18 +1,84 @@
 <?xml version="1.0"?>
 <rdf:RDF xmlns="http://www.i2pm.net/standard-pass-ont#"
      xml:base="http://www.i2pm.net/standard-pass-ont"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:standard-pass-ont="http://www.i2pm.net/standard-pass-ont#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
-     xmlns:swrlb="http://www.w3.org/2003/11/swrlb#"
-     xmlns:swrl="http://www.w3.org/2003/11/swrl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+     xmlns:swrlb="http://www.w3.org/2003/11/swrlb#"
+     xmlns:standard-pass-ont="http://www.i2pm.net/standard-pass-ont#">
     <owl:Ontology rdf:about="http://www.i2pm.net/standard-pass-ont">
-        <owl:versionIRI rdf:resource="http://www.i2pm.net/standard-pass-ont/0.9.0"/>
-        <owl:priorVersion xml:lang="en">2018-02-02 -  Florian Krenn -Matthes Elstermann on-line</owl:priorVersion>
-        <owl:versionInfo xml:lang="en">2018-07-05: Ingolstadt Review.
+        <owl:versionIRI rdf:resource="http://www.i2pm.net/standard-pass-ont/1.1.0"/>
+        <rdfs:comment xml:lang="en">Version history:
+
+2021-05-19 Version 1.1.0: I2PM Standardization Meeting Spring 2021
+
+Participants:
+Matthes Elstermann – Karlsruhe Institute of Technology (KIT) matthes.elstermann@kit.edu
+Herbert Kindermann – Kindermann Consulting
+Robert Singer – FH Joanneum Graz
+Florian Krenn – Compunity, Linz, Austria
+Werner Schmidt – TH Ingolstadt
+Matthias Lederer – OTH Weiden
+Christian Stary – Universität Linz
+André Wolski – TU Darmstadt
+Albert Fleischmann – Interaktiv Unternehmensberatung
+
+Agreed on changes:
+- new Class SubjectExecutionMapping
+- performance improvements
+- clarification regarding EndState usage in SubjectBehavior
+
+
+2018-11-22 Version 1.0.0: Standardization Meeting Ingolstadt
+
+Agreed on Version 1.0.0 from meeting:
+
+Participants
+- Werner Schmidt
+- Herbert Kindermann
+- Bernhard Foltin
+- André Wolski
+- Florian Krenn
+- Albert Fleischmann
+- Matthes Elstermann
+
+2018-11-09: Elstermann (Proposal)
+
+clarifications for Send and Receive Transition Conditions and Sending and Receiving in regards to subjects with multiple instances (Multi-Subjects)
+
+Transition--&gt; hasTransitionCondition--&gt; information about sending and receiving
+
+ReceiveTransitionCondition
+   hasReceiveType
+    - ReceiveTypeMultiReceiveFromAllKnown
+    - ReceiveTypeMultiReceiveFromKnwon
+    - ReceiveTypeStandard
+	
+    hasMultiReceiveLowerBound
+    hasMultiReceiveUpperBound
+
+    requiresReceptionOfMessage
+    requiresMessageSentFrom
+
+SendTransitionCondition
+
+  hasSendType
+   - SendingTypeMultiSendToAll
+   - SendingTypeMultiSendToKnown
+   - SendingTypeMultiSendToNew
+   - SendingTypeStandard
+
+  hasMultiSendLowerBound
+  hasMultiSendUpperBound
+
+  requiresSendingOfMessage  (SendTransition)
+  requiresMessageSentTo (SendTransition)
+
+
+2018-07-05: Ingolstadt Review.
 
 - current Status after
 - Participants:
@@ -21,7 +87,8 @@
  - Werner Schmidt
  - Florian Krenn
  - Florian J. Strecker
- - Matthes Elstermann</owl:versionInfo>
+ - Matthes Elstermann</rdfs:comment>
+        <owl:priorVersion>http://www.i2pm.net/standard-pass-ont/1.0.0</owl:priorVersion>
     </owl:Ontology>
     
 
@@ -60,9 +127,9 @@
     
 
 
-    <!-- http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie -->
+    <!-- http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty -->
 
-    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie">
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty">
         <rdfs:comment>Every element/sub-class of SimplePASSObjectProperties is also a Child of PASSModelObjectPropertiy. This is simply a surrogate class to group all simple elements together</rdfs:comment>
     </owl:ObjectProperty>
     
@@ -71,7 +138,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#belongsTo -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#belongsTo">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <owl:inverseOf rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModelElement"/>
@@ -84,7 +151,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#contains -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#contains">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModelElement"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModelElement"/>
@@ -182,7 +249,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasCorrespondent -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasCorrespondent">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <owl:inverseOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMessageExchange"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
@@ -194,7 +261,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasDataDefinition -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasDataDefinition">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#DataObjectDefinition"/>
     </owl:ObjectProperty>
@@ -204,7 +271,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasDataMappingFunction -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasDataMappingFunction">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain>
             <owl:Class>
@@ -223,7 +290,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasDataType -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasDataType">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain>
             <owl:Class>
@@ -241,7 +308,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasEndState -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasEndState">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <owl:inverseOf rdf:resource="http://www.i2pm.net/standard-pass-ont#isEndStateOf"/>
         <rdfs:domain>
@@ -265,7 +332,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasFunctionSpecification -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasFunctionSpecification">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#FunctionSpecification"/>
@@ -297,7 +364,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasIncomingTransition -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasIncomingTransition">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <owl:inverseOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasTargetState"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
@@ -309,7 +376,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasInitialState -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasInitialState">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <owl:inverseOf rdf:resource="http://www.i2pm.net/standard-pass-ont#isInitialStateOf"/>
         <rdfs:domain>
@@ -344,7 +411,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasMessageExchange -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasMessageExchange">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
         <rdfs:comment xml:lang="en">Generic super class for the ObjectProperties linking a subject with either incoming or outgoing MessageExchanges.</rdfs:comment>
@@ -355,7 +422,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasMessageType -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasMessageType">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain>
             <owl:Class>
@@ -386,11 +453,22 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <owl:inverseOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasSourceState"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#hasReceiveType -->
+
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasReceiveType">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <rdfs:comment xml:lang="en">In simple processes every ReceiveTransitionCondition will have the standard Receive type.
+
+However, in processes  where subjects can be instantiated multiple times (Multi-Subjects), the receive type will define whether the reception of a message will require answers from one, multiple, are all known existing instances of the corresponding subject.</rdfs:comment>
     </owl:ObjectProperty>
     
 
@@ -408,10 +486,22 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModelElement"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModelElement"/>
         <rdfs:comment xml:lang="en">Generic super class of all object properties in the standard-pass-ont that are used to link model elements with one-another.</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#hasSendType -->
+
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasSendType">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#SendType"/>
+        <rdfs:comment xml:lang="en">In simple processes every sendtransitionCondition will have the standard Send type.
+
+However, in Process with where subjects can be instantiated multiple times (Multi-Subjects), the send type will define whether the sending of a message will create a new subject-instance, or if the send message should be send to one, multiple, are all existing instances.</rdfs:comment>
     </owl:ObjectProperty>
     
 
@@ -429,7 +519,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasSourceState -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasSourceState">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
@@ -440,7 +530,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasStartSubject -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasStartSubject">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModel"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#StartSubject"/>
@@ -448,10 +538,20 @@
     
 
 
+    <!-- http://www.i2pm.net/standard-pass-ont#hasSubjectExecutionMapping -->
+
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasSubjectExecutionMapping">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.i2pm.net/standard-pass-ont#hasTargetState -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasTargetState">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
@@ -462,7 +562,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#hasTransitionCondition -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasTransitionCondition">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#TransitionCondition"/>
@@ -483,7 +583,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#isEndStateOf -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#isEndStateOf">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain>
             <owl:Class>
@@ -510,7 +610,7 @@
     <!-- http://www.i2pm.net/standard-pass-ont#isInitialStateOf -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#isInitialStateOf">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
         <rdfs:range>
@@ -525,16 +625,26 @@
     
 
 
+    <!-- http://www.i2pm.net/standard-pass-ont#isReferencedBy -->
+
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#isReferencedBy">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <owl:inverseOf rdf:resource="http://www.i2pm.net/standard-pass-ont#references"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.i2pm.net/standard-pass-ont#references -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#references">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:comment xml:lang="en">Very generic object property.
 
 Describes that the element this property originates from, references another model element possibly in another model.
 
 E.g. an interface subject references another process-model.
+
+A StateReference may reference a state in another Behavior
 
 Or an InputPool constraint references a Subject and/or a message.</rdfs:comment>
     </owl:ObjectProperty>
@@ -552,24 +662,30 @@ Or an InputPool constraint references a Subject and/or a message.</rdfs:comment>
     
 
 
-    <!-- http://www.i2pm.net/standard-pass-ont#refersTo -->
+    <!-- http://www.i2pm.net/standard-pass-ont#requiresMessageSentFrom -->
 
-    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#refersTo">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#requiresMessageSentFrom">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
-        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#CommunicationTransition"/>
-        <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
-        <rdfs:comment xml:lang="en">Communication transitions (send and receive) should refer to a message exchange that is defined on the interaction layer of a model.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:comment xml:lang="en">This ObjectProperty links a ReceiveTransitionCondition with an according sender subject.
+
+The same information is part of the &quot;requiresPerformedMessageExchange&quot;-Object property that is only existent if the TransitionCondition is fully specified.</rdfs:comment>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.i2pm.net/standard-pass-ont#requiresActiveReceptionOfMessage -->
+    <!-- http://www.i2pm.net/standard-pass-ont#requiresMessageSentTo -->
 
-    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#requiresActiveReceptionOfMessage">
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#requiresMessageSentTo">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
-        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransitionCondition"/>
-        <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:comment xml:lang="en">This ObjectProperty links a SendTransitionCondition with an according sender subject.
+
+The same information is part of the &quot;requiresPerformedMessageExchange&quot;-Object property that is only existent if the TransitionCondition is fully specified.</rdfs:comment>
     </owl:ObjectProperty>
     
 
@@ -577,10 +693,52 @@ Or an InputPool constraint references a Subject and/or a message.</rdfs:comment>
     <!-- http://www.i2pm.net/standard-pass-ont#requiresPerformedMessageExchange -->
 
     <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#requiresPerformedMessageExchange">
-        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectPropertie"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
         <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchangeCondition"/>
         <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
+        <rdfs:comment xml:lang="en">This DataProperty links a send or receive transition condition to a specific message exchange.
+
+For send transition it implies that the according message has been send to the in-box of the corresponding receiver subject.
+
+For receive transitions it implies that the according message from the corresponding sender subject is in the in-box and could be extracted.
+
+When a MessageExchangeCondition is not fully specified (missing sender, receiver, or message) it cannot reference a specific message exchange.
+
+In that case the individual reference must contain the according information:
+
+requiresSendingOfMessage  (SendTransition)
+requiresMessageSentTo (SendTransition)
+requiresReceptionOfMessage (ReceiveTransition)
+requiresMessageSentFrom (ReceiveTransition)</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#requiresReceptionOfMessage -->
+
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#requiresReceptionOfMessage">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+        <rdfs:comment xml:lang="en">This ObjectProperty links a ReceiveTransitionCondition with an according MessageSpecification
+
+The same information is part of the &quot;requiresPerformedMessageExchange&quot;-Object property that is only existent if the TransitionCondition is fully specified.</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#requiresSendingOfMessage -->
+
+    <owl:ObjectProperty rdf:about="http://www.i2pm.net/standard-pass-ont#requiresSendingOfMessage">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSObjectProperty"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+        <rdfs:comment xml:lang="en">This ObjectProperty links a SendTransitionCondition with an according MessageSpecification
+
+The same information is part of the &quot;requiresPerformedMessageExchange&quot;-Object property that is only existent if the TransitionCondition is fully specified.</rdfs:comment>
     </owl:ObjectProperty>
     
 
@@ -617,7 +775,7 @@ Or an InputPool constraint references a Subject and/or a message.</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasBusinessDayDurationTimeOutTime">
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasDurationTimeOutTime"/>
-        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#BusinessDayTimerTransition"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#BusinessDayTimerTransitionCondition"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
     </owl:DatatypeProperty>
     
@@ -627,7 +785,7 @@ Or an InputPool constraint references a Subject and/or a message.</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasCalendarBasedFrequencyOrDate">
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasReoccuranceFrequenyOrDate"/>
-        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#CalendarBasedReminderTransition"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#CalendarBasedReminderTransitionCondition"/>
     </owl:DatatypeProperty>
     
 
@@ -645,7 +803,7 @@ Or an InputPool constraint references a Subject and/or a message.</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasDayTimeDurationTimeOutTime">
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasDurationTimeOutTime"/>
-        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#DayTimeTimerTransition"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#DayTimeTimerTransitionCondition"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
     </owl:DatatypeProperty>
     
@@ -655,6 +813,24 @@ Or an InputPool constraint references a Subject and/or a message.</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasDurationTimeOutTime">
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasTimeValue"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#TimerTransitionCondition"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#hasExecutionMappingDefinition -->
+
+    <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasExecutionMappingDefinition">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSModelDataProperty"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     </owl:DatatypeProperty>
     
 
@@ -680,8 +856,7 @@ The idea of these expression is to map data fields from and to the internal Data
         <rdfs:comment xml:lang="en">The process models are in principle abstract graph structures. Yet the visualization of process models is very important since many process models are initially created in a graphical form using a graphical graph editor (e.g. MS Visio, yEd, etc.) that was created to foster human comprehensibility. 
 
 If available any process element may have a graphical representation attached to it.
-
-ToDo: define a minimal graphical representation format as a fall back. Opinion: the abstract-layered-PASS-ont of the KIT has a proposal built in.</rdfs:comment>
+</rdfs:comment>
     </owl:DatatypeProperty>
     
 
@@ -759,6 +934,46 @@ ToDo: define a minimal graphical representation format as a fall back. Opinion: 
     
 
 
+    <!-- http://www.i2pm.net/standard-pass-ont#hasMultiReceiveLowerBound -->
+
+    <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasMultiReceiveLowerBound">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSModelDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#hasMultiReceiveUpperBound -->
+
+    <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasMultiReceiveUpperBound">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSModelDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#hasMultiSendLowerBound -->
+
+    <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasMultiSendLowerBound">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSModelDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#hasMultiSendUpperBound -->
+
+    <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasMultiSendUpperBound">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSModelDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransitionCondition"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.i2pm.net/standard-pass-ont#hasPriorityNumber -->
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasPriorityNumber">
@@ -780,6 +995,7 @@ Similarly, SubjectBehaviors with higher priority (lower priority number) are to 
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasReoccuranceFrequenyOrDate">
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasTimeValue"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#ReminderEventTransitionCondition"/>
         <rdfs:comment xml:lang="en">A data field meant for the two classes ReoccuranceTimeOutTransition and ReoccuranceTimeOutExitCondition.
 
 ToDo: Define the according data format for describing the iteration frequencies or reoccurring dates. Opinion: rather complex: expressive capabilities should cover expressions like: &quot;every 2nd Monday of Month at 7:30 in Morning.&quot; Every 29th of July&quot; or &quot;Every Hour&quot;, &quot;ever 25 Minuets&quot; , &quot;once each day&quot;, &quot;twice each week&quot; etc.</rdfs:comment>
@@ -803,7 +1019,7 @@ Adding according image information as XML literals is therefor a suitable, yet n
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasTimeBasedReoccuranceFrequencyOrDate">
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasReoccuranceFrequenyOrDate"/>
-        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#TimeBasedReminderTransition"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#TimeBasedReminderTransitionCondition"/>
     </owl:DatatypeProperty>
     
 
@@ -850,7 +1066,7 @@ By denoting their own data properties as sub-classes to this one the according d
 
     <owl:DatatypeProperty rdf:about="http://www.i2pm.net/standard-pass-ont#hasYearMonthDurationTimeOutTime">
         <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasDurationTimeOutTime"/>
-        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#YearMonthTimerTransition"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#YearMonthTimerTransitionCondition"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#yearMonthDuration"/>
     </owl:DatatypeProperty>
     
@@ -963,7 +1179,8 @@ The time unit for this timer transition is measured in business days. The defini
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#CalendarBasedReminderTransition">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReminderTransition"/>
-        <rdfs:comment xml:lang="en">A reminder transition, for defining exit conditions measured in calendar years or months
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#TimeBasedReminderTransition"/>
+        <rdfs:comment xml:lang="en">A reminder transition, for defining exit conditions for states measured in calendar years or months
 		
 		Conditions are e.g.: reaching of (in model) preset calendar date (e.g. 1st of July) or the reoccurrence  of a a long running frequency (&quot;every Month&quot;, &quot;2 times a year&quot;)</rdfs:comment>
     </owl:Class>
@@ -974,6 +1191,7 @@ The time unit for this timer transition is measured in business days. The defini
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#CalendarBasedReminderTransitionCondition">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReminderEventTransitionCondition"/>
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#TimeBasedReminderTransitionCondition"/>
         <rdfs:comment xml:lang="en">The according TransitionCondition type for the CalendarBasedReminderTransition.
 		
 		e.g. reaching of (in model) preset calendar date (e.g. 1st of July) or the reoccurrence  of a a long running frequency (&quot;every Month&quot;, &quot;2 times a year&quot;)</rdfs:comment>
@@ -1049,7 +1267,7 @@ The path may contain any amount of states but may those states may not reach out
 
 Similar to an initial state of a behavior a choice segment path must have one determined initial state.
 
-ToDo: Rule: A transition within a choice segment path must not have a target state that is not inside the same choice segment path.</rdfs:comment>
+A transition within a choice segment path must not have a target state that is not inside the same choice segment path.</rdfs:comment>
     </owl:Class>
     
 
@@ -1058,6 +1276,7 @@ ToDo: Rule: A transition within a choice segment path must not have a target sta
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#CommunicationAct">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#FunctionSpecification"/>
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#DoFunction"/>
         <rdfs:comment xml:lang="en">A super class for specialized FunctionSpecification of communication acts (send and receive)</rdfs:comment>
     </owl:Class>
     
@@ -1073,13 +1292,6 @@ ToDo: Rule: A transition within a choice segment path must not have a target sta
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasTransitionCondition"/>
                 <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchangeCondition"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#refersTo"/>
-                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
-                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">A super class for the CommunicationTransitions.</rdfs:comment>
@@ -1114,7 +1326,7 @@ There is a rudimentary concept for a simple build-in data type definition closel
     <!-- http://www.i2pm.net/standard-pass-ont#DataMappingFunction -->
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#DataMappingFunction">
-        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#BehaviorDescribingComponent"/>
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#DataDescribingComponent"/>
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSElement"/>
         <rdfs:subClassOf>
             <owl:Class>
@@ -1139,7 +1351,7 @@ There is a rudimentary concept for a simple build-in data type definition closel
                 <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">ToDo: Standard Format for DataMappingFunctions must be define: XML? OWL? JSON?
+        <rdfs:comment xml:lang="en">ToDo: Standard Format for DataMappingFunctions must be define: (Options: XML,OWL,JSON)
 		
 		Definitions of the ability/need to write or read data to and from a subject&apos;s personal data storage.
 
@@ -1158,6 +1370,7 @@ Or it may occur during executing a do function, where it is used to define read(
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#DataMappingIncomingToLocal">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#DataMappingFunction"/>
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#DataMappingLocalToOutgoing"/>
         <rdfs:comment xml:lang="en">A DataMapping that specifies how data is mapped from an an external source (message, function call etc.) to a subject&apos;s private defined data space.</rdfs:comment>
     </owl:Class>
     
@@ -1217,28 +1430,12 @@ DataType: the definition of an Data Object&apos;s structure.</rdfs:comment>
                 <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#DataObjectDefinition"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">ToDo: Question: are DataTypeDefinitions the same s DataObjectDefitions the same as PayloadDescritpions?
+        <rdfs:comment xml:lang="en">
 
 Data Type Definitions are complex descriptions of the supposed structure of Data Objects.
 
 DataObject: states that a data item does exist (similar to a variable in programming)
 DataType: the definition of an Data Object&apos;s structure.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://www.i2pm.net/standard-pass-ont#DayTimeTimerCondition -->
-
-    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#DayTimeTimerCondition">
-        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#TimerTransitionCondition"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasTimeValue"/>
-                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">A Timer Transition Condition that is fulfilled if a certain time defined in Days or hours, minuets, seconds or fractions of seconds, has passed since the state this condition belongs to has been entered.</rdfs:comment>
     </owl:Class>
     
 
@@ -1254,6 +1451,22 @@ Day or Time Timers are measured in normal 24 hour days. Following the XML standa
     
 
 
+    <!-- http://www.i2pm.net/standard-pass-ont#DayTimeTimerTransitionCondition -->
+
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#DayTimeTimerTransitionCondition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#TimerTransitionCondition"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasTimeValue"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">A Timer Transition Condition that is fulfilled if a certain time defined in Days or hours, minuets, seconds or fractions of seconds, has passed since the state this condition belongs to has been entered.</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.i2pm.net/standard-pass-ont#DoFunction -->
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#DoFunction">
@@ -1262,7 +1475,7 @@ Day or Time Timers are measured in normal 24 hour days. Following the XML standa
 
 The default DoFunction 1: present the surrounding execution environment with the given exit choices/conditions and receive choice of one exit option --&gt; define its Condition to be fulfilled in order to go to the next according state. 
 
-The default DoFunction 2: execute automatic rule evaluation (see DoTransitionCondition - ToDo)
+The default DoFunction 2: execute automatic rule evaluation (see DoTransitionCondition)
 
 More specialized Do-Function Specifications may contain Data mappings denoting what of a subjects internal local Data can and should be:
 
@@ -1270,7 +1483,7 @@ a) read: in order to simply see it or in order to send it of to an external func
 
 b) write: in order to write incoming Data from e.g. a web Service or user input, to the local data fault
 
-ToDo - Question: Should we create Standard definition for REST Calls for work-flow engines?</rdfs:comment>
+</rdfs:comment>
     </owl:Class>
     
 
@@ -1346,8 +1559,23 @@ ToDo - Question: Should we create Standard definition for REST Calls for work-fl
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSElement"/>
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#TransitionCondition"/>
         <rdfs:comment xml:lang="en">A TransitionCondition for the according DoTransitions and DoStates. 
-		
-ToDo: standard rule definition format that allow to specify the automatic evaluation of this condition based on a subject&apos;s current data state. (see DoFunction)</rdfs:comment>
+		</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#DynamicSubjectExecutionMapping -->
+
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#DynamicSubjectExecutionMapping">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping"/>
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#StaticSubjectExecutionMapping"/>
+        <rdfs:comment xml:lang="en">In an organisation with multiple hierarchical tiers, an agent &quot;Marry&quot; could be the supervisor for &quot;Paul&quot; and be able to authorize his vacations, while having to request her vacations in principle form &quot;Mark&quot;, who is her supervisor.
+
+Ideally, whenever some agent/subject-carrier initiates the vacation request process as an employee, the Subject &quot;Supervising Manager&quot; should automatically be mapped to her or his specific current supervisor.
+
+Furthermore, if that specific agent is not available but there are rules to determine a deputy or substitute, the subject should automatically be be mapped to that substitute. E.g. if &quot;Paul&quot; wants his vacation to be authorized, but &quot;Marry&quot; is currently on vacation herself, someone else should be there to fill in the role of &quot;Supervising Manager&quot;, namely &quot;Mark&quot; as her supervisor.
+
+Such logic / rules can be stored in a DynamicSubjectExecutionMapping object.</rdfs:comment>
     </owl:Class>
     
 
@@ -1454,8 +1682,7 @@ Function Specifications are more than &quot;Data Properties&quot;? --&gt; - If s
         <rdfs:comment xml:lang="en">A guard behavior is a special usually additional behavior that guards the Base Behavior of a subject.
 
 It starts with a (guard) receive state denoting a special interrupting message.  Upon reception of that message the subject will execute the according receive transition and the follow up states until it is either redirected to a state on the base behavior or terminates in an end-state within the guard behavior.
-
-ToDo: Define how redirecting to another behavior is defined. There are at least two different options: a) return to exactly one specified state. b) return to the originating special state.  Opinion: both are needed. The modeling standard requires a special placeholder symbol or modeling element that allows the specification of either a special state to return to or a general return to origin symbol. Possibly two symbols/modeling elements)</rdfs:comment>
+</rdfs:comment>
     </owl:Class>
     
 
@@ -1465,7 +1692,6 @@ ToDo: Define how redirecting to another behavior is defined. There are at least 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#InitialStateOfBehavior">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SimplePASSElement"/>
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
-        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#InitialStateOfChoiceSegmentPath"/>
         <rdfs:comment xml:lang="en">The initial state of a behavior</rdfs:comment>
     </owl:Class>
     
@@ -1617,6 +1843,23 @@ InputPoolConstraintStrategy-Drop - Sending of the message succeeds. However the 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#MacroBehavior">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
         <rdfs:subClassOf>
+            <owl:Class>
+                <owl:complementOf>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                        <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#EndState"/>
+                    </owl:Restriction>
+                </owl:complementOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#GenericReturnToOriginReference"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
                 <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
@@ -1625,15 +1868,7 @@ InputPoolConstraintStrategy-Drop - Sending of the message succeeds. However the 
         </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectBaseBehavior"/>
         <rdfs:comment xml:lang="en">A macro behavior is a specialized behavior that may be entered and exited from a function state in another behavior.
-
-ToDo: specify the details of a Macro Behavior!
-- Are there special Start states denoting it can be called from multiple places (place holders)? Opinion: a Macro may have several &quot;start states&quot; or a generic place holder for the  &quot;previous state&quot; 
-- Are there different types of End State ruling (similar to guard behaviors)?
-- Does a &quot;Macro behavior&quot; extend one state (or multiple)?
-- is a macro behavior allowed to have branches and multiple endings?
-- if multiple different endings are allowed, will this imply that a state &quot;calling&quot; this macro or extensions must have the same number of possible outcomes (exit conditions) to be valid? (Opinion: yes it should - if the macro has less, then it may default back to users choice)
-
-- Define how redirecting from another behavior is defined. There are at least two different options: a) return to exactly one specified state. b) return to the originating special state.  Opinion: both are needed. The modeling standard requires a special placeholder symbol or modeling element that allows the specification of either a special state to return to or a general return to origin symbol. Possibly two symbols/modeling elements)</rdfs:comment>
+</rdfs:comment>
     </owl:Class>
     
 
@@ -1642,13 +1877,6 @@ ToDo: specify the details of a Macro Behavior!
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#MacroState">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
-                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
-                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#StateReference"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#referencesMacroBehavior"/>
@@ -1958,20 +2186,21 @@ E.g. You can accept only &quot;three request at once&quot;</rdfs:comment>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasAdditionalAttribute"/>
-                <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#AdditionalAttribute"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#AdditionalAttribute"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasModelComponentLabel"/>
-                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minQualifiedCardinality>
                 <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasModelComponentID"/>
-                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
                 <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -2020,16 +2249,14 @@ This can either be a description of a physical (real) object or a description of
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#ReceiveFunction">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#CommunicationAct"/>
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#SendFunction"/>
         <rdfs:comment xml:lang="en">Specifications/descriptions for Receive-Functions describe in detail what the subject carrier is supposed to do in a state.
 
 DefaultFunctionReceive1_EnvoironmentChoice : present the surrounding execution environment with the given exit choices/conditions currently available depending on the current state of the subjects in-box. Waiting and not executing the receive action is an option.
 
 DefaultFunctionReceive2_AutoReceiveEarliest: automatically execute the according activity with the highest priority as soon as possible. In contrast to DefaultFunctionReceive1, it is not an option to prolong the reception and wait e.g. for another message.
 
-ToDo: Discussions about the different types of Default Receive Functions DefaultFunctionReceive1_EnvoironmentChoice and DefaultFunctionReceive2_AutoReceive.
-Are there more standard options?
-
-ToDo: Should Receive Functions or transitions have additional attributes for handling the sending to and from multiple Subject instances (Multi-Subjects)? e.g. receive-from-all-known, receive-3-of-a-type. Should this be part of the Receive Function or the Receive Transition?</rdfs:comment>
+</rdfs:comment>
     </owl:Class>
     
 
@@ -2062,6 +2289,13 @@ ToDo: Should Receive Functions or transitions have additional attributes for han
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasFunctionSpecification"/>
                 <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveFunction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#SendState"/>
@@ -2103,9 +2337,53 @@ ToDo: Should Receive Functions or transitions have additional attributes for han
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#ReceiveTransitionCondition">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchangeCondition"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasReceiveType"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresMessageSentFrom"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresReceptionOfMessage"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMultiReceiveLowerBound"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#positiveInteger"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMultiReceiveUpperBound"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#positiveInteger"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransitionCondition"/>
         <rdfs:comment xml:lang="en">ReceiveTransitionConditions are conditions that state that a certain message must have been taken out of a subjects in-box to be fulfilled.
 
 These are the typical conditions defined by Receive Transitions.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#ReceiveType -->
+
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#ReceiveType">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#BehaviorDescribingComponent"/>
     </owl:Class>
     
 
@@ -2114,6 +2392,7 @@ These are the typical conditions defined by Receive Transitions.</rdfs:comment>
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#ReminderEventTransitionCondition">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#TimeTransitionCondition"/>
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#TimerTransitionCondition"/>
         <rdfs:comment xml:lang="en">An transition (exit) condition that becomes true if a certain time since a previous trigger was set has passed.
 
 The condition  may be defined as frequency over a given interval. --&gt; e.g. 12x a year</rdfs:comment>
@@ -2125,7 +2404,18 @@ The condition  may be defined as frequency over a given interval. --&gt; e.g. 12
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#ReminderTransition">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#TimeTransition"/>
-        <rdfs:comment xml:lang="en">Reminder transitions are transitions that can be traverses if a certain time based event or frequency has been reached. E.g. a number of months since the last traversal of this transition or the event of a certain preset calendar date etc.</rdfs:comment>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:complementOf>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasSourceState"/>
+                        <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#SendState"/>
+                    </owl:Restriction>
+                </owl:complementOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="http://www.i2pm.net/standard-pass-ont#TimerTransition"/>
+        <rdfs:comment xml:lang="en">Reminder transitions are transitions that can be traversed if a certain time based event or frequency has been reached. E.g. a number of months since the last traversal of this transition or the event of a certain preset calendar date etc.</rdfs:comment>
     </owl:Class>
     
 
@@ -2134,8 +2424,6 @@ The condition  may be defined as frequency over a given interval. --&gt; e.g. 12
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#SendFunction">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#CommunicationAct"/>
-        <rdfs:comment>ToDo: modeling of send-modes to and from Multi-Subjects (- Send-to-new, - send-to-known, - upper and lower Bounds) 
-Opinion: send-To-new may not seem to be necessary if a the standard would define that any message received in an initial state will prompt a work-flow environment to instantiate a new subject. However in case where the start state may be revisited multiple times the option may be necessary. Since the information about the nature of message is hidden in another subjects behavior, an according statement may explicitly be necessary. </rdfs:comment>
     </owl:Class>
     
 
@@ -2166,14 +2454,22 @@ Opinion: send-To-new may not seem to be necessary if a the standard would define
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition"/>
-                <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#SendingFailedTransition"/>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasFunctionSpecification"/>
+                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#SendFunction"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasFunctionSpecification"/>
-                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#SendFunction"/>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#SendingFailedTransition"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -2213,9 +2509,52 @@ Opinion: send-To-new may not seem to be necessary if a the standard would define
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#SendTransitionCondition">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchangeCondition"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasSendType"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#SendType"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresMessageSentTo"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresSendingOfMessage"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMultiSendLowerBound"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#positiveInteger"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMultiSendUpperBound"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#positiveInteger"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">SendTransitionConditions are conditions that state that a certain message must have been successfully passed to another subjects in-box to be fulfilled.
 
 These are the typical conditions defined by Send transitions.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#SendType -->
+
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#SendType">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#BehaviorDescribingComponent"/>
     </owl:Class>
     
 
@@ -2328,13 +2667,15 @@ Usually there should be only one Start subject in a process context.</rdfs:comme
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasIncomingTransition"/>
-                <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition"/>
-                <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -2367,6 +2708,16 @@ Usually there should be only one Start subject in a process context.</rdfs:comme
                 <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
             </owl:Restriction>
         </rdfs:subClassOf>
+        <rdfs:comment>A state reference is a model component that is a reference to a state in another behavior. For most modeling aspects it is a normal state.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#StaticSubjectExecutionMapping -->
+
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#StaticSubjectExecutionMapping">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping"/>
+        <rdfs:comment xml:lang="en">A mapping between subjects and agents can be done simple and direct (or &quot;static&quot;). Here, agents are directly mapped to subjects and therefore eligible to execute them. The only information necessary to know about the execution system is the existence of the agents in order to assign subjects to them.</rdfs:comment>
     </owl:Class>
     
 
@@ -2386,6 +2737,13 @@ Usually there should be only one Start subject in a process context.</rdfs:comme
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingMessageExchange"/>
                 <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasSubjectExecutionMapping"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -2415,6 +2773,13 @@ Usually there should be only one Start subject in a process context.</rdfs:comme
                 </owl:complementOf>
             </owl:Class>
         </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasEndState"/>
+                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#EndState"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">The standard behavior model type</rdfs:comment>
     </owl:Class>
     
@@ -2428,13 +2793,6 @@ Usually there should be only one Start subject in a process context.</rdfs:comme
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
                 <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#BehaviorDescribingComponent"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasEndState"/>
-                <owl:minQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:minQualifiedCardinality>
-                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -2466,11 +2824,22 @@ A subject in a model may be linked to more than one behavior.</rdfs:comment>
     
 
 
-    <!-- http://www.i2pm.net/standard-pass-ont#TimeBasedReminderTimeOutTransitionCondition -->
+    <!-- http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping -->
 
-    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#TimeBasedReminderTimeOutTransitionCondition">
-        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReminderEventTransitionCondition"/>
-        <rdfs:comment xml:lang="en">e.g. the reoccurrence of a a time based frequency (&quot;every 10 minuets&quot;,  &quot;4 times an hour&quot;)</rdfs:comment>
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#InteractionDescribingComponent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasExecutionMappingDefinition"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">On an &quot;atomic&quot; level any socio-technical system consist of various &quot;types of agents&quot;, individual human beings, physical machines that are meant for single tasks (e.g. production machines for stamping), and IT components that are used to coordinated them.
+
+When implementing a subject-oriented process model, it is necessary to state which &quot;agent&quot; is responsible for the execution of which subject. This concept is called mapping; as verb &quot;to map&quot; subjects to agents, or as noun to create &quot;a mapping&quot; between subjects and agents.
+
+To be useful, these mappings must be written in a form that can be understood by the execution system in order to assign the correct agents to be subject-carriers for the correct subjects. The mapping is used to answer question like: &quot;Is an agents allowed to execute a subject?&quot;, &quot;What resources/agents are available to execute a subject?&quot;.</rdfs:comment>
     </owl:Class>
     
 
@@ -2483,20 +2852,20 @@ A subject in a model may be linked to more than one behavior.</rdfs:comment>
     
 
 
+    <!-- http://www.i2pm.net/standard-pass-ont#TimeBasedReminderTransitionCondition -->
+
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#TimeBasedReminderTransitionCondition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReminderEventTransitionCondition"/>
+        <rdfs:comment xml:lang="en">e.g. the reoccurrence of a a time based frequency (&quot;every 10 minuets&quot;,  &quot;4 times an hour&quot;)</rdfs:comment>
+    </owl:Class>
+    
+
+
     <!-- http://www.i2pm.net/standard-pass-ont#TimeTransition -->
 
     <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#TimeTransition">
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
-        <rdfs:comment xml:lang="en">Generic super calls for all TimeTransitions, transitions with conditions based on time events. E.g.passing of a certain time duration or the (reoccuring) calendarial event.
-		
-		ToDo: Discussion: how to handle time transitions execution wise? 
-		
-		Options: 
-		- For Receive States they can be substituted with the reception of a message from an implicit Calendar or Timer Subject, that gets triggered by an implicit setter message upon entering that state.
-		- For Do States they have an impact on the internal function that gets a parallel running timer function that counts down or looks up a calendar (alternative an implicit Macro with receive of a message is possible.
-		- For Send States these may denote the &quot;sending Failed/time out&quot; with an impact on the internal send function.
-		
-		
+        <rdfs:comment xml:lang="en">Generic super calls for all TimeTransitions, transitions with conditions based on time events. E.g.passing of a certain time duration or the (reoccurring) calendar event.		
 		</rdfs:comment>
     </owl:Class>
     
@@ -2514,7 +2883,7 @@ A subject in a model may be linked to more than one behavior.</rdfs:comment>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">A condition that is deemed &apos;true&apos; and thus the according edge is gone, if: a surrounding execution system has deemed the time since entering the state and starting with the execution of the according action as too long (predefined by the outgoing edge)</rdfs:comment>
-        <rdfs:comment xml:lang="en">A condition that is true if a certain time defined has passed since the state this condition belongs to has been entered. (This is the standard TimeOut Exit condition)</rdfs:comment>
+        <rdfs:comment xml:lang="en">A condition that is true if a certain time defined has passed since the state this condition is attached to via its transition has been entered. (This is the standard TimeOut condition)</rdfs:comment>
     </owl:Class>
     
 
@@ -2566,7 +2935,7 @@ A subject in a model may be linked to more than one behavior.</rdfs:comment>
                 <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Action"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">An edge defines the transition between two states. A transition can be traversed if the outcome of the action of the state it originates from satisfies a certain exit condition specified by it&apos;s &quot;Alternative&quot;</rdfs:comment>
+        <rdfs:comment xml:lang="en">An edge defines the transition between two states. A transition can be traversed if the outcome of the action of the state it originates from satisfies a certain condition specified by it&apos;s &quot;Alternative&quot;. In the model these conditions are defined for and attached to the transition --&gt; Transition Condition (when a transition originates from a state, its transition condition defines one of possibly multipe exit conditions for that state. </rdfs:comment>
     </owl:Class>
     
 
@@ -2582,15 +2951,13 @@ A subject in a model may be linked to more than one behavior.</rdfs:comment>
                 <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">An exit condition belongs to alternatives which in turn is given for a state. An alternative (to leave the state) is only a real alternative if the exit condition is fulfilled (technically: if that according function returns &quot;true&quot;)
+        <rdfs:comment xml:lang="en">An Transition condition defines an alternatives for a state that the transition the condition is attached to, originates from. An alternative (to leave the state) is only a real alternative if the condition is fulfilled (technically: if that according function returns &quot;true&quot;)
 
-Note: Technically and during execution exit conditions belong to states. They define when it is allowed to leave that state. However, in PASS models exit conditions for states are defined and connected to the according transition edges. Therefore transition conditions are individual entities and not DataProperties.
+Note: Technically and during execution &quot;conditions&quot; belong to states. They define when it is allowed to leave that state. However, in PASS models exit conditions for states are defined and connected to the according transition edges. Therefore transition conditions are individual entities and not DataProperties.
 
 The according matching must be done by the model execution environment.
 
-By its existence, an edge/transition defines one possible follow up &quot;state&quot; for its state of origin. It is coupled with an &quot;Exit Condition&quot; that must be fulfilled in the originating state in order to leave the state.</rdfs:comment>
-        <rdfs:comment xml:lang="en">ToDo: Definition of standard condition types
-ToDo: Definition of Expression Language/Format for Transition Conditions (Technical)</rdfs:comment>
+By its existence, an edge/transition defines one possible follow up &quot;state&quot; for its state of origin. It is coupled with an &quot;Exit Condition&quot; for that state (the transition condition) that must be fulfilled in the originating state in order to leave the state.</rdfs:comment>
     </owl:Class>
     
 
@@ -2621,7 +2988,7 @@ The user cancel allows for an arbitrary decision by a subject carrier/processor 
         <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#TimerTransition"/>
         <rdfs:comment xml:lang="en">Timer transitions, denote time outs for the state they originate from.  The condition for a timer transition is that a certain amount of time has passed since the state it originates from has been entered.
 
-Year or Month timers measure time in calendarial years or months. The exact definitions for years and months depends on relevant or legal  geographical location of the subject.</rdfs:comment>
+Year or Month timers measure time in calendar years or months. The exact definitions for years and months depends on relevant or legal  geographical location of the subject.</rdfs:comment>
     </owl:Class>
     
 
@@ -2637,7 +3004,7 @@ Year or Month timers measure time in calendarial years or months. The exact defi
                 <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#yearMonthDuration"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">A Timer Transition Condition that is fulfilled if a certain time defined in Calendarial years or months has passed since the state this condition belongs to has been entered.
+        <rdfs:comment xml:lang="en">A Timer Transition Condition that is fulfilled if a certain time defined in calendar years or months has passed since the state this condition belongs to has been entered.
 
 The exact specification of year and especially month depends on a subjects legal or geographical location.</rdfs:comment>
     </owl:Class>
@@ -2655,9 +3022,9 @@ The exact specification of year and especially month depends on a subjects legal
     
 
 
-    <!-- http://www.i2pm.net/standard-pass-ont#DefaultFunctionDo1_EnvoironmentChoice -->
+    <!-- http://www.i2pm.net/standard-pass-ont#DefaultFunctionDo1_EnvironmentChoice -->
 
-    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#DefaultFunctionDo1_EnvoironmentChoice">
+    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#DefaultFunctionDo1_EnvironmentChoice">
         <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#DoFunction"/>
         <rdfs:comment xml:lang="en">The default doFunction 1: is to present the surrounding execution environment with the given exit choices/conditions and receive choice of one Exit Option --&gt; define its Condition to be fulfilled in order to go to the next according state.</rdfs:comment>
     </owl:NamedIndividual>
@@ -2668,7 +3035,7 @@ The exact specification of year and especially month depends on a subjects legal
 
     <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#DefaultFunctionDo2_AutomaticEvaluation">
         <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#DoFunction"/>
-        <rdfs:comment xml:lang="en">The default doFunction 2: execute automatic rule evaluation (see DoTransitionCondition - ToDo)</rdfs:comment>
+        <rdfs:comment xml:lang="en">The default doFunction 2: execute automatic rule evaluation (see DoTransitionCondition)</rdfs:comment>
     </owl:NamedIndividual>
     
 
@@ -2735,6 +3102,62 @@ In contrast to DefaultFunctionReceive1, it is not an option to prolong the recep
     
 
 
+    <!-- http://www.i2pm.net/standard-pass-ont#ReceiveTypeMultiReceiveFromAllKnown -->
+
+    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#ReceiveTypeMultiReceiveFromAllKnown">
+        <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#ReceiveTypeMultiReceiveFromKnwon -->
+
+    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#ReceiveTypeMultiReceiveFromKnwon">
+        <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#ReceiveTypeStandard -->
+
+    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#ReceiveTypeStandard">
+        <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#SendTypeMultiSendToAll -->
+
+    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#SendTypeMultiSendToAll">
+        <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#SendType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#SendTypeMultiSendToKnown -->
+
+    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#SendTypeMultiSendToKnown">
+        <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#SendType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#SendTypeMultiSendToNew -->
+
+    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#SendTypeMultiSendToNew">
+        <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#SendType"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#SendTypeStandard -->
+
+    <owl:NamedIndividual rdf:about="http://www.i2pm.net/standard-pass-ont#SendTypeStandard">
+        <rdf:type rdf:resource="http://www.i2pm.net/standard-pass-ont#SendType"/>
+    </owl:NamedIndividual>
+    
+
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -2767,10 +3190,28 @@ In contrast to DefaultFunctionReceive1, it is not an option to prolong the recep
     <rdf:Description>
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
         <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#BusinessDayTimerTransition"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#DayTimeTimerTransition"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#YearMonthTimerTransition"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#BusinessDayTimerTransitionCondition"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#DayTimeTimerTransitionCondition"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#YearMonthTimerTransitionCondition"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#ChoiceSegment"/>
             <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#ChoiceSegmentPath"/>
-            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#MacroState"/>
-            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#StandardPASSState"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#GenericReturnToOriginReference"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#InitialStateOfBehavior"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#InitialStateOfChoiceSegmentPath"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#StateReference"/>
         </owl:members>
     </rdf:Description>
     <rdf:Description>
@@ -2786,11 +3227,21 @@ In contrast to DefaultFunctionReceive1, it is not an option to prolong the recep
     <rdf:Description>
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
         <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#DoTransitionCondition"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#MessageExchangeCondition"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SendingFailedCondition"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#TimeTransitionCondition"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
             <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#InputPoolConstraint"/>
             <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
             <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#MessageExchangeList"/>
             <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
             <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectExecutionMapping"/>
         </owl:members>
     </rdf:Description>
     
@@ -2811,6 +3262,30 @@ In contrast to DefaultFunctionReceive1, it is not an option to prolong the recep
         <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
     </rdf:Description>
     <rdf:Description rdf:about="urn:swrl#z">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#x">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#y">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#s">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#r">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#b">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#t">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#a">
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="urn:swrl:var#st">
         <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Variable"/>
     </rdf:Description>
     <rdf:Description>
@@ -3066,9 +3541,475 @@ In contrast to DefaultFunctionReceive1, it is not an option to prolong the recep
             </rdf:Description>
         </swrl:head>
     </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Imp"/>
+        <swrl:body>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                        <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransitionCondition"/>
+                        <swrl:argument1 rdf:resource="urn:swrl:var#x"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                        <rdf:first>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+                                <swrl:argument1 rdf:resource="urn:swrl:var#y"/>
+                            </rdf:Description>
+                        </rdf:first>
+                        <rdf:rest>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                <rdf:first>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                        <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                                        <swrl:argument1 rdf:resource="urn:swrl:var#s"/>
+                                    </rdf:Description>
+                                </rdf:first>
+                                <rdf:rest>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                        <rdf:first>
+                                            <rdf:Description>
+                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                                                <swrl:argument1 rdf:resource="urn:swrl:var#r"/>
+                                            </rdf:Description>
+                                        </rdf:first>
+                                        <rdf:rest>
+                                            <rdf:Description>
+                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                <rdf:first>
+                                                    <rdf:Description>
+                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                        <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+                                                        <swrl:argument1 rdf:resource="urn:swrl:var#b"/>
+                                                    </rdf:Description>
+                                                </rdf:first>
+                                                <rdf:rest>
+                                                    <rdf:Description>
+                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                        <rdf:first>
+                                                            <rdf:Description>
+                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransition"/>
+                                                                <swrl:argument1 rdf:resource="urn:swrl:var#t"/>
+                                                            </rdf:Description>
+                                                        </rdf:first>
+                                                        <rdf:rest>
+                                                            <rdf:Description>
+                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                <rdf:first>
+                                                                    <rdf:Description>
+                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#containsBehavior"/>
+                                                                        <swrl:argument1 rdf:resource="urn:swrl:var#r"/>
+                                                                        <swrl:argument2 rdf:resource="urn:swrl:var#b"/>
+                                                                    </rdf:Description>
+                                                                </rdf:first>
+                                                                <rdf:rest>
+                                                                    <rdf:Description>
+                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                        <rdf:first>
+                                                                            <rdf:Description>
+                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                                                                                <swrl:argument1 rdf:resource="urn:swrl:var#b"/>
+                                                                                <swrl:argument2 rdf:resource="urn:swrl:var#t"/>
+                                                                            </rdf:Description>
+                                                                        </rdf:first>
+                                                                        <rdf:rest>
+                                                                            <rdf:Description>
+                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                <rdf:first>
+                                                                                    <rdf:Description>
+                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#hasTransitionCondition"/>
+                                                                                        <swrl:argument1 rdf:resource="urn:swrl:var#t"/>
+                                                                                        <swrl:argument2 rdf:resource="urn:swrl:var#x"/>
+                                                                                    </rdf:Description>
+                                                                                </rdf:first>
+                                                                                <rdf:rest>
+                                                                                    <rdf:Description>
+                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                        <rdf:first>
+                                                                                            <rdf:Description>
+                                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                                                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
+                                                                                                <swrl:argument1 rdf:resource="urn:swrl:var#a"/>
+                                                                                            </rdf:Description>
+                                                                                        </rdf:first>
+                                                                                        <rdf:rest>
+                                                                                            <rdf:Description>
+                                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                                <rdf:first>
+                                                                                                    <rdf:Description>
+                                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#hasSender"/>
+                                                                                                        <swrl:argument1 rdf:resource="urn:swrl:var#a"/>
+                                                                                                        <swrl:argument2 rdf:resource="urn:swrl:var#s"/>
+                                                                                                    </rdf:Description>
+                                                                                                </rdf:first>
+                                                                                                <rdf:rest>
+                                                                                                    <rdf:Description>
+                                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                                        <rdf:first>
+                                                                                                            <rdf:Description>
+                                                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                                                <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMessageType"/>
+                                                                                                                <swrl:argument1 rdf:resource="urn:swrl:var#a"/>
+                                                                                                                <swrl:argument2 rdf:resource="urn:swrl:var#y"/>
+                                                                                                            </rdf:Description>
+                                                                                                        </rdf:first>
+                                                                                                        <rdf:rest>
+                                                                                                            <rdf:Description>
+                                                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                                                <rdf:first>
+                                                                                                                    <rdf:Description>
+                                                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresPerformedMessageExchange"/>
+                                                                                                                        <swrl:argument1 rdf:resource="urn:swrl:var#x"/>
+                                                                                                                        <swrl:argument2 rdf:resource="urn:swrl:var#a"/>
+                                                                                                                    </rdf:Description>
+                                                                                                                </rdf:first>
+                                                                                                                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                                                                                            </rdf:Description>
+                                                                                                        </rdf:rest>
+                                                                                                    </rdf:Description>
+                                                                                                </rdf:rest>
+                                                                                            </rdf:Description>
+                                                                                        </rdf:rest>
+                                                                                    </rdf:Description>
+                                                                                </rdf:rest>
+                                                                            </rdf:Description>
+                                                                        </rdf:rest>
+                                                                    </rdf:Description>
+                                                                </rdf:rest>
+                                                            </rdf:Description>
+                                                        </rdf:rest>
+                                                    </rdf:Description>
+                                                </rdf:rest>
+                                            </rdf:Description>
+                                        </rdf:rest>
+                                    </rdf:Description>
+                                </rdf:rest>
+                            </rdf:Description>
+                        </rdf:rest>
+                    </rdf:Description>
+                </rdf:rest>
+            </rdf:Description>
+        </swrl:body>
+        <swrl:head>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresReceptionOfMessage"/>
+                        <swrl:argument1 rdf:resource="urn:swrl:var#x"/>
+                        <swrl:argument2 rdf:resource="urn:swrl:var#y"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                        <rdf:first>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresMessageSentFrom"/>
+                                <swrl:argument1 rdf:resource="urn:swrl:var#x"/>
+                                <swrl:argument2 rdf:resource="urn:swrl:var#s"/>
+                            </rdf:Description>
+                        </rdf:first>
+                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                    </rdf:Description>
+                </rdf:rest>
+            </rdf:Description>
+        </swrl:head>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Imp"/>
+        <swrl:body>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                        <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransitionCondition"/>
+                        <swrl:argument1 rdf:resource="urn:swrl:var#x"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                        <rdf:first>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+                                <swrl:argument1 rdf:resource="urn:swrl:var#y"/>
+                            </rdf:Description>
+                        </rdf:first>
+                        <rdf:rest>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                <rdf:first>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                        <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                                        <swrl:argument1 rdf:resource="urn:swrl:var#s"/>
+                                    </rdf:Description>
+                                </rdf:first>
+                                <rdf:rest>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                        <rdf:first>
+                                            <rdf:Description>
+                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+                                                <swrl:argument1 rdf:resource="urn:swrl:var#b"/>
+                                            </rdf:Description>
+                                        </rdf:first>
+                                        <rdf:rest>
+                                            <rdf:Description>
+                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                <rdf:first>
+                                                    <rdf:Description>
+                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                        <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransition"/>
+                                                        <swrl:argument1 rdf:resource="urn:swrl:var#t"/>
+                                                    </rdf:Description>
+                                                </rdf:first>
+                                                <rdf:rest>
+                                                    <rdf:Description>
+                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                        <rdf:first>
+                                                            <rdf:Description>
+                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#containsBehavior"/>
+                                                                <swrl:argument1 rdf:resource="urn:swrl:var#s"/>
+                                                                <swrl:argument2 rdf:resource="urn:swrl:var#b"/>
+                                                            </rdf:Description>
+                                                        </rdf:first>
+                                                        <rdf:rest>
+                                                            <rdf:Description>
+                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                <rdf:first>
+                                                                    <rdf:Description>
+                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                                                                        <swrl:argument1 rdf:resource="urn:swrl:var#b"/>
+                                                                        <swrl:argument2 rdf:resource="urn:swrl:var#t"/>
+                                                                    </rdf:Description>
+                                                                </rdf:first>
+                                                                <rdf:rest>
+                                                                    <rdf:Description>
+                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                        <rdf:first>
+                                                                            <rdf:Description>
+                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#hasTransitionCondition"/>
+                                                                                <swrl:argument1 rdf:resource="urn:swrl:var#t"/>
+                                                                                <swrl:argument2 rdf:resource="urn:swrl:var#x"/>
+                                                                            </rdf:Description>
+                                                                        </rdf:first>
+                                                                        <rdf:rest>
+                                                                            <rdf:Description>
+                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                <rdf:first>
+                                                                                    <rdf:Description>
+                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                                                        <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                                                                                        <swrl:argument1 rdf:resource="urn:swrl:var#r"/>
+                                                                                    </rdf:Description>
+                                                                                </rdf:first>
+                                                                                <rdf:rest>
+                                                                                    <rdf:Description>
+                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                        <rdf:first>
+                                                                                            <rdf:Description>
+                                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                                                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
+                                                                                                <swrl:argument1 rdf:resource="urn:swrl:var#a"/>
+                                                                                            </rdf:Description>
+                                                                                        </rdf:first>
+                                                                                        <rdf:rest>
+                                                                                            <rdf:Description>
+                                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                                <rdf:first>
+                                                                                                    <rdf:Description>
+                                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#hasReceiver"/>
+                                                                                                        <swrl:argument1 rdf:resource="urn:swrl:var#a"/>
+                                                                                                        <swrl:argument2 rdf:resource="urn:swrl:var#r"/>
+                                                                                                    </rdf:Description>
+                                                                                                </rdf:first>
+                                                                                                <rdf:rest>
+                                                                                                    <rdf:Description>
+                                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                                        <rdf:first>
+                                                                                                            <rdf:Description>
+                                                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                                                <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMessageType"/>
+                                                                                                                <swrl:argument1 rdf:resource="urn:swrl:var#a"/>
+                                                                                                                <swrl:argument2 rdf:resource="urn:swrl:var#y"/>
+                                                                                                            </rdf:Description>
+                                                                                                        </rdf:first>
+                                                                                                        <rdf:rest>
+                                                                                                            <rdf:Description>
+                                                                                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                                                                                <rdf:first>
+                                                                                                                    <rdf:Description>
+                                                                                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                                                                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresPerformedMessageExchange"/>
+                                                                                                                        <swrl:argument1 rdf:resource="urn:swrl:var#x"/>
+                                                                                                                        <swrl:argument2 rdf:resource="urn:swrl:var#a"/>
+                                                                                                                    </rdf:Description>
+                                                                                                                </rdf:first>
+                                                                                                                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                                                                                            </rdf:Description>
+                                                                                                        </rdf:rest>
+                                                                                                    </rdf:Description>
+                                                                                                </rdf:rest>
+                                                                                            </rdf:Description>
+                                                                                        </rdf:rest>
+                                                                                    </rdf:Description>
+                                                                                </rdf:rest>
+                                                                            </rdf:Description>
+                                                                        </rdf:rest>
+                                                                    </rdf:Description>
+                                                                </rdf:rest>
+                                                            </rdf:Description>
+                                                        </rdf:rest>
+                                                    </rdf:Description>
+                                                </rdf:rest>
+                                            </rdf:Description>
+                                        </rdf:rest>
+                                    </rdf:Description>
+                                </rdf:rest>
+                            </rdf:Description>
+                        </rdf:rest>
+                    </rdf:Description>
+                </rdf:rest>
+            </rdf:Description>
+        </swrl:body>
+        <swrl:head>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresSendingOfMessage"/>
+                        <swrl:argument1 rdf:resource="urn:swrl:var#x"/>
+                        <swrl:argument2 rdf:resource="urn:swrl:var#y"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                        <rdf:first>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#requiresMessageSentTo"/>
+                                <swrl:argument1 rdf:resource="urn:swrl:var#x"/>
+                                <swrl:argument2 rdf:resource="urn:swrl:var#r"/>
+                            </rdf:Description>
+                        </rdf:first>
+                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                    </rdf:Description>
+                </rdf:rest>
+            </rdf:Description>
+        </swrl:head>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#Imp"/>
+        <swrl:body>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                        <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+                        <swrl:argument1 rdf:resource="urn:swrl:var#b"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                        <rdf:first>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+                                <swrl:argument1 rdf:resource="urn:swrl:var#st"/>
+                            </rdf:Description>
+                        </rdf:first>
+                        <rdf:rest>
+                            <rdf:Description>
+                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                <rdf:first>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                                        <swrl:argument1 rdf:resource="urn:swrl:var#b"/>
+                                        <swrl:argument2 rdf:resource="urn:swrl:var#st"/>
+                                    </rdf:Description>
+                                </rdf:first>
+                                <rdf:rest>
+                                    <rdf:Description>
+                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                        <rdf:first>
+                                            <rdf:Description>
+                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#ClassAtom"/>
+                                                <swrl:classPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
+                                                <swrl:argument1 rdf:resource="urn:swrl:var#t"/>
+                                            </rdf:Description>
+                                        </rdf:first>
+                                        <rdf:rest>
+                                            <rdf:Description>
+                                                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                                                <rdf:first>
+                                                    <rdf:Description>
+                                                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                                                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#hasOutgoingTransition"/>
+                                                        <swrl:argument1 rdf:resource="urn:swrl:var#st"/>
+                                                        <swrl:argument2 rdf:resource="urn:swrl:var#t"/>
+                                                    </rdf:Description>
+                                                </rdf:first>
+                                                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                            </rdf:Description>
+                                        </rdf:rest>
+                                    </rdf:Description>
+                                </rdf:rest>
+                            </rdf:Description>
+                        </rdf:rest>
+                    </rdf:Description>
+                </rdf:rest>
+            </rdf:Description>
+        </swrl:body>
+        <swrl:head>
+            <rdf:Description>
+                <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#AtomList"/>
+                <rdf:first>
+                    <rdf:Description>
+                        <rdf:type rdf:resource="http://www.w3.org/2003/11/swrl#IndividualPropertyAtom"/>
+                        <swrl:propertyPredicate rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                        <swrl:argument1 rdf:resource="urn:swrl:var#b"/>
+                        <swrl:argument2 rdf:resource="urn:swrl:var#t"/>
+                    </rdf:Description>
+                </rdf:first>
+                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+            </rdf:Description>
+        </swrl:head>
+    </rdf:Description>
 </rdf:RDF>
 
 
 
-<!-- Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi -->
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
 

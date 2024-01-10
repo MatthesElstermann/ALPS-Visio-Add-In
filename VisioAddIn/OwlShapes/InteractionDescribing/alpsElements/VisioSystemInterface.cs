@@ -1,20 +1,21 @@
-﻿using alps.net.api.ALPS;
+﻿
+using alps.net.api.ALPS;
 using alps.net.api.parsing;
+using alps.net.api.StandardPASS;
 using System.Collections.Generic;
 using System.Linq;
 using Visio = Microsoft.Office.Interop.Visio;
 
 namespace VisioAddIn.OwlShapes
 {
-    public class VisioGuardExtension : GuardExtension, IVisioExportableWithShape
+    public class VisioSystemInterfaceSubject : SystemInterfaceSubject, IVisioExportableWithShape
     {
-        // TODO change type etc.
-        private const string type = ALPSConstants.alpsSIDMasterActorExtension;
+        private const string type = ALPSConstants.alpsSIDMasterSystemInterfaceSubject;
         private readonly IExportFunctionality export;
 
-        protected VisioGuardExtension() { export = new SubjectExport(this); }
+        protected VisioSystemInterfaceSubject() { export = new SubjectExport(this); }
 
-        public VisioGuardExtension(IModelLayer layer) : base(layer) { export = new SubjectExport(this); }
+        public VisioSystemInterfaceSubject(IModelLayer layer) : base(layer) { export = new SubjectExport(this); }
 
         public void exportToVisio(Visio.Page currentPage, ISimple2DVisualizationBounds bounds = null)
         {
@@ -22,12 +23,13 @@ namespace VisioAddIn.OwlShapes
             export.export(VisioHelper.ShapeType.SID, currentPage, type,
                                 new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this  );
 
+            //TOdo: make sure that items are indeed contained in this subject group
 
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
         {
-            return new VisioGuardExtension();
+            return new VisioSystemInterfaceSubject();
         }
 
         public Visio.Shape getShape()

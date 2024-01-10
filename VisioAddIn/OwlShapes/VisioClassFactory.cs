@@ -7,7 +7,7 @@ using alps.net.api.parsing;
 
 namespace VisioAddIn.OwlShapes
 {
-    class VisioClassFactory : BasicPASSProcessModelElementFactory
+    public class VisioClassFactory : BasicPASSProcessModelElementFactory
     {
         /// <summary>
         /// 
