@@ -151,3 +151,5 @@ packages/
 # builds 
 VisioAddIn1/bin/ 
 VisioAddIn1/obj/
+/VisioAddIn/ALPS_Visio_Add_In.csproj
+/VisioAddIn/logs/logfile.txt

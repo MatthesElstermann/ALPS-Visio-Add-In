@@ -373,6 +373,7 @@
       <DependentUpon>TemporaryModelExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="ALPS_Certificate.pfx" />
+    <None Include="ALPS_Visio_Add_In_TemporaryKey.pfx" />
     <None Include="Resources\ALPS_ont_v_0.8.0.owl" />
     <None Include="Resources\Certificates\ALPS_Certificate.pfx" />
     <None Include="Resources\Certificates\ALPS_Visio_Add_In_1_TemporaryKey.pfx" />
@@ -473,10 +474,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ALPS_Certificate.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ALPS_Visio_Add_In_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>B66C84622148E1333A8D13E219E2F7C816DC3910</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>85ACF9170FDCE3DFE74C7F0D08A1661758159275</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestTimestampUrl>http://timestamp.digicert.com</ManifestTimestampUrl>

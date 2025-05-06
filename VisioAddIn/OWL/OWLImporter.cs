@@ -83,6 +83,7 @@ namespace VisioAddIn
             // New Code
             
             //TODO: let user choose if there are multiple models
+            // TODO: catch size = 0
             if (passProcessModels[0] is IVisioExportable exportable)
             {
                 exportable.exportToVisio(sIDPage);
