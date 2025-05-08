@@ -70,7 +70,14 @@ namespace VisioAddIn.OwlShapes
 
             //Now place all of the SBD shapes. It is easier to just interrupt the SID placement and do this now
             if (getSubjectBaseBehavior() is IVisioExportable exportable && !(currentSBDPage is null))
+            //{
+            //    // Place a standard actor onto the SBD page
+            //    List<ISimple2DVisualizationPoint> myTempList2 = new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>());
+            //    Debug.WriteLine("SBD export: " + this.getModelComponentID() + " Point List count:  " + myTempList.Count);
+            //    export.export(VisioHelper.ShapeType.SBD, currentSBDPage, type, myTempList2, this);
+
                 exportable.exportToVisio(currentSBDPage);
+            //}
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()

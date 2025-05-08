@@ -77,6 +77,21 @@ namespace VisioAddIn
             List<String> myList = new List<String> {fileName};
             passProcessModels = owlGraph.loadModels(myList);
 
+            //Debug.WriteLine("Graph: ");
+            //foreach (VisioPASSProcessModel model in passProcessModels)
+            //{
+            //    foreach (KeyValuePair<string,IPASSProcessModelElement> vp in model.getAllElements())
+            //    {
+            //        Debug.WriteLine(" " + vp.Key);
+            //        foreach (string label in vp.Value.getModelComponentLabelsAsStrings())
+            //        {
+            //            Debug.WriteLine("  " + label);
+            //        }
+            //        Debug.WriteLine("");
+            //    }
+            //}
+            //return;
+
             //necessary so the Visio VBA Listerners do not delete message on transitions before
             // the complete model has been imported
             VisioHelper.switchVBAListenersOFF();
