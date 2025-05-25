@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using VisioAddIn.OwlShapes; // TODO
+using ALPS_Visio_AddIn_rewrite.OWLShapes; // TODO
 using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite

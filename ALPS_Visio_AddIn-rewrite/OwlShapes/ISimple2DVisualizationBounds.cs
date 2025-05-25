@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VisioAddIn.OwlShapes
+namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public interface ISimple2DVisualizationBounds:ISimple2DVisualizationPoint
     {

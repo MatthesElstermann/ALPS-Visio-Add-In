@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using VisioAddIn;
 using Visio = Microsoft.Office.Interop.Visio;
 using static Microsoft.Office.Interop.Visio.VisSectionIndices;
 using static Microsoft.Office.Interop.Visio.VisRowTags;

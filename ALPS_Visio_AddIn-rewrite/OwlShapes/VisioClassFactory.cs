@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using alps.net.api.parsing;
 
-namespace VisioAddIn.OwlShapes
+namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioClassFactory : BasicPASSProcessModelElementFactory
     {
