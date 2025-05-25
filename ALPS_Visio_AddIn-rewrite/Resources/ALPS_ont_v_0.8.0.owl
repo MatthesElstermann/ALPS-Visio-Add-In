@@ -1,0 +1,1479 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.imi.kit.edu/abstract-pass-ont#"
+     xml:base="http://www.imi.kit.edu/abstract-pass-ont"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+     xmlns:swrla="http://swrl.stanford.edu/ontologies/3.3/swrla.owl#"
+     xmlns:swrlb="http://www.w3.org/2003/11/swrlb#"
+     xmlns:abstract-pass-ont="http://www.imi.kit.edu/abstract-pass-ont#">
+    <owl:Ontology rdf:about="http://www.imi.kit.edu/abstract-pass-ont">
+        <owl:versionIRI rdf:resource="http://www.imi.kit.edu/abstract-pass-ont/0.8.0"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont/1.1.0"/>
+        <owl:versionInfo>v 0.8 2023/02/22 00:34 MaEl</owl:versionInfo>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled -->
+
+    <owl:AnnotationProperty rdf:about="http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled"/>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#minQualifiedCardinality -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2002/07/owl#minQualifiedCardinality"/>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#qualifiedCardinality -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2002/07/owl#qualifiedCardinality"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#extends -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#extends">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#references"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty"/>
+        <owl:inverseOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#isExtendedBy"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#IrreflexiveProperty"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ExtensionBehavior"/>
+                    <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ExtensionLayer"/>
+                    <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#SubjectExtension"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+        <rdfs:range>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+                    <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:range>
+        <rdfs:comment xml:lang="en">extends is very similar to &quot;references&quot; from the standard-pass-ont but is explicitly meant for actual model elements that reference or extend other elemetns from withi the same model</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#guardsLayer -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#guardsLayer">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <rdfs:domain rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#GuardLayer"/>
+        <rdfs:range rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasCommunicationChannel -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasCommunicationChannel">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMessageExchange"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:range rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#CommunicationChannel"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasCommunicationRestriction -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasCommunicationRestriction">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasMessageExchange"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasRelationToModelComponent"/>
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:range rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#CommunicationRestriction"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasLayer -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasLayer">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#LayeredPASSProcessModel"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasNextPathPoint -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasNextPathPoint">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimple2DVisualisationPathPoint"/>
+        <owl:inverseOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasPreviousPathPoint"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasPreviousPathPoint -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasPreviousPathPoint">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimple2DVisualisationPathPoint"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimple2DVisualisationPathPoint -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimple2DVisualisationPathPoint">
+        <rdfs:range rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#Simple2DVisualizationPathPoint"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#implements -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#implements">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty"/>
+        <owl:inverseOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#isImplementedBy"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#IrreflexiveProperty"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#PASSProcessModel"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#State"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Transition"/>
+                    <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+        <rdfs:range>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#PASSProcessModel"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#State"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Transition"/>
+                    <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:range>
+        <rdfs:comment xml:lang="en">defined state, subjects or layers may be specified to implement abstract models or abstract model components and therefore adhere to therin specified process definitions.
+
+e.g. a state can be said to implement one or more abstract states
+a subject containing can be specified to implement all abstract behavior definitions of an &quot;abstract subject&quot;</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#isExtendedBy -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#isExtendedBy">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#IrreflexiveProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#isImplementedBy -->
+
+    <owl:ObjectProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#isImplementedBy">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSObjectProperty"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#IrreflexiveProperty"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#PASSProcessModel"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#State"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Transition"/>
+                    <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+        <rdfs:range>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#PASSProcessModel"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#State"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Transition"/>
+                    <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ALPSDataProperty -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ALPSDataProperty">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSModelDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#SimpleSimCostEstimations -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimCostEstimations">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSModelDataProperty"/>
+        <rdfs:comment xml:lang="en">Data Properties that are meant for the Simple Simulation addtion ALPS</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#abstractLayerDataPropertie -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#abstractLayerDataPropertie">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSDataProperty"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#cycleAllowed -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#cycleAllowed">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#abstractLayerDataPropertie"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#BehaviorDescribingComponent"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+        <rdfs:comment xml:lang="en">This propertie should denote wheater a state on an abstract layer may be implemented in a cylce-construct on an implementing layer. The default should be true. The use of this propertie has no effect on an implementation layer.</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#has2DPageRatio -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#has2DPageRatio">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasExecutionCostPerHour -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasExecutionCostPerHour">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimCostEstimations"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_BeginX -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_BeginX">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_BeginY -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_BeginY">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_EndX -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_EndX">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_EndY -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_EndY">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_Height -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_Height">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_PosX -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_PosX">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_PosY -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_PosY">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_Width -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_Width">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleRelative2DVisualisationDataProperty">
+        <rdfs:subPropertyOf rdf:resource="http://www.i2pm.net/standard-pass-ont#hasGraphicalRepresentation"/>
+        <rdfs:domain rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+        <rdfs:comment xml:lang="en">The simple 2d information is meant only as a bare minimum to arange subject and states on 2D plain in relative/normalized values [0.0&lt;value&lt;1]</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimBilledWaitingTime -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimBilledWaitingTime">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimCostEstimations"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveState"/>
+        <rdfs:comment xml:lang="en">Define whether the waiting time here is factored into the cost calculation 
+
+ (e.g. if the subject carrier can use the time otherwise, this value is
+ 0% and waiting is not factored into the active time and cost for the subject exectuion. With a value of 
+100% the subject carrier is considered to be waiting actively and may not do other tasks therefore costing the time</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimChanceValue -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimChanceValue">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty"/>
+        <rdfs:range>
+            <rdfs:Datatype>
+                <owl:onDatatype rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+                <owl:withRestrictions rdf:parseType="Collection">
+                    <rdf:Description>
+                        <xsd:minInclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.0</xsd:minInclusive>
+                    </rdf:Description>
+                </owl:withRestrictions>
+            </rdfs:Datatype>
+        </rdfs:range>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimChoiceChance -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimChoiceChance">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimChanceValue"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#DoTransition"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#TimeTransition"/>
+                    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#UserCancelTransition"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimCostPerExecution -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimCostPerExecution">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimCostEstimations"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationDeviation -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationDeviation">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMaxValue -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMaxValue">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMeanValue -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMeanValue">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMinValue -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMinValue">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimEndStayChance -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimEndStayChance">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimChanceValue"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#DoState"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimInterfaceSubjectResponseDefinition -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimInterfaceSubjectResponseDefinition">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimulationDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#InterfaceSubject"/>
+        <rdfs:range rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimTransmissionDurationDeviation -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimTransmissionDurationDeviation">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationDeviation"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimTransmissionDurationMaxValue -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimTransmissionDurationMaxValue">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMaxValue"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimTransmissionDurationMeanValue -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimTransmissionDurationMeanValue">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMeanValue"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimTransmissionDurationMinValue -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimTransmissionDurationMinValue">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimDurationMinValue"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMAvailability -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMAvailability">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:comment>&quot;Enter a % Value between 0 and 1&quot;</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMInventory -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMInventory">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:comment xml:lang="en">&quot;Enter a number that represents the amout of inventory in that facility. Mind the unit that you have chosen to consider in your VSM analisys and keep it konstant over all Storage Subject&quot;</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMMessageType -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMMessageType">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageSpecification"/>
+        <rdfs:comment>Define what type of Messag this is. Standard;Conveyance Time (internal);Conveyance Time (external);Information Flow (internal);Information Flow (external);</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMProcessQuantity -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMProcessQuantity">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:comment>&quot;Enter a number that represents the considered lot size. Mind the unit that you have chosen to consider in your VSM analisys and be careful with stations that are able to process multipel lots at once&quot;</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMQualityRate -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMQualityRate">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:comment>&quot;Enter a % Value between 0 and 1&quot;</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMSubjectType -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMSubjectType">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:comment>Can be either: Product Subject, Storage Subject, or Standard</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMTimeCategory -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#hasSimpleSimVSMTimeCategory">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SimpleSimVSMDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+        <rdfs:comment>Set the type of time Spend. Standard;Main Processing Time;Secondary Processing Time;Waiting Time</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#implementationLowerBound -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#implementationLowerBound">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#abstractLayerDataPropertie"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+        <rdfs:comment>Denotes the minimum number of times an abstract state can be implemented. This may be 0 which is equal to the expression, that the state must not be implemented and is purely optional (for whatever reason someone may want to express that)</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#implementationUpperBound -->
+
+    <owl:DatatypeProperty rdf:about="http://www.imi.kit.edu/abstract-pass-ont#implementationUpperBound">
+        <rdfs:subPropertyOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#abstractLayerDataPropertie"/>
+        <rdfs:domain rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+        <rdfs:comment xml:lang="en">Denotes the maximum number an abstract state can be implemented</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#FullySpecifiedSubject -->
+
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#FullySpecifiedSubject"/>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#PASSProcessModel -->
+
+    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#PASSProcessModel">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#implements"/>
+                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModel"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#State -->
+
+    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#State">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#implements"/>
+                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#StatePlaceholder -->
+
+    <owl:Class rdf:about="http://www.i2pm.net/standard-pass-ont#StatePlaceholder">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSBDComponent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#Subject -->
+
+    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Subject">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#implements"/>
+                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#SubjectBehavior -->
+
+    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#SubjectBehavior">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#implements"/>
+                <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.i2pm.net/standard-pass-ont#Transition -->
+
+    <rdf:Description rdf:about="http://www.i2pm.net/standard-pass-ont#Transition">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#implements"/>
+                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </rdf:Description>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModelElement"/>
+        <rdfs:comment xml:lang="en">Abstract Process Elements are only used on abstract layers that do not specify complete behaviours</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ALPSSBDComponent -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ALPSSBDComponent">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#BehaviorDescribingComponent"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#InteractionDescribingComponent"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+        <rdfs:comment xml:lang="en">An abstract SID Component is a model Component only used on model layers defined as abstract.
+
+It is used to specify a possible process or process elements that later can be used to implement others</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractDoState -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractDoState">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#DoState"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractState"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractLayer -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractLayer">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:someValuesFrom rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">An Abstract Layer is any layer that contains abstract (non completely specified) model elements. It may also include non abstract elements</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractMessageExchange -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractMessageExchange">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:comment xml:lang="en">An abstract message exchange is defined on an abstract layer.
+
+It defines a possible message exchange between two subjects. (a recommendation for a message)
+
+On an implementing layer though it is allowed to unite the two subjects and thus ignore this communication. (e.g. because in the real process a human being is doing both tasks unitedly 
+
+In contrast a standard MessageExchange would defined that two subjects (abstract or not) are not to be united.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractMultiSubject -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractMultiSubject">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#MultiSubject"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractSubject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractPASSTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractPASSTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#Transition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSBDComponent"/>
+        <rdfs:comment xml:lang="en">A special type/category of transition edges that is introduced by the &quot;Abstract Layered PASS&quot; lanague</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractReceiveState -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractReceiveState">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveState"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractState"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractSendState -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractSendState">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SendState"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractState"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractSingleSubject -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractSingleSubject">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SingleSubject"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractSubject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractState -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractState">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSBDComponent"/>
+        <rdfs:comment>An abstract state is a state with no or only partly defined a action. It can only be found on an abstract layer but can be implemented.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AbstractSubject -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AbstractSubject">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:comment xml:lang="en">An Abstract actor/subject is a subject with not completly specified behavior.
+
+Such abstract behaviour can only be specified on model layers deemed as abstract. Thus abstract actors/subjects can only be implemented on abstract layers as well.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ActorPlaceHolder -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ActorPlaceHolder">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:comment xml:lang="en">An empty model component that may be the (empty) origin or target of a message exchange can later (in implementing layers) be substituted for any other subject 
+
+Idea if the place is supposed to be left empty</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AdviceDoTransistion -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AdviceDoTransistion">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#DoTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AdviceTransitionType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AdviceReceiveTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AdviceReceiveTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AdviceTransitionType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AdviceSendTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AdviceSendTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AdviceTransitionType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#AdviceTransitionType -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#AdviceTransitionType">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractPASSTransition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#BaseLayer -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#BaseLayer">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:complementOf>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                        <owl:someValuesFrom rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+                    </owl:Restriction>
+                </owl:complementOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#BiDirectionalCommunicationChannel -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#BiDirectionalCommunicationChannel">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#CommunicationChannel"/>
+        <owl:disjointWith rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#UniDirectionalCommunicationChannel"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#CommunicationChannel -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#CommunicationChannel">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasCorrespondent"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">It defines a possible message exchange between two subjects. (a recommendation for a message). It states that there IS communication between the two but not what exactly.
+
+Usually, comunication channels are bi-directional, however the can be limited to one direction. 
+
+Similar to the abstract message connector, if two abstract or interface subjects are connected via a channel they mey be joined on an implementation layer.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#CommunicationRestriction -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#CommunicationRestriction">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasCorrespondent"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">2</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">Communication Restriction is a concept on an abstract layer. 
+
+A Communication Restriction defines that no communication is allowed between the defined subjects</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ExtensionBehavior -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ExtensionBehavior">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SubjectBehavior"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ExtensionLayer -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ExtensionLayer">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:someValuesFrom rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SubjectExtension"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#FinalizedDoTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#FinalizedDoTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#DoTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#FinalizedTransitionType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#FinalizedMessageExchange -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#FinalizedMessageExchange">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#MessageExchange"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:comment xml:lang="en">Exclusive Message Exchange is an abstract concept to be used on abstract layers
+
+A finalized message exchange defines that a subject is not allowed to comunicate with the corresponding subject in any other way than this message exchange or similiar messages in the same model in any other way.
+
+If an finalized message connection is used on a subject no other normal or abstract Message Exchange is allowed (while Communication Restrictions are not necessary).</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#FinalizedReceiveTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#FinalizedReceiveTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#FinalizedTransitionType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#FinalizedSendTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#FinalizedSendTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#FinalizedTransitionType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#FinalizedState -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#FinalizedState">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSBDComponent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#FinalizedTransitionType -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#FinalizedTransitionType">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractPASSTransition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#FlowRestrictor -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#FlowRestrictor">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractPASSTransition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#GeneralAbstractState -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#GeneralAbstractState">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractState"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#GroupState -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#GroupState">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#State"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSBDComponent"/>
+        <rdfs:comment xml:lang="en">StateGroups/GroupStates and/or Checklist are model objects that can &quot;contain&quot; other SBD-Model elements as their Sub-Shapes in order to group them</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#GuardExtension -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#GuardExtension">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SubjectExtension"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#GuardLayer -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#GuardLayer">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:someValuesFrom rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#GuardExtension"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#guardsLayer"/>
+                <owl:someValuesFrom rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#GuardReceiveState -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#GuardReceiveState">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveState"/>
+        <rdfs:comment xml:lang="en">A guard receive is a special receive state on an extension-(guard)-layer with higher priority.
+
+This type of state can be executed as soon as the according exit condition (usually the reception of a guard message) is true (in the inbox).</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#LayeredPASSProcessModel -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#LayeredPASSProcessModel">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PASSProcessModel"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#MacroExtension -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#MacroExtension">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SubjectExtension"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#MacroLayer -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#MacroLayer">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:someValuesFrom rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#MacroExtension"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#ModelLayer -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:someValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#InteractionDescribingComponent"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#implements"/>
+                <owl:allValuesFrom rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#extends"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ModelLayer"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasPriorityNumber"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#positiveInteger"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#PrecedenceDoTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#PrecedenceDoTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#DoTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#PrecedenceTransitionType"/>
+        <rdfs:comment xml:lang="en">MUST-COME-BEFORE
+
+An Abstract Transtion that denotes that before the target state of this transtion must come the origin state. But the origin state does not force one to visit the target state.
+Weaker than Trigger Transtion.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#PrecedenceReceiveTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#PrecedenceReceiveTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#PrecedenceTransitionType"/>
+        <rdfs:comment xml:lang="en">MUST-COME-BEFORE
+
+An Abstract Transtion that denotes that before the target state of this transtion must come the origin state. But the origin state does not force one to visit the target state.
+Weaker than Trigger Transtion.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#PrecedenceSendTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#PrecedenceSendTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#PrecedenceTransitionType"/>
+        <rdfs:comment xml:lang="en">MUST-COME-BEFORE
+
+An Abstract Transtion that denotes that before the target state of this transtion must come the origin state. But the origin state does not force one to visit the target state.
+Weaker than Trigger Transtion.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#PrecedenceTransitionType -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#PrecedenceTransitionType">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractPASSTransition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#Simple2DVisualizationPathPoint -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#Simple2DVisualizationPathPoint">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#Simple2DVisualizationPoint"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasNextPathPoint"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#Simple2DVisualizationPathPoint"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasPreviousPathPoint"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#Simple2DVisualizationPathPoint"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#Simple2DVisualizationPoint -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#Simple2DVisualizationPoint">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSModelElement"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_PosX"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#hasRelative2D_PosY"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#StandAloneMacroSubject -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#StandAloneMacroSubject">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#MacroBehavior"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#SubjectExtension -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#SubjectExtension">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:allValuesFrom rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ExtensionBehavior"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#extends"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment>A Subject Extension is a model component only to be used on an Extension Layer
+
+It is usded as a representation/Mapping of a subject on a lower &quot;base layer&quot;</rdfs:comment>
+        <rdfs:comment xml:lang="en">An actor extension is a standard or abstract subject that can/should only exist on layers that extend other layers. The idea of this subject is, that it extends another subject on an underlying layer</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#SubjectGroup -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#SubjectGroup">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#ALPSSIDComponent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">A subject group is model element that allows to group multiple subjects within an SID. The main purpose of this model component is for explanatory models. 
+
+The execution semantics of this element is somewhat limited. In principle if this group element is target of origin of a message exchange it means that all subjects within the group posses the capabilities to send or receive the defined message.
+
+Since subjects sending to a Subject Group can only specifiy the overall group as the target of a message send operation the execution envoironment needs to have a kind of shared message pool concept where the message is eligable to be taken out of a shared pool by any behavior belonging to a subject within the subject group.
+
+This feature is not knowingly supported yet.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#SystemInterfaceSubject -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#SystemInterfaceSubject">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#InterfaceSubject"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#SubjectGroup"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#contains"/>
+                <owl:allValuesFrom rdf:resource="http://www.i2pm.net/standard-pass-ont#InterfaceSubject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#TriggerDoTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#TriggerDoTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#DoTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#TriggerTransitionType"/>
+        <rdfs:comment xml:lang="en">A MUST-COME-BEFORE B AND
+IF A THAN B MUST COME
+
+An abstract transition Arc, that denotes that a target state must also be visited IF the origin State was executed. It cannot be avoided.
+Also the other way around.
+At the same time it denotes: bevor the target state/stategroup there must come the origin state or state group.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#TriggerReceiveTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#TriggerReceiveTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#TriggerTransitionType"/>
+        <rdfs:comment>A MUST-COME-BEFORE B AND
+IF A THAN B MUST COME
+
+An abstract receive transition arc, that denotes that a target state must also be visited IF the origin State was executed. It cannot be avoided.
+Also the other way around.
+At the same time it denotes: bevor the target state/stategroup there must come the origin state or state group.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#TriggerSendTransition -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#TriggerSendTransition">
+        <rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTransition"/>
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#TriggerTransitionType"/>
+        <rdfs:comment>A MUST-COME-BEFORE B AND
+IF A THAN B MUST COME
+
+An abstract send transition arc, that denotes that a target state must also be visited IF the origin State was executed. It cannot be avoided.
+Also the other way around.
+At the same time it denotes: bevor the target state/stategroup there must come the origin state or state group.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#TriggerTransitionType -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#TriggerTransitionType">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#AbstractPASSTransition"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.imi.kit.edu/abstract-pass-ont#UniDirectionalCommunicationChannel -->
+
+    <owl:Class rdf:about="http://www.imi.kit.edu/abstract-pass-ont#UniDirectionalCommunicationChannel">
+        <rdfs:subClassOf rdf:resource="http://www.imi.kit.edu/abstract-pass-ont#CommunicationChannel"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasReceiver"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://www.i2pm.net/standard-pass-ont#hasSender"/>
+                <owl:maxQualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                <owl:onClass rdf:resource="http://www.i2pm.net/standard-pass-ont#Subject"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.w3.org/2001/XMLSchema#dayTimeDuration -->
+
+    <owl:Class rdf:about="http://www.w3.org/2001/XMLSchema#dayTimeDuration"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#BaseLayer"/>
+            <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#ExtensionLayer"/>
+            <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#GuardLayer"/>
+            <rdf:Description rdf:about="http://www.imi.kit.edu/abstract-pass-ont#MacroLayer"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+
