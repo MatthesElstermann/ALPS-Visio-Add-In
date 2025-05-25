@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Configuration;
+using System.Windows.Forms;
 using VDS.RDF.Shacl.Validation;
 using Visio = Microsoft.Office.Interop.Visio;
 
@@ -33,6 +34,7 @@ namespace VisioAddIn.OwlShapes
             Boolean simple2DVis = checkForSimple2DVisualizationAndSamePageRatio();
             if (simple2DVis)
             {
+                Debug.WriteLine("We are Here!");
                 determinAndSetSimple2DVisPagebounds(currentPage);
             }
             else
@@ -318,11 +320,21 @@ namespace VisioAddIn.OwlShapes
             {
                 if ((modelElement is IFullySpecifiedSubject || modelElement is IInterfaceSubject) && !(modelElement is ISystemInterfaceSubject) ) //no groups
                 {
-                    double width = modelElement.getRelative2DWidth();
-                    double height = modelElement.getRelative2DHeight();
+                    //double width = modelElement.getRelative2DWidth(); // methods undefined, stored in point-like structure called BoundsFor/Bounds at posX and posY
+                    //double height = modelElement.getRelative2DHeight();
+                    
+                    IList <ISimple2DVisualizationBounds> points = modelElement.getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationBounds>().ToList(); // this is not optimal, i might need it later too
+
+                    if (points.Count == 0) continue;
+                    double width = points[0].getRelative2DPosX();
+                    double height = points[0].getRelative2DPosY();
                     pageRatio = modelElement.get2DPageRatio();
 
-                    
+                    //Debug.WriteLine(width); // -1
+                    //Debug.WriteLine(height);// -1
+                    //Debug.WriteLine(pageRatio);
+
+
                     if (width > 0)
                     {
                         sumWidth += width;

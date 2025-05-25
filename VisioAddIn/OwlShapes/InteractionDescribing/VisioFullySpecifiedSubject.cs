@@ -29,6 +29,12 @@ namespace VisioAddIn.OwlShapes
         public void exportToVisio(Visio.Page pageToExportTo, ISimple2DVisualizationBounds bounds = null)
         {
 
+            Debug.WriteLine("POINTS before subject export: ");
+            foreach (var item in getElementsWithUnspecifiedRelation())
+            {
+                Debug.WriteLine(" " + item.Key + " : " + item.Value);
+            }
+
             // Place a standard actor onto the SID page
             List<ISimple2DVisualizationPoint> myTempList = new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>());
 

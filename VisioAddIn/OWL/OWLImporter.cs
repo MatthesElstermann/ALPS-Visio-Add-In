@@ -75,19 +75,46 @@ namespace VisioAddIn
         {
             Debug.WriteLine("start parsing file: " + fileName);
             List<String> myList = new List<String> {fileName};
-            passProcessModels = owlGraph.loadModels(myList);
+            passProcessModels = owlGraph.loadModels(myList); // no coordinates
+
+            //Console.WriteLine("TEST HERE");
+            //foreach (var item in ((IParseablePASSProcessModelElement)passProcessModels[0]).getIncompleteTriples())
+            //{
+            //    Console.WriteLine($"  {item} , {item.getPredicate()} , {item.getObject()}");
+            //}
 
             //Debug.WriteLine("Graph: ");
             //foreach (VisioPASSProcessModel model in passProcessModels)
             //{
-            //    foreach (KeyValuePair<string,IPASSProcessModelElement> vp in model.getAllElements())
+
+            //    foreach (KeyValuePair<string, IPASSProcessModelElement> vp in model.getAllElements())
             //    {
             //        Debug.WriteLine(" " + vp.Key);
             //        foreach (string label in vp.Value.getModelComponentLabelsAsStrings())
             //        {
             //            Debug.WriteLine("  " + label);
             //        }
+            //        //if (vp.Value is PASSProcessModelElement pe)
+            //        //{
+            //        //    IDictionary<string, IParseablePASSProcessModelElement> allElements = new Dictionary<string, IParseablePASSProcessModelElement>();
+            //        //    foreach (var element in model.getAllElements())
+            //        //    {
+            //        //        if (element.Value is IParseablePASSProcessModelElement) allElements.Add(new KeyValuePair<string, IParseablePASSProcessModelElement>(element.Key, (IParseablePASSProcessModelElement)element.Value));
+            //        //    }
+            //        //    pe.completeObject(ref allElements);
+            //        //}
             //        Debug.WriteLine("");
+            //        //IPASSProcessModelElement x = vp.Value;
+            //        //IDictionary<string, IPASSProcessModelElement> y = x.getElementsWithUnspecifiedRelation();
+            //        //foreach (KeyValuePair<string, IPASSProcessModelElement> item in y)
+            //        //{
+            //        //    Debug.WriteLine("  " + vp.Key);
+            //        //    foreach (string label in vp.Value.getModelComponentLabelsAsStrings())
+            //        //    {
+            //        //        Debug.WriteLine("   " + label);
+            //        //    }
+            //        //    Debug.WriteLine("");
+            //        //}
             //    }
             //}
             //return;

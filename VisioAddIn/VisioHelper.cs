@@ -96,35 +96,44 @@ namespace VisioAddIn
             posX = defaultX;
             posY = defaultY;
 
-            
-            //if (!(points is null) && (points.Count > 0))
-            //{
-            //    foreach (ISimple2DVisualizationPoint point in points)
-            //    {
-            //        if (!(point is ISimple2DVisualizationBounds))
-            //        {
-            //            posX = point.getRelative2DPosX();
-            //            posY = point.getRelative2DPosY();
+            foreach (var p in points)
+            {
+                posX = p.getRelative2DPosX();
+                posY = p.getRelative2DPosY();
+                Debug.WriteLine(/*originalModelElement.getComments() +*/ " -- POINT: " + posX + "/" + posY);
 
-                        
-            //            //Scale for real page if applicable
-            //            if (page.PageSheet.CellExistsU["User.OWLIMPORTINFORATIOMOD", 0] == -1)
-            //            {
-            //                Debug.WriteLine("Original posX/Y: (" + posX+","+posY+") , " +
-            //                    " pagewidht: " + page.PageSheet.CellsU["PageWidth"].Result[""] + 
-            //                    " pageHeight: " + page.PageSheet.CellsU["PageHeight"].Result[""]);
-            //                posX = posX * page.PageSheet.CellsU[ALPSConstants.pageCellPagePropertiesPageWidth].Result[""];
-            //                posY = posY * page.PageSheet.CellsU[ALPSConstants.pageCellPagePropertiesPageHeight].Result[""];
-            //                Debug.WriteLine("Simple sim positioning " + originalModelElement.getModelComponentID() + " at(x,y): " + posX + "," + posY + ")");
+            }
 
-            //            }
-            //        }
-            //        else if (point is ISimple2DVisualizationBounds boundObject)
-            //        {
-            //            bound = boundObject;
-            //        }
-            //    }
-            //}
+
+            if (!(points is null) && (points.Count > 0))
+            {
+                foreach (ISimple2DVisualizationPoint p in points)
+                {
+                    if (!(p is ISimple2DVisualizationBounds))
+                    {
+                        posX = p.getRelative2DPosX();
+                        posY = p.getRelative2DPosY();
+
+
+                        //Scale for real page if applicable
+                        if (page.PageSheet.CellExistsU["User.OWLIMPORTINFORATIOMOD", 0] == -1)
+                        {
+                            Debug.WriteLine("Original posX/Y: (" + posX + "," + posY + ") , " +
+                                " pagewidht: " + page.PageSheet.CellsU["PageWidth"].Result[""] +
+                                " pageHeight: " + page.PageSheet.CellsU["PageHeight"].Result[""]);
+                            posX = posX * page.PageSheet.CellsU[ALPSConstants.pageCellPagePropertiesPageWidth].Result[""];
+                            posY = posY * page.PageSheet.CellsU[ALPSConstants.pageCellPagePropertiesPageHeight].Result[""];
+                            Debug.WriteLine("Simple sim positioning " + originalModelElement.getModelComponentID() + " at(x,y): " + posX + "," + posY + ")");
+
+                        }
+                    }
+                    //else if (p is ISimple2DVisualizationBounds boundObject)
+                    //{
+                    //    bound = boundObject;
+                    //}
+                }
+                return;
+            }
             /*
             else if (hasSimple2DVisCoordinates(originalModelElement)) //for simple 2D Shapes 
             {
