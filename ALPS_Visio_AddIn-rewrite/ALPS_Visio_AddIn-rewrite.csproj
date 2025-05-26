@@ -128,8 +128,8 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="alps.net.api, Version=0.9.1.7, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\alps.net.api.0.9.1.7\lib\net48\alps.net.api.dll</HintPath>
+    <Reference Include="alps.net.api, Version=0.9.1.6, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\alps.net.api.0.9.1.6\lib\net48\alps.net.api.dll</HintPath>
     </Reference>
     <Reference Include="dotNetRDF, Version=2.7.5.0, Culture=neutral, PublicKeyToken=6055ffe4c97cc780, processorArchitecture=MSIL">
       <HintPath>..\packages\dotNetRDF.2.7.5\lib\net40\dotNetRDF.dll</HintPath>
@@ -258,9 +258,12 @@
     <Compile Include="menu\ALPSRibbon.Designer.cs">
       <DependentUpon>ALPSRibbon.cs</DependentUpon>
     </Compile>
-    <Compile Include="OwlShapes\ISimple2DVisualizationBounds.cs" />
-    <Compile Include="OwlShapes\IVisioExportable.cs" />
-    <Compile Include="OwlShapes\VisioClassFactory.cs" />
+    <Compile Include="OWLShapes\elements\VisioModelLayer.cs" />
+    <Compile Include="OWLShapes\ISimple2DVisualizationBounds.cs" />
+    <Compile Include="OWLShapes\IVisioExportable.cs" />
+    <Compile Include="OWLShapes\IVisioExportableWithShape.cs" />
+    <Compile Include="OWLShapes\VisioClassFactory.cs" />
+    <Compile Include="OWLShapes\elements\VisioPASSProcessModel.cs" />
     <Compile Include="OWL\OWLImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

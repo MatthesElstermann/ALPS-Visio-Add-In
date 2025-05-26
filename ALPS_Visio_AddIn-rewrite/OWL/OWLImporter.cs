@@ -34,6 +34,7 @@ namespace ALPS_Visio_AddIn_rewrite
             VisioHelper.setVBAListenersRunning(false);
             if (passProcessModels.Count > 0 && passProcessModels[0] is IVisioExportable exportable)
             {
+                Debug.WriteLine("1");
                 exportable.exportToVisio(mainPage);
             }
             VisioHelper.setVBAListenersRunning(true);
