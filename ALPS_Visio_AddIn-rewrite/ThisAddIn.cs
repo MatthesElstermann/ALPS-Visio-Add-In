@@ -23,15 +23,12 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             currentInstance = this;
 
-            // create buttons
-            new ALPSRibbon();
+            createButtons();
 
-            // add update triggers
             Application.DocumentCreated += Application_DocumentCreated;
             Application.WindowActivated += Application_WindowActivated;
             Application.DocumentOpened += Application_DocumentOpened;
 
-            // set current active document
             this.setActiveDocument();
         }
 
@@ -41,21 +38,21 @@ namespace ALPS_Visio_AddIn_rewrite
 
         // ---------------------------------------------------------------------
 
+        private void createButtons()
+        {
+            new ALPSRibbon();
+        }
+
         private void setActiveDocument()
         {
             this.activeDoc = Application.ActiveDocument;
         }
 
-        private static string showFileDialog()
+        private static string showOWLFileDialog()
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            // set filter
             openFileDialog1.Filter = "Ontology Files (.owl)|*.owl|RDF Files (*.rdf)|*.rdf";
-
             openFileDialog1.ShowDialog();
-
-            // return selected file name
             return openFileDialog1.FileName;
         }
 
@@ -65,17 +62,14 @@ namespace ALPS_Visio_AddIn_rewrite
 
         public void loadOWLFile()
         {
+            string fileName = showOWLFileDialog();
+            if (fileName == "") return;
 
-            string fileName = showFileDialog();
-            Document newDoc = Application.Documents.Add("");
-
-            // Create new importer with file
             OWLImporter importer = new OWLImporter(fileName);
-            VisioHelper.openStencil(VisioHelper.VisioStencils.SID_STENCIL); ;
 
-            //Parse the first page in the document
-            if (Application.ActiveDocument.Pages.Count > 0)
-                importer.parse(VisioHelper.getPageInPages(Application.ActiveDocument.Pages, 0), activeDoc);
+            importer.parse(null, activeDoc);
+
+            VisioHelper.openStencil(VisioHelper.VisioStencils.SID_STENCIL);
         }
 
         #endregion

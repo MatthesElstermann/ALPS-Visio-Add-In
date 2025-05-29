@@ -5,6 +5,7 @@ using alps.net.api.StandardPASS;
 using alps.net.api.util;
 using Visio = Microsoft.Office.Interop.Visio;
 using alps.net.api.parsing;
+using System.Diagnostics;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes.elements
 {
@@ -19,12 +20,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes.elements
 
         public void exportToVisio(Visio.Page currentPage, ISimple2DVisualizationBounds bounds = null)
         {
-            // create pages for all layers
             foreach (IModelLayer modelLayer in getAllElements().Values.OfType<IModelLayer>())
             {
                 Visio.Page page = VisioHelper.CreateSIDPage(modelLayer.getModelComponentID(), " ", modelLayer.getUriModelComponentID(), " ", " ", " ");
 
-                if (modelLayer is IVisioExportable exportable) exportable.exportToVisio(currentPage);
+                if (modelLayer is IVisioExportable exportable) exportable.exportToVisio(page);
             }
         }
 

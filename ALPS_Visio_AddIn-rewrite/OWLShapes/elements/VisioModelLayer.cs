@@ -22,6 +22,14 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes.elements
 
         public void exportToVisio(Visio.Page currentPage, ISimple2DVisualizationBounds bounds = null)
         {
+            // test if 2D representation
+
+            // yes: set Coords
+
+            // no: auto arrange
+
+            // subjects
+            // message exchange lists + message exchange
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()

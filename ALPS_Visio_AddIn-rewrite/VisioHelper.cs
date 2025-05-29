@@ -176,23 +176,5 @@ namespace ALPS_Visio_AddIn_rewrite
 
             return page;
         }
-
-        public static Visio.Pages getCurrentPages()
-        {
-            return ThisAddIn.getInstance().Application.ActiveDocument.Pages;
-        }
-
-        public static Visio.Page getPageInPages(Visio.Pages pages, int index)
-        {
-            if (index >= pages.Count || index < 0) return null;
-            IEnumerator enumerator = pages.GetEnumerator();
-            for (int x = 0; x < pages.Count; x++)
-            {
-                enumerator.MoveNext();
-                if (index == x)
-                    return (Visio.Page)enumerator.Current;
-            }
-            return null;
-        }
     }
 }

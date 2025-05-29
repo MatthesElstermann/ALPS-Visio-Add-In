@@ -13,11 +13,6 @@ namespace ALPS_Visio_AddIn_rewrite
     public partial class ALPSRibbon
     {
 
-
-        private void ALPSRibbon_Load(object sender, RibbonUIEventArgs e)
-        {
-        }
-
         private void loadOWLFile_Click(object sender, RibbonControlEventArgs e)
         {
             Globals.ThisAddIn.loadOWLFile();

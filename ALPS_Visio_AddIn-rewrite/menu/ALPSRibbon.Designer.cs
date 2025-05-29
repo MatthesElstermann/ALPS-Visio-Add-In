@@ -40,49 +40,33 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         private void InitializeComponent()
         {
-            // init
             this.tab1 = this.Factory.CreateRibbonTab();
             this.tab1.SuspendLayout();
             this.group1 = this.Factory.CreateRibbonGroup();
             this.group1.SuspendLayout();
             this.loadOWLFile = this.Factory.CreateRibbonButton();
             this.SuspendLayout();
-            // 
-            // tab1
-            // 
-            this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
-            this.tab1.Groups.Add(this.group1);
+
             this.tab1.Label = "ALPS/PASS ADDIN";
-            this.tab1.Name = "tab1";
-            // 
-            // group1
-            // 
-            this.group1.Items.Add(this.loadOWLFile);
+            this.tab1.Groups.Add(this.group1);
+
             this.group1.Label = "OWL PASS Tools";
-            this.group1.Name = "group1";
-            //
-            // loadOWLFile
-            //
-            this.loadOWLFile.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.loadOWLFile.Image = global::ALPS_Visio_AddIn_rewrite.Properties.Resources.owlIcon2;
-            this.loadOWLFile.Label = "Import OWL";
+            this.group1.Items.Add(this.loadOWLFile);
+
             this.loadOWLFile.Name = "loadOWLFile";
-            this.loadOWLFile.ShowImage = true;
+            this.loadOWLFile.Label = "Import OWL";
             this.loadOWLFile.SuperTip = "Use this tool to import PASS and ALPS Process Models from OWL Files based on the standard pass ontology";
+            this.loadOWLFile.Image = global::ALPS_Visio_AddIn_rewrite.Properties.Resources.owlIcon2;
+            this.loadOWLFile.ShowImage = true;
+            this.loadOWLFile.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.loadOWLFile.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.loadOWLFile_Click);
-            // 
-            // ALPSRibbon
-            // 
-            this.Name = "Ribbon1";
+
             this.RibbonType = "Microsoft.Visio.Drawing";
             this.Tabs.Add(this.tab1);
-            this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.ALPSRibbon_Load);
-            this.tab1.ResumeLayout(false);
-            this.tab1.PerformLayout();
-            this.group1.ResumeLayout(false);
-            this.group1.PerformLayout();
-            this.ResumeLayout(false);
 
+            this.tab1.ResumeLayout(true);
+            this.group1.ResumeLayout(true);
+            this.ResumeLayout(true);
         }
 
         #endregion
