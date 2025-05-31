@@ -4,7 +4,7 @@ using alps.net.api;
 using System.Reflection;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using ALPS_Visio_AddIn_rewrite.OWLShapes; // TODO
+using ALPS_Visio_AddIn_rewrite.OWLShapes;
 using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite

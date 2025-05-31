@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Collections;
 using Visio = Microsoft.Office.Interop.Visio;
 using static Microsoft.Office.Interop.Visio.VisSectionIndices;
 using static Microsoft.Office.Interop.Visio.VisRowTags;
 using System.Diagnostics;
+using alps.net.api.ALPS;
+using alps.net.api.StandardPASS;
+using System.Collections.Generic;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
-    public static class VisioHelper // TODO: place
+    public static class VisioHelper
     {
         public static void setVBAListenersRunning(Boolean newStatus)
         {
@@ -79,6 +81,30 @@ namespace ALPS_Visio_AddIn_rewrite
         public enum ShapeType
         {
             SBD, SID
+        }
+
+        public static Visio.Shape place(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalElement = null)
+        {
+            Visio.Document stencil = null;
+            switch (shapeType)
+            {
+                case ShapeType.SBD:
+                    stencil = VisioHelper.openStencil(VisioStencils.SBD_STENCIL);
+                    break;
+                case ShapeType.SID:
+                    stencil = VisioHelper.openStencil(VisioStencils.SID_STENCIL);
+                    break;
+            }
+
+            Visio.Master sidMaster = stencil.Masters.get_ItemU(masterType);
+
+            double posX = 0;
+            double posY = 0;
+            // TODO: determin position (coordinates or auto arrange)
+
+            Visio.Shape droppedShape = page.Drop(sidMaster, posX, posY);
+
+            return droppedShape;
         }
 
         /// <summary>

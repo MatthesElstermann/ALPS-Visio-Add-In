@@ -258,12 +258,14 @@
     <Compile Include="menu\ALPSRibbon.Designer.cs">
       <DependentUpon>ALPSRibbon.cs</DependentUpon>
     </Compile>
-    <Compile Include="OWLShapes\elements\VisioModelLayer.cs" />
-    <Compile Include="OWLShapes\ISimple2DVisualizationBounds.cs" />
+    <Compile Include="OWLShapes\ExportFunctionality\IShapeExport.cs" />
+    <Compile Include="OWLShapes\ExportFunctionality\PASSProcessModelElementExport.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioFullySpecifiedSubject.cs" />
+    <Compile Include="OWLShapes\VisioModelLayer.cs" />
     <Compile Include="OWLShapes\IVisioExportable.cs" />
     <Compile Include="OWLShapes\IVisioExportableWithShape.cs" />
     <Compile Include="OWLShapes\VisioClassFactory.cs" />
-    <Compile Include="OWLShapes\elements\VisioPASSProcessModel.cs" />
+    <Compile Include="OWLShapes\VisioPASSProcessModel.cs" />
     <Compile Include="OWL\OWLImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -294,6 +296,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="ALPS_Visio_AddIn-rewrite_TemporaryKey.pfx" />
+    <Compile Include="OWLShapes\ExportFunctionality\SubjectExport.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -340,6 +343,7 @@
     <None Include="Resources\owlIcon2.png" />
     <None Include="Resources\owlIcon2.bmp" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
