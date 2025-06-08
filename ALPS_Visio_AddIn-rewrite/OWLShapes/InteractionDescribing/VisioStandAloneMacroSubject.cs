@@ -8,17 +8,17 @@ using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioFullySpecifiedSubject : FullySpecifiedSubject, IVisioExportableWithShape
+    public class VisioStandAloneMacroSubject : StandaloneMacroSubject, IVisioExportableWithShape
     {
-        private const string type = ALPSConstants.alpsSIDMasterStandardActor;
+        private const string type = ALPSConstants.alpsSIDMasterStandAloneMacro;
         private readonly IShapeExport export;
 
-        public VisioFullySpecifiedSubject(IModelLayer layer, string labelForID = null, ISet<IMessageExchange> incomingMessageExchange = null, ISubjectBaseBehavior subjectBaseBehavior = null, ISet<ISubjectBehavior> subjectBehaviors = null, ISet<IMessageExchange> outgoingMessageExchange = null, int maxSubjectInstanceRestriction = 1, ISubjectDataDefinition subjectDataDefinition = null, ISet<IInputPoolConstraint> inputPoolConstraints = null, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(layer, labelForID, incomingMessageExchange, subjectBaseBehavior, subjectBehaviors, outgoingMessageExchange, maxSubjectInstanceRestriction, subjectDataDefinition, inputPoolConstraints, comment, additionalLabel, additionalAttribute) 
+        public VisioStandAloneMacroSubject(IModelLayer layer, string labelForID = null, ISet<IMessageExchange> incomingMessageExchange = null, IMacroBehavior subjectMacroBehavior = null, ISet<IMessageExchange> outgoingMessageExchange = null, int maxSubjectInstanceRestriction = 1, ISubjectDataDefinition subjectDataDefinition = null, ISet<IInputPoolConstraint> inputPoolConstraints = null, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(layer, labelForID, incomingMessageExchange, subjectMacroBehavior, outgoingMessageExchange, maxSubjectInstanceRestriction, comment, additionalLabel, additionalAttribute)
         {
             export = new SubjectExport(this);
         }
 
-        protected VisioFullySpecifiedSubject()
+        protected VisioStandAloneMacroSubject()
         {
             export = new SubjectExport(this);
         }
@@ -27,14 +27,14 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         {
             export.export(VisioHelper.ShapeType.SID, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
 
-            Visio.Page currentSBDPage = VisioHelper.CreateSBDPage(currentPage, ("SBD: " + getModelComponentID()), ("" + getModelComponentID()), this.getShape());
+            Visio.Page currentSBDPage = VisioHelper.CreateSBDPage(currentPage, ("MBD: " + getModelComponentID()), ("" + getModelComponentID()), this.getShape());
 
-            if (getSubjectBaseBehavior() is IVisioExportable exportable) exportable.exportToVisio(currentSBDPage);
+            if (getBehavior() is IVisioExportable exportable) exportable.exportToVisio(currentSBDPage);
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
         {
-            return new VisioFullySpecifiedSubject();
+            return new VisioStandAloneMacroSubject();
         }
 
         public Visio.Shape getShape()

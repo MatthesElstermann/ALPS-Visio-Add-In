@@ -98,11 +98,7 @@ namespace ALPS_Visio_AddIn_rewrite
 
             Visio.Master sidMaster = stencil.Masters.get_ItemU(masterType);
 
-            double posX = 0;
-            double posY = 0;
-            // TODO: determin position (coordinates or auto arrange)
-
-            Visio.Shape droppedShape = page.Drop(sidMaster, posX, posY);
+            Visio.Shape droppedShape = page.Drop(sidMaster, 0, 0);
 
             return droppedShape;
         }

@@ -7,5 +7,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         Visio.Shape getShape();
 
         void setShape(Visio.Shape shape);
+
+        bool prep2DInfo();
     }
 }

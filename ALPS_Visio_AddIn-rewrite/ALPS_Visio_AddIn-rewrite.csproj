@@ -252,20 +252,43 @@
   -->
   <ItemGroup>
     <Compile Include="ALPSConstants.cs" />
+    <Compile Include="ALPSGlobalFunctions.cs" />
     <Compile Include="menu\ALPSRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="menu\ALPSRibbon.Designer.cs">
       <DependentUpon>ALPSRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioDoState.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioGenericReturnToOriginReference.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioRecieveState.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioSendState.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioDoTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioRecieveTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioFlowRestrictor.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioSendingFailedTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioSendTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioTimeTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioUserCancelTransition.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\IShapeExport.cs" />
+    <Compile Include="OWLShapes\ExportFunctionality\MessageExchangeExport.cs" />
+    <Compile Include="OWLShapes\ExportFunctionality\MessageSpecificationExport.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\PASSProcessModelElementExport.cs" />
+    <Compile Include="OWLShapes\ExportFunctionality\StateExport.cs" />
+    <Compile Include="OWLShapes\ExportFunctionality\TransitionExport.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioFullySpecifiedSubject.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioInterfaceSubject.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioMessageExchange.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioMessageExchangeList.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioMessageSpecification.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioStandAloneMacroSubject.cs" />
+    <Compile Include="OWLShapes\VisioMacroBehavior.cs" />
     <Compile Include="OWLShapes\VisioModelLayer.cs" />
     <Compile Include="OWLShapes\IVisioExportable.cs" />
     <Compile Include="OWLShapes\IVisioExportableWithShape.cs" />
     <Compile Include="OWLShapes\VisioClassFactory.cs" />
     <Compile Include="OWLShapes\VisioPASSProcessModel.cs" />
+    <Compile Include="OWLShapes\VisioSubjectBehavior.cs" />
     <Compile Include="OWL\OWLImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -297,6 +320,7 @@
     </EmbeddedResource>
     <None Include="ALPS_Visio_AddIn-rewrite_TemporaryKey.pfx" />
     <Compile Include="OWLShapes\ExportFunctionality\SubjectExport.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioCommunicationRestriction.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
