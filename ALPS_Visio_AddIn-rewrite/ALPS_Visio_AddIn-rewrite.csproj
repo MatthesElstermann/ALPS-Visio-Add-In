@@ -272,6 +272,7 @@
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioUserCancelTransition.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\IShapeExport.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\MessageExchangeExport.cs" />
+    <Compile Include="OWLShapes\ExportFunctionality\MessageExchangeListExport.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\MessageSpecificationExport.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\PASSProcessModelElementExport.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\StateExport.cs" />

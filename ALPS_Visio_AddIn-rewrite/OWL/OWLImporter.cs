@@ -33,6 +33,8 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             IList<IPASSProcessModel> passProcessModels = parser.loadModels(new List<string> { fileName });
 
+            VisioHelper.openStencil(VisioHelper.VisioStencils.SID_STENCIL);
+
             // necessary so the Visio VBA Listerners do not delete message on transitions before the complete model has been imported
             VisioHelper.setVBAListenersRunning(false);
             if (passProcessModels.Count > 0 && passProcessModels[0] is IVisioExportable exportable)

@@ -26,6 +26,13 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             if (messageExchange.getReceiver() is IVisioExportableWithShape exportableReceiver)
                 shape.CellsU["EndY"].GlueToPos(exportableReceiver.getShape(), 0, 0.5);
+
+            // TEMP: center between begin and end
+            shape.CellsU["User.globalX"].FormulaU = "\"" + (shape.CellsU["BeginX"].Result[""] + shape.CellsU["EndX"].Result[""])/2.0 + "\"";
+            shape.CellsU["User.globalY"].FormulaU = "\"" + (shape.CellsU["BeginY"].Result[""] + shape.CellsU["EndY"].Result[""]) / 2.0 + "\"";
+
+            // center message box on connector
+            shape.CellsU["Actions.Row_1.Action"].Trigger();
         }
     }
 }

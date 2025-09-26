@@ -30,7 +30,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             export.export(VisioHelper.ShapeType.SID, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
 
-            if (getMessageType() is IVisioExportable exportable) exportable.exportToVisio(currentPage);
+            if (getMessageType() is IVisioExportable exportable)
+            {
+                exportable.exportToVisio(currentPage);
+                //messagebox.getShape().ContainerProperties.InsertListMember(exportable, 0); // TODO: messagebox
+            }
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
