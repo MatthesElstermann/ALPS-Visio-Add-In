@@ -1,73 +1,63 @@
-using System.Collections.Generic;
-using System.Linq;
 using alps.net.api.ALPS;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
+using System.Collections.Generic;
+using System.Linq;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioMessageExchangeList : MessageExchangeList, IVisioExportableWithShape
+    public class VisioMessageExchangeList : MessageExchangeList, IVisioExportable
     {
-        private const string type = ALPSConstants.alpsSIDMasterStandardMessageConnector;
-        private readonly IShapeExport export;
-        private Visio.Shape messageBoxShape;
+        public VisioMessageExchangeList(IModelLayer layer) : base(layer) { }
+        protected VisioMessageExchangeList() { }
 
-        public VisioMessageExchangeList(IModelLayer layer) : base(layer)
+        public void ExportToVisio(Visio.Page page)
         {
-            export = new MessageExchangeListExport(this);
-        }
-
-        protected VisioMessageExchangeList()
-        {
-            export = new MessageExchangeListExport(this);
-        }
-
-        public void exportToVisio(Visio.Page currentPage)
-        {
-            if (getShape() != null) return;
-
-            export.export(VisioHelper.ShapeType.SID, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
-
-            //if (getMessageExchanges().Values.First() is IVisioExportable firstExportable) firstExportable.exportToVisio(currentPage);
-
-            //foreach (Visio.Shape pageShape in currentPage.Shapes)
-            //{
-            //    if (pageShape.CellExistsU["User.idOnPage", 0] != 0)
-            //    {
-            //        if (pageShape.CellsU["User.idOnPage"].Result[""] == firstExportable.getShape().CellsU["User.idOfCorrespondingShape"].Result[""])
-            //        {
-            //            messageBoxShape = pageShape;
-            //            break;
-            //        }
-            //    }
-            //}
-
-            // message specifications
-            foreach (IMessageExchange messageExchange in getMessageExchanges().Values)
+            if (this.getMessageExchanges().Values.FirstOrDefault() is IVisioExportableWithShape messageExchangeWithConnector)
             {
-                if (messageExchange.getMessageType() is IVisioExportable exportable) exportable.exportToVisio(currentPage);
+                // store previous shapes
+                List<Visio.Shape> previousShapes = new List<Visio.Shape>();
+                foreach (Visio.Shape shape in page.Shapes) previousShapes.Add(shape);
+
+                messageExchangeWithConnector.ExportToVisio(page);
+
+                // find message box
+                Visio.Shape messageBox = null;
+                foreach (Visio.Shape shape in page.Shapes)
+                    if (shape.CellExistsU["User.idOnPage", 0] != 0 &&
+                        shape.CellsU["User.idOnPage"].Result[""] == messageExchangeWithConnector.GetShape().CellsU["User.idOfCorrespondingShape"].Result[""])
+                    {
+                        messageBox = shape;
+                        break;
+                    }
+
+                // delete wrong shapes
+                // alternative idea: delete messages with default label (or label == id)
+                foreach (Visio.Shape shape in page.Shapes)
+                    if (!previousShapes.Contains(shape) && shape != messageExchangeWithConnector.GetShape() && shape != messageBox) shape.Delete();
+
+                // center message box
+                messageBox.CellsU["Actions.Center.Action"].Trigger();
+
+                // aggregate list
+                foreach (IMessageExchange messageExchange in this.getMessageExchanges().Values)
+                {
+                    if (messageExchange.getMessageType() is IVisioExportableWithShape exportable)
+                    {
+                        exportable.ExportToVisio(page);
+
+                        messageBox.ContainerProperties.InsertListMember(exportable.GetShape(), 0);
+                        exportable.GetShape().BringToFront();
+                    }
+                }
             }
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
         {
             return new VisioMessageExchangeList();
-        }
-
-        public Visio.Shape getShape()
-        {
-            return export.getShape();
-        }
-
-        public void setShape(Visio.Shape shape)
-        {
-            export.setShape(shape);
-        }
-
-        public bool prep2DInfo()
-        {
-            return false;
         }
     }
 }

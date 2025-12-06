@@ -1,32 +1,28 @@
-using alps.net.api.ALPS;
-using System.Collections.Generic;
-using System.Linq;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using Microsoft.Office.Interop.Visio;
 using alps.net.api.util;
-using static alps.net.api.StandardPASS.ITransition;
+using Visio = Microsoft.Office.Interop.Visio;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
+using System.Collections.Generic;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioSendingFailedTransition : SendingFailedTransition
+    public class VisioSendingFailedTransition : SendingFailedTransition, IVisioExportableWithShape
     {
-        private const string type = ALPSConstants.alpsSBDMasterSendingFailedTransition;
+        private const string shapeType = Constants.SBDMasters.SendingFailedTransition;
+        
         private readonly IShapeExport export;
+        public VisioSendingFailedTransition(IState sourceState, IState targetState, string labelForID = null, ITransitionCondition transitionCondition = null, ITransition.TransitionType transitionType = ITransition.TransitionType.Standard, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(sourceState, targetState, labelForID, transitionCondition, transitionType, comment, additionalLabel, additionalAttribute) { export = new TransitionExport(this); }
+        protected VisioSendingFailedTransition() { export = new TransitionExport(this); }
 
-        public VisioSendingFailedTransition(IState sourceState, IState targetState, string labelForID = null, ITransitionCondition transitionCondition = null, ITransition.TransitionType transitionType = ITransition.TransitionType.Standard, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(sourceState, targetState, labelForID, transitionCondition, transitionType, comment, additionalLabel, additionalAttribute)
+        public void ExportToVisio(Visio.Page page)
         {
-            export = new TransitionExport(this);
+            export.Export(shapeType, page, VH.GetBounds(this));
         }
 
-        protected VisioSendingFailedTransition()
+        public bool PrepareDimensions() // TODO: prepare dimensions
         {
-            export = new TransitionExport(this);
-        }
-
-        public void exportToVisio(Page currentPage)
-        {
-            export.export(VisioHelper.ShapeType.SBD, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
+            return false;
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
@@ -34,19 +30,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             return new VisioSendingFailedTransition();
         }
 
-        public Shape getShape()
+        public Visio.Shape GetShape()
         {
-            return export.getShape();
-        }
-
-        public void setShape(Shape shape)
-        {
-            export.setShape(shape);
-        }
-
-        public bool prep2DInfo()
-        {
-            return false;
+            return export.GetShape();
         }
     }
 }

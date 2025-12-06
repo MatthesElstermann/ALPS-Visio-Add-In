@@ -1,40 +1,35 @@
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using alps.net.api.ALPS;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using alps.net.api.util;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioMessageExchange : MessageExchange, IVisioExportableWithShape
     {
-        private const string type = ALPSConstants.alpsSIDMasterStandardMessageConnector;
+        private const string shapeType = Constants.SIDMasters.StandardMessageConnector;
+
         private readonly IShapeExport export;
-
-        public VisioMessageExchange(IModelLayer layer) : base(layer)
+        public VisioMessageExchange(IModelLayer layer) : base(layer) { export = new PASSProcessModelElementExport(this); }
+        protected VisioMessageExchange() { export = new PASSProcessModelElementExport(this); }
+        public void ExportToVisio(Visio.Page page)
         {
-            export = new MessageExchangeExport(this);
+            export.Export(shapeType, page, VH.GetBounds(this));
+
+            // set path (auto arrange)
+            if (this.getSender() is IVisioExportableWithShape exportableSender)
+                this.GetShape().CellsU["BeginX"].GlueToPos(exportableSender.GetShape(), 1, 0.5);
+            if (this.getReceiver() is IVisioExportableWithShape exportableReceiver)
+                this.GetShape().CellsU["EndY"].GlueToPos(exportableReceiver.GetShape(), 0, 0.5);
+
+            // TODO: AbstractMessageExchange
+            // TODO: FinalizedMessageExchange -> alps.net.api
         }
 
-        protected VisioMessageExchange()
+        public bool PrepareDimensions() // TODO: prepare dimensions
         {
-            export = new MessageExchangeExport(this);
-        }
-
-        public void exportToVisio(Visio.Page currentPage)
-        {
-            if (getShape() != null) return;
-
-            export.export(VisioHelper.ShapeType.SID, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
-
-            if (getMessageType() is IVisioExportable exportable)
-            {
-                exportable.exportToVisio(currentPage);
-                //messagebox.getShape().ContainerProperties.InsertListMember(exportable, 0); // TODO: messagebox
-            }
+            return false; // routing follow points
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
@@ -42,19 +37,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             return new VisioMessageExchange();
         }
 
-        public Visio.Shape getShape()
+        public Visio.Shape GetShape()
         {
-            return export.getShape();
-        }
-
-        public void setShape(Visio.Shape shape)
-        {
-            export.setShape(shape);
-        }
-
-        public bool prep2DInfo()
-        {
-            return false;
+            return export.GetShape();
         }
     }
 }

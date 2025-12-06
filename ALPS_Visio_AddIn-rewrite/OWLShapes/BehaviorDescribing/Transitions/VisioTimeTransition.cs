@@ -1,42 +1,39 @@
-using alps.net.api.ALPS;
-using System.Collections.Generic;
-using System.Linq;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using Microsoft.Office.Interop.Visio;
 using alps.net.api.util;
-using static alps.net.api.StandardPASS.ITransition;
+using Visio = Microsoft.Office.Interop.Visio;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
+using System.Collections.Generic;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioTimeTransition : TimeTransition, IVisioExportableWithShape
     {
-        private const string type = ALPSConstants.alpsSBDMasterTimeTransition;
+        private const string shapeType = Constants.SBDMasters.TimeTransition;
+        
         private readonly IShapeExport export;
+        public VisioTimeTransition(IState sourceState, IState targetState, string labelForID = null, ITimeTransitionCondition transitionCondition = null, ITransition.TransitionType transitionType = ITransition.TransitionType.Standard, ITimeTransition.TimeTransitionType timeTransitionType = ITimeTransition.TimeTransitionType.DayTimeTimer, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(sourceState, targetState, labelForID, transitionCondition, transitionType, timeTransitionType, comment, additionalLabel, additionalAttribute) { export = new TransitionExport(this); }
+        protected VisioTimeTransition() { export = new TransitionExport(this); }
 
-        public VisioTimeTransition(IState sourceState, IState targetState, string labelForID = null, ITimeTransitionCondition transitionCondition = null, ITransition.TransitionType transitionType = ITransition.TransitionType.Standard, ITimeTransition.TimeTransitionType timeTransitionType = ITimeTransition.TimeTransitionType.DayTimeTimer, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(sourceState, targetState, labelForID, transitionCondition, transitionType, timeTransitionType, comment, additionalLabel, additionalAttribute)
+        public void ExportToVisio(Visio.Page page)
         {
-            export = new TransitionExport(this);
-        }
+            export.Export(shapeType, page, VH.GetBounds(this));
 
-        protected VisioTimeTransition()
-        {
-            export = new TransitionExport(this);
-        }
-
-        public void exportToVisio(Page currentPage)
-        {
-            export.export(VisioHelper.ShapeType.SBD, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
-
-            ITimeTransitionCondition condition = getTransitionCondition();
+            ITimeTransitionCondition condition = this.getTransitionCondition();
 
             // transition type
-            getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeTimeOutType].FormulaU = "INDEX(" + (int)condition.getTimeTransitionType() + ", Prop." + ALPSConstants.alpsPropertieTypeTimeOutType + ".Format)";
-
-            bool isReminder = condition.getTimeTransitionType() == ITimeTransitionCondition.TimeTransitionConditionType.TimeBasedReminder || condition.getTimeTransitionType() == ITimeTransitionCondition.TimeTransitionConditionType.CalendarBasedReminder;
+            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.TimeOutType].FormulaU = "INDEX(" + (int)condition.getTimeTransitionType() + ", Prop." + Constants.Properties.Transition.TimeOutType + ".Format)";
+            VH.SetPropertyU(export.GetShape(), Constants.Properties.Transition.TimeOutType, "INDEX(" + (int)condition.getTimeTransitionType() + ", Prop.timeOutType.Format)");
 
             // timeout
-            getShape().CellsU["Prop." + (isReminder ? ALPSConstants.alpsPropertieTypeTimeOutDate : ALPSConstants.alpsPropertieTypeTimeOutTime)].Formula = "\"" + condition.getTimeValue() + "\"";
+            bool isReminder = condition.getTimeTransitionType() == ITimeTransitionCondition.TimeTransitionConditionType.TimeBasedReminder || condition.getTimeTransitionType() == ITimeTransitionCondition.TimeTransitionConditionType.CalendarBasedReminder;
+            if (isReminder) VH.SetProperty(export.GetShape(), Constants.Properties.Transition.TimeOutDate, condition.getTimeValue());
+            else VH.SetProperty(export.GetShape(), Constants.Properties.Transition.TimeOutTime, condition.getTimeValue());
+        }
+
+        public bool PrepareDimensions() // TODO: prepare dimensions
+        {
+            return false;
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
@@ -44,19 +41,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             return new VisioTimeTransition();
         }
 
-        public Shape getShape()
+        public Visio.Shape GetShape()
         {
-            return export.getShape();
-        }
-
-        public void setShape(Shape shape)
-        {
-            export.setShape(shape);
-        }
-
-        public bool prep2DInfo()
-        {
-            return false;
+            return export.GetShape();
         }
     }
 }

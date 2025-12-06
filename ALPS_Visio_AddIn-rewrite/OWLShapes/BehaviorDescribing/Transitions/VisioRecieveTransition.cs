@@ -1,72 +1,54 @@
-using alps.net.api.ALPS;
-using System.Collections.Generic;
-using System.Linq;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using Microsoft.Office.Interop.Visio;
 using alps.net.api.util;
-using static alps.net.api.StandardPASS.ITransition;
+using Visio = Microsoft.Office.Interop.Visio;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioReceiveTransition : ReceiveTransition, IVisioExportableWithShape
     {
-        private const string type = ALPSConstants.alpsSBDMasterReceiveTransition;
+        private const string shapeType = Constants.SBDMasters.ReceiveTransition;
+        
         private readonly IShapeExport export;
+        public VisioReceiveTransition(IState sourceState, IState targetState, string labelForID = null, ITransitionCondition transitionCondition = null, ITransition.TransitionType transitionType = ITransition.TransitionType.Standard, ISet<IDataMappingIncomingToLocal> dataMappingIncomingToLocal = null, int priorityNumber = 0, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(sourceState, targetState, labelForID, transitionCondition, transitionType, dataMappingIncomingToLocal, priorityNumber, comment, additionalLabel, additionalAttribute) { export = new TransitionExport(this); }
+        protected VisioReceiveTransition() { export = new TransitionExport(this); }
 
-        public VisioReceiveTransition(IState sourceState, IState targetState, string labelForID = null, ITransitionCondition transitionCondition = null, ITransition.TransitionType transitionType = ITransition.TransitionType.Standard, ISet<IDataMappingIncomingToLocal> dataMappingIncomingToLocal = null, int priorityNumber = 0, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(sourceState, targetState, labelForID, transitionCondition, transitionType, dataMappingIncomingToLocal, priorityNumber, comment, additionalLabel, additionalAttribute)
+        public void ExportToVisio(Visio.Page page)
         {
-            export = new TransitionExport(this);
-        }
+            export.Export(shapeType, page, VH.GetBounds(this));
 
-        protected VisioReceiveTransition()
-        {
-            export = new TransitionExport(this);
-        }
-
-        public void exportToVisio(Page currentPage)
-        {
-            export.export(VisioHelper.ShapeType.SBD, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
-
-            // model component type
-            int indexNumber = 0;
-            switch (getTransitionType())
-            {
-                case TransitionType.Standard: indexNumber = 0; break;
-                case TransitionType.Trigger: indexNumber = 1; break;
-                case TransitionType.Precedence: indexNumber = 2; break;
-                case TransitionType.Finalized: indexNumber = 3; break;
-                case TransitionType.Advice: indexNumber = 4; break;
-            }
-            getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeModelComponentType].FormulaU = "=INDEX(" + indexNumber + ",Prop.modelComponentType.Format)";
+            // TODO: VH and stuff
 
             // sender
             ISubject sender = getTransitionCondition().getMessageSentFrom();
             if (sender != null && sender.getModelComponentLabels().Count > 0)
             {
-                getShape().CellsU["User." + ALPSConstants.alpsPropertieTypeReceiverSenderListForSubject].Formula = "\";" + sender.getModelComponentLabelsAsStrings()[0] + "\"";
-                getShape().CellsU["User." + ALPSConstants.alpsPropertieTypeReceiverSenderListForSubjectID].Formula = "\";" + sender.getModelComponentID() + "\"";
-                getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeSenderOfMessage].FormulaU = "=INDEX(1, Prop.senderOfMessage.Format)";
+                export.GetShape().CellsU["User." + Constants.Properties.Transition.ReceiverSenderListForSubject].Formula = "\";" + sender.getModelComponentLabelsAsStrings()[0] + "\"";
+                export.GetShape().CellsU["User." + Constants.Properties.Transition.ReceiverSenderListForSubjectID].Formula = "\";" + sender.getModelComponentID() + "\"";
+                export.GetShape().CellsU["Prop." + Constants.Properties.Transition.MessageSender].FormulaU = "=INDEX(1, Prop.senderOfMessage.Format)";
             }
 
             // message
             IMessageSpecification messageSpec = getTransitionCondition().getReceptionOfMessage();
             if (messageSpec != null && messageSpec.getModelComponentLabels().Count > 0)
             {
-                getShape().CellsU["User." + ALPSConstants.alpsPropertieTypePossibleMessageList].Formula = "\";" + messageSpec.getModelComponentLabelsAsStrings()[0] + "\"";
-                getShape().CellsU["User." + ALPSConstants.alpsPropertieTypePossibleMessageListID].Formula = "\";" + messageSpec.getModelComponentID() + "\"";
-                getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeConnectorMessage].FormulaU = "=INDEX(1, Prop.Message.Format)";
+                export.GetShape().CellsU["User." + Constants.Properties.Transition.PossibleMessageList].Formula = "\";" + messageSpec.getModelComponentLabelsAsStrings()[0] + "\"";
+                export.GetShape().CellsU["User." + Constants.Properties.Transition.PossibleMessageListID].Formula = "\";" + messageSpec.getModelComponentID() + "\"";
+                export.GetShape().CellsU["Prop." + Constants.Properties.Transition.Message].FormulaU = "=INDEX(1, Prop.Message.Format)";
             }
 
             // multiple sends
-            getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeMultiReceiveLowerBound].Formula = "\"" + getTransitionCondition().getMultipleLowerBound() + "\"";
-            getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeMultiReceiveUpperBound].Formula = "\"" + getTransitionCondition().getMultipleUpperBound() + "\"";
+            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.MultiReceiveLowerBound].Formula = "\"" + getTransitionCondition().getMultipleLowerBound() + "\"";
+            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.MultiReceiveUpperBound].Formula = "\"" + getTransitionCondition().getMultipleUpperBound() + "\"";
 
             // priority number
-            getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeConnectorAlternativePriority].Formula = "\"" + getPriorityNumber() + "\"";
+            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.AlternativePriorityNumber].Formula = "\"" + getPriorityNumber() + "\"";
 
             // recieve type
-            getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeReceiveType].FormulaU = "INDEX(" + (int)getTransitionCondition().getReceiveType() + ", Prop.receiveType.Format)";
+            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.ReceiveType].FormulaU = "INDEX(" + (int)getTransitionCondition().getReceiveType() + ", Prop.receiveType.Format)";
 
             // add data mapping
             if (getDataMappingFunctions().Count > 0)
@@ -75,11 +57,16 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 if (tempList.Count > 0)
                 {
                     string dataMappingString = tempList[0].getDataMappingString();
-                    dataMappingString = ALPSGlobalFunctions.prepareXMLLiteralForEntryIntoVisioShapeData(dataMappingString);
+                    dataMappingString = VisioAddIn.ALPSGlobalFunctions.prepareXMLLiteralForEntryIntoVisioShapeData(dataMappingString);
 
-                    getShape().CellsU["Prop." + ALPSConstants.alpsPropertieTypeDataMappingIncoming].Formula = "\"" + dataMappingString + "\"";
+                    export.GetShape().CellsU["Prop." + Constants.Properties.Transition.DataMappingIncomming].Formula = "\"" + dataMappingString + "\"";
                 }
             }
+        }
+
+        public bool PrepareDimensions() // TODO: prepare dimensions
+        {
+            return false;
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
@@ -87,19 +74,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             return new VisioReceiveTransition();
         }
 
-        public Shape getShape()
+        public Visio.Shape GetShape()
         {
-            return export.getShape();
-        }
-
-        public void setShape(Shape shape)
-        {
-            export.setShape(shape);
-        }
-
-        public bool prep2DInfo()
-        {
-            return false;
+            return export.GetShape();
         }
     }
 }

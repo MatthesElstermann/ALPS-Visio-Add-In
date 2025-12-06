@@ -1,49 +1,54 @@
 using System.Collections.Generic;
-using System.Globalization;
 using alps.net.api.ALPS;
 using alps.net.api.StandardPASS;
-using static ALPS_Visio_AddIn_rewrite.VisioHelper;
 using Visio = Microsoft.Office.Interop.Visio;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class StateExport : PASSProcessModelElementExport
     {
-        readonly IState state;
+		private readonly IState state;
 
+        /// <summary>
+        /// Shape export for state
+        /// </summary>
         public StateExport(IState state) : base(state)
         {
             this.state = state;
         }
 
-        public override void export(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalElement = null)
+        public override void Export(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
         {
-            base.export(shapeType, page, masterType, points, originalElement);
+            base.Export(shapeType, page, bounds);
 
-            // set properties
-            if (state.isStateType(IState.StateType.Abstract))
-                shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeSBDStateIsAbstract].FormulaForceU = "=TRUE";
+            // EndState
+            VH.SetBool(shape, Constants.Properties.State.End, state.isStateType(IState.StateType.EndState));
+            // InitialStateOfBehavior
+            VH.SetBool(shape, Constants.Properties.State.Start, state.isStateType(IState.StateType.InitialStateOfBehavior));
+            // AbstractState
+            VH.SetBool(shape, Constants.Properties.State.Abstract, state.isStateType(IState.StateType.Abstract));
+            // FinalizedState
+            VH.SetBool(shape, Constants.Properties.State.Finalized, state.isStateType(IState.StateType.Finalized));
 
-            if (state.isStateType(IState.StateType.Finalized))
-                shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeSBDStateIsFinalized].FormulaForceU = "=TRUE";
+            // TODO: hasFunctionSpecification max 1 FunctionSpecification (hasToolSpecificDefinition exactly 1 string)
+            // -> ReceiveFunction (EnvironmentChoice, AutoReceiveEarliest), SendFunction (Default), DoFunction (EnvironmentChoice, AutomaticEvaluation)
 
-            if (state.isStateType(IState.StateType.EndState))
-                shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeSBDStateIsEndState].FormulaForceU = "=TRUE";
+            // TODO: ChoiceSegment
 
-            if (state.isStateType(IState.StateType.InitialStateOfBehavior))
-                shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeSBDStateIsStartState].FormulaForceU = "=TRUE";
+            // TODO: GroupState // ONT + alps.net.api
 
-            // set dimensions
-            double width = points[1].getRelative2DPosX() * page.PageSheet.CellsU["PageWidth"].Result[""];
-            double height = points[1].getRelative2DPosY() * page.PageSheet.CellsU["PageHeight"].Result[""];
-            shape.CellsU["Width"].FormulaU = width.ToString(CultureInfo.InvariantCulture);
-            shape.CellsU["Height"].FormulaU = height.ToString(CultureInfo.InvariantCulture);
+            // TODO: StatePlaceHolder
 
-            // set position
-            double posX = points[0].getRelative2DPosX() * page.PageSheet.CellsU["PageWidth"].Result[""];
-            double posY = points[0].getRelative2DPosY() * page.PageSheet.CellsU["PageHeight"].Result[""];
-            shape.CellsU["PinX"].FormulaU = posX.ToString(CultureInfo.InvariantCulture);
-            shape.CellsU["PinY"].FormulaU = posY.ToString(CultureInfo.InvariantCulture);
+            // all
+            // inCycle // ont + api
+            // implements
+            // multiplicityLowerBound // ont + api
+            // multiplicityUpperBound // ont + api
+
+            // DoState
+            // dataMappingIncoming
+            // dataMappingOutgoing
         }
     }
 }

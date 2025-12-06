@@ -1,49 +1,26 @@
 using alps.net.api.ALPS;
-using System.Collections.Generic;
-using System.Linq;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using Microsoft.Office.Interop.Visio;
 using alps.net.api.util;
+using Visio = Microsoft.Office.Interop.Visio;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioReceiveState : ReceiveState, IVisioExportableWithShape
     {
-        private const string type = ALPSConstants.alpsSBDMasterReceiveState;
+        private const string shapeType = Constants.SBDMasters.ReceiveState;
+
         private readonly IShapeExport export;
+        public VisioReceiveState(ISubjectBehavior behavior) : base(behavior) { export = new StateExport(this); }
+        protected VisioReceiveState() { export = new StateExport(this); }
 
-        public VisioReceiveState(ISubjectBehavior behavior) : base(behavior)
+        public void ExportToVisio(Visio.Page page)
         {
-            export = new StateExport(this);
+            export.Export(shapeType, page, VH.GetBounds(this));
         }
 
-        protected VisioReceiveState()
-        {
-            export = new StateExport(this);
-        }
-
-        public void exportToVisio(Page currentPage)
-        {
-            export.export(VisioHelper.ShapeType.SBD, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
-        }
-
-        public override IParseablePASSProcessModelElement getParsedInstance()
-        {
-            return new VisioReceiveState();
-        }
-
-        public Shape getShape()
-        {
-            return export.getShape();
-        }
-
-        public void setShape(Shape shape)
-        {
-            export.setShape(shape);
-        }
-
-        public bool prep2DInfo()
+        public bool PrepareDimensions()
         {
             if (this is IHasSimple2DVisualizationBox bounds)
             {
@@ -51,13 +28,25 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 point.setRelative2DPosX(bounds.getRelative2DPosX());
                 point.setRelative2DPosY(bounds.getRelative2DPosY());
                 this.addElementWithUnspecifiedRelation(point);
+
                 Simple2DVisualizationPoint bound = new Simple2DVisualizationPoint();
                 bound.setRelative2DPosX(bounds.getRelative2DWidth());
                 bound.setRelative2DPosY(bounds.getRelative2DHeight());
                 this.addElementWithUnspecifiedRelation(bound);
+
                 return true;
             }
             else return false;
+        }
+
+        public override IParseablePASSProcessModelElement getParsedInstance()
+        {
+            return new VisioReceiveState();
+        }
+
+        public Visio.Shape GetShape()
+        {
+            return export.GetShape();
         }
     }
 }
