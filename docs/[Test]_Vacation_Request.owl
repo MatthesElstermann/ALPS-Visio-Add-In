@@ -1,0 +1,538 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [ 
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY abstract-pass-ont "http://www.imi.kit.edu/abstract-pass-ont#" >
+    <!ENTITY standard-pass-ont "http://www.i2pm.net/standard-pass-ont#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<rdf:RDF xmlns:abstract-pass-ont="http://www.imi.kit.edu/abstract-pass-ont#" xmlns:standard-pass-ont="http://www.i2pm.net/standard-pass-ont#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:Zeichenblatt-1="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#" xmlns="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1">
+	<owl:Ontology rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1">
+		<owl:versionIRI rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1/2025-04-15"></owl:versionIRI>
+		<owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont"></owl:imports>
+		<owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont/0.8.0"></owl:imports>
+		<owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont"></owl:imports>
+		<owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont/1.1.0"></owl:imports>
+	</owl:Ontology>
+	<owl:Class rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#VisioShapesInternalDataMappingFunction" >
+		<rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#DataMappingFunction"></rdfs:subClassOf>
+	</owl:Class>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#[Test]_Vacation_Request" >
+		<rdf:type rdf:resource="&standard-pass-ont;PASSProcessModel" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#Model</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >[Test]_Vacation_Request</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#MessageExchangeList_on_SID_1_StandardMessageConnector_96" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_100" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_96_SID_1_MessageSpecification_100" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#MessageExchangeList_on_SID_1_StandardMessageConnector_172" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_176" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_176" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_179" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_179" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1" >
+		<rdf:type rdf:resource="&abstract-pass-ont;ModelLayer" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SID_1</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#MessageExchangeList_on_SID_1_StandardMessageConnector_96" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_100" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_96_SID_1_MessageSpecification_100" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#MessageExchangeList_on_SID_1_StandardMessageConnector_172" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_176" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_176" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_179" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_179" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" >
+		<rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1_FullySpecifiedSubject_2</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Employee</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:containsBehavior rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:containsBehavior>
+		<standard-pass-ont:containsBaseBehavior rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:containsBaseBehavior>
+		<standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="http://www.w3.org/2001/XMLSchema#integer" >1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+		<abstract-pass-ont:hasExecutionCostPerHour rdf:datatype="&xsd;double" >0</abstract-pass-ont:hasExecutionCostPerHour>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" >
+		<rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1_FullySpecifiedSubject_49</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Manager</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:containsBehavior rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:containsBehavior>
+		<standard-pass-ont:containsBaseBehavior rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:containsBaseBehavior>
+		<standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="http://www.w3.org/2001/XMLSchema#integer" >1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+		<abstract-pass-ont:hasExecutionCostPerHour rdf:datatype="&xsd;double" >0</abstract-pass-ont:hasExecutionCostPerHour>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#MessageExchangeList_on_SID_1_StandardMessageConnector_96" >
+		<rdf:type rdf:resource="&standard-pass-ont;MessageExchangeList" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >MessageExchangeList_on_SID_1_StandardMessageConnector_96</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SID_1_StandardMessageConnector_96</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_96_SID_1_MessageSpecification_100" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_100" >
+		<rdf:type rdf:resource="&standard-pass-ont;MessageSpecification" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1_MessageSpecification_100</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Vacation Request</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:containsPayloadDescription rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_100" ></standard-pass-ont:containsPayloadDescription>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_100" >
+		<rdf:type rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_100" ></rdf:type>
+	</owl:NamedIndividual>
+	<owl:DatatypeProperty rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#DataElement_SID_1_DE3" >
+		<rdfs:label xml:lang="en" >DataElement_SID_1_DE3</rdfs:label>
+		<rdfs:subPropertyOf rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#ModelInternalDataProperty" ></rdfs:subPropertyOf>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer" ></rdfs:range>
+	</owl:DatatypeProperty>
+	<owl:Class rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_100" >
+		<rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PayloadDataObjectDefinition"></rdfs:subClassOf>
+		<owl:equivalentClass>
+			<owl:Class>
+				<owl:oneOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_100" ></rdf:Description>
+				</owl:oneOf>
+			</owl:Class>
+		</owl:equivalentClass>
+		<rdfs:subClassOf >
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#DataElement_SID_1_DE3"></owl:onProperty>
+				<owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#integer"></owl:onDataRange>
+				<owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_96_SID_1_MessageSpecification_100" >
+		<rdf:type rdf:resource="&standard-pass-ont;MessageExchange" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1_StandardMessageConnector_96_SID_1_MessageSpecification_100</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Message: Vacation Request From: Employee To: Manager</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSender rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:hasSender>
+		<standard-pass-ont:hasReceiver rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:hasReceiver>
+		<standard-pass-ont:hasMessageType rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_100" ></standard-pass-ont:hasMessageType>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#MessageExchangeList_on_SID_1_StandardMessageConnector_172" >
+		<rdf:type rdf:resource="&standard-pass-ont;MessageExchangeList" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >MessageExchangeList_on_SID_1_StandardMessageConnector_172</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SID_1_StandardMessageConnector_172</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_176" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_179" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_176" >
+		<rdf:type rdf:resource="&standard-pass-ont;MessageSpecification" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1_MessageSpecification_176</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Approval</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:containsPayloadDescription rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_176" ></standard-pass-ont:containsPayloadDescription>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_176" >
+		<rdf:type rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_176" ></rdf:type>
+	</owl:NamedIndividual>
+	<owl:DatatypeProperty rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#DataElement_SID_1_DE9" >
+		<rdfs:label xml:lang="en" >DataElement_SID_1_DE9</rdfs:label>
+		<rdfs:subPropertyOf rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#ModelInternalDataProperty" ></rdfs:subPropertyOf>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer" ></rdfs:range>
+	</owl:DatatypeProperty>
+	<owl:Class rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_176" >
+		<rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PayloadDataObjectDefinition"></rdfs:subClassOf>
+		<owl:equivalentClass>
+			<owl:Class>
+				<owl:oneOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_176" ></rdf:Description>
+				</owl:oneOf>
+			</owl:Class>
+		</owl:equivalentClass>
+		<rdfs:subClassOf >
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#DataElement_SID_1_DE9"></owl:onProperty>
+				<owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#integer"></owl:onDataRange>
+				<owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_176" >
+		<rdf:type rdf:resource="&standard-pass-ont;MessageExchange" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_176</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Message: Approval From: Manager To: Employee</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSender rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:hasSender>
+		<standard-pass-ont:hasReceiver rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:hasReceiver>
+		<standard-pass-ont:hasMessageType rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_176" ></standard-pass-ont:hasMessageType>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_179" >
+		<rdf:type rdf:resource="&standard-pass-ont;MessageSpecification" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1_MessageSpecification_179</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Denial</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:containsPayloadDescription rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_179" ></standard-pass-ont:containsPayloadDescription>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_179" >
+		<rdf:type rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_179" ></rdf:type>
+	</owl:NamedIndividual>
+	<owl:DatatypeProperty rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#DataElement_SID_1_DE15" >
+		<rdfs:label xml:lang="en" >DataElement_SID_1_DE15</rdfs:label>
+		<rdfs:subPropertyOf rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#ModelInternalDataProperty" ></rdfs:subPropertyOf>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer" ></rdfs:range>
+	</owl:DatatypeProperty>
+	<owl:Class rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_179" >
+		<rdfs:subClassOf rdf:resource="http://www.i2pm.net/standard-pass-ont#PayloadDataObjectDefinition"></rdfs:subClassOf>
+		<owl:equivalentClass>
+			<owl:Class>
+				<owl:oneOf rdf:parseType="Collection">
+					<rdf:Description rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#PayloadDefinition_of_SID_1_MessageSpecification_179" ></rdf:Description>
+				</owl:oneOf>
+			</owl:Class>
+		</owl:equivalentClass>
+		<rdfs:subClassOf >
+			<owl:Restriction>
+				<owl:onProperty rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#DataElement_SID_1_DE15"></owl:onProperty>
+				<owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#integer"></owl:onDataRange>
+				<owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:qualifiedCardinality>
+			</owl:Restriction>
+		</rdfs:subClassOf>
+	</owl:Class>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_179" >
+		<rdf:type rdf:resource="&standard-pass-ont;MessageExchange" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_179</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Message: Denial From: Manager To: Employee</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSender rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:hasSender>
+		<standard-pass-ont:hasReceiver rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:hasReceiver>
+		<standard-pass-ont:hasMessageType rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_179" ></standard-pass-ont:hasMessageType>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SID_1_FullySpecifiedSubject_2" >
+		<rdf:type rdf:resource="&standard-pass-ont;SubjectBehavior" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_SID_1_FullySpecifiedSubject_2</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SBD: Employee</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:hasInitialState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_2" ></standard-pass-ont:hasInitialState>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_2" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_DoState_2" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_51" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendState_36" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_SendState_36" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendTransition_90" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendTransition_90_sendTransitionCondition" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveState_75" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_ReceiveState_75" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_111" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_111_receiveTransitionCondition" ></standard-pass-ont:contains>
+		<standard-pass-ont:hasEndState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_95" ></standard-pass-ont:hasEndState>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_95" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_DoState_95" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_153" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_153_receiveTransitionCondition" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_137" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_DoState_137" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_160" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_164" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_2" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_DoState_2</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Fill out vacation request</standard-pass-ont:hasModelComponentLabel>
+		<rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior" ></rdf:type>
+		<standard-pass-ont:isInitialStateOf rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:isInitialStateOf>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_4_DoState_2" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_DoState_2" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_4_DoState_2</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_4_DoState_2</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_2" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_51" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_51" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_DoTransition_51</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >done</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_2" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendState_36" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendState_36" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_SendState_36</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Send Request</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_4_SendState_36" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_SendState_36" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_4_SendState_36</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_4_SendState_36</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendState_36" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendTransition_90" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendTransition_90" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_SendTransition_90</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >To: Manager
+Msg: Vacation Request</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendState_36" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveState_75" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:hasTransitionCondition rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendTransition_90_sendTransitionCondition" ></standard-pass-ont:hasTransitionCondition>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_SendTransition_90_sendTransitionCondition" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendTransitionCondition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_SendTransition_90_sendTransitionCondition</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SBD_4_SendTransition_90_sendTransitionCondition</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_96_SID_1_MessageSpecification_100" ></standard-pass-ont:requiresPerformedMessageExchange>
+		<standard-pass-ont:requiresMessageSentTo rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:requiresMessageSentTo>
+		<standard-pass-ont:requiresSendingOfMessage rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_100" ></standard-pass-ont:requiresSendingOfMessage>
+		<standard-pass-ont:hasSendType rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTypeStandard" ></standard-pass-ont:hasSendType>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveState_75" >
+		<rdf:type rdf:resource="&standard-pass-ont;ReceiveState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_ReceiveState_75</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Wait for an answer</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_4_ReceiveState_75" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_ReceiveState_75" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_4_ReceiveState_75</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_4_ReceiveState_75</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveState_75" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_111" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_153" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_111" >
+		<rdf:type rdf:resource="&standard-pass-ont;ReceiveTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_ReceiveTransition_111</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >From: Manager
+Msg: Approval</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveState_75" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_95" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:hasTransitionCondition rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_111_receiveTransitionCondition" ></standard-pass-ont:hasTransitionCondition>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_111_receiveTransitionCondition" >
+		<rdf:type rdf:resource="&standard-pass-ont;ReceiveTransitionCondition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_ReceiveTransition_111_receiveTransitionCondition</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SBD_4_ReceiveTransition_111_receiveTransitionCondition</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:requiresMessageSentFrom rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:requiresMessageSentFrom>
+		<standard-pass-ont:requiresReceptionOfMessage rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_176" ></standard-pass-ont:requiresReceptionOfMessage>
+		<standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_176" ></standard-pass-ont:requiresPerformedMessageExchange>
+		<standard-pass-ont:hasReceiveType rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTypeStandard" ></standard-pass-ont:hasReceiveType>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_95" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_DoState_95</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >End</standard-pass-ont:hasModelComponentLabel>
+		<rdf:type rdf:resource="&standard-pass-ont;EndState" ></rdf:type>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_4_DoState_95" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_DoState_95" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_4_DoState_95</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_4_DoState_95</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_95" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_153" >
+		<rdf:type rdf:resource="&standard-pass-ont;ReceiveTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_ReceiveTransition_153</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >From: Manager
+Msg: Denial</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveState_75" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_137" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:hasTransitionCondition rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_153_receiveTransitionCondition" ></standard-pass-ont:hasTransitionCondition>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_ReceiveTransition_153_receiveTransitionCondition" >
+		<rdf:type rdf:resource="&standard-pass-ont;ReceiveTransitionCondition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_ReceiveTransition_153_receiveTransitionCondition</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SBD_4_ReceiveTransition_153_receiveTransitionCondition</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:requiresMessageSentFrom rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:requiresMessageSentFrom>
+		<standard-pass-ont:requiresReceptionOfMessage rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_179" ></standard-pass-ont:requiresReceptionOfMessage>
+		<standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_179" ></standard-pass-ont:requiresPerformedMessageExchange>
+		<standard-pass-ont:hasReceiveType rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTypeStandard" ></standard-pass-ont:hasReceiveType>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_137" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_DoState_137</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Think about a new vacation date</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_4_DoState_137" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_4_DoState_137" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_4_DoState_137</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_4_DoState_137</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_137" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_160" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_164" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_160" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_DoTransition_160</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >found one</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_137" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_2" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoTransition_164" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_4_DoTransition_164</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >no other date possible</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_137" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_4_DoState_95" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SID_1_FullySpecifiedSubject_49" >
+		<rdf:type rdf:resource="&standard-pass-ont;SubjectBehavior" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_SID_1_FullySpecifiedSubject_49</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SBD: Manager</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoState_37" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_5_DoState_37" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoTransition_73" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_58" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_5_SendState_58" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_92" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_92_sendTransitionCondition" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoTransition_112" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_97" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_5_SendState_97" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_138" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_138_sendTransitionCondition" ></standard-pass-ont:contains>
+		<standard-pass-ont:hasInitialState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveState_161" ></standard-pass-ont:hasInitialState>
+		<standard-pass-ont:hasEndState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveState_161" ></standard-pass-ont:hasEndState>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveState_161" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_5_ReceiveState_161" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveTransition_194" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveTransition_194_receiveTransitionCondition" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoState_37" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_DoState_37</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Think about vacation request</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_5_DoState_37" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_5_DoState_37" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_5_DoState_37</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_5_DoState_37</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoState_37" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoTransition_73" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoTransition_112" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoTransition_73" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_DoTransition_73</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Approve it</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoState_37" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_58" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_58" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_SendState_58</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Send approval</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_5_SendState_58" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_5_SendState_58" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_5_SendState_58</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_5_SendState_58</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_58" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_92" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_92" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_SendTransition_92</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >To: Employee
+Msg: Approval</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_58" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveState_161" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:hasTransitionCondition rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_92_sendTransitionCondition" ></standard-pass-ont:hasTransitionCondition>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_92_sendTransitionCondition" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendTransitionCondition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_SendTransition_92_sendTransitionCondition</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SBD_5_SendTransition_92_sendTransitionCondition</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_176" ></standard-pass-ont:requiresPerformedMessageExchange>
+		<standard-pass-ont:requiresMessageSentTo rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:requiresMessageSentTo>
+		<standard-pass-ont:requiresSendingOfMessage rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_176" ></standard-pass-ont:requiresSendingOfMessage>
+		<standard-pass-ont:hasSendType rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTypeStandard" ></standard-pass-ont:hasSendType>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoTransition_112" >
+		<rdf:type rdf:resource="&standard-pass-ont;DoTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_DoTransition_112</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Deny it</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoState_37" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_97" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_97" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_SendState_97</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Send denial</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_5_SendState_97" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_5_SendState_97" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_5_SendState_97</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_5_SendState_97</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_97" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_138" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_138" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_SendTransition_138</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >To: Employee
+Msg: Denial</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendState_97" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveState_161" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:hasTransitionCondition rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_138_sendTransitionCondition" ></standard-pass-ont:hasTransitionCondition>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SendTransition_138_sendTransitionCondition" >
+		<rdf:type rdf:resource="&standard-pass-ont;SendTransitionCondition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_SendTransition_138_sendTransitionCondition</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SBD_5_SendTransition_138_sendTransitionCondition</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_172_SID_1_MessageSpecification_179" ></standard-pass-ont:requiresPerformedMessageExchange>
+		<standard-pass-ont:requiresMessageSentTo rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:requiresMessageSentTo>
+		<standard-pass-ont:requiresSendingOfMessage rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_179" ></standard-pass-ont:requiresSendingOfMessage>
+		<standard-pass-ont:hasSendType rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTypeStandard" ></standard-pass-ont:hasSendType>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveState_161" >
+		<rdf:type rdf:resource="&standard-pass-ont;ReceiveState" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_ReceiveState_161</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >Wait for message</standard-pass-ont:hasModelComponentLabel>
+		<rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior" ></rdf:type>
+		<standard-pass-ont:isInitialStateOf rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_SID_1_FullySpecifiedSubject_49" ></standard-pass-ont:isInitialStateOf>
+		<rdf:type rdf:resource="&standard-pass-ont;EndState" ></rdf:type>
+		<standard-pass-ont:hasFunctionSpecification rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#functionDefinition_of_SBD_5_ReceiveState_161" ></standard-pass-ont:hasFunctionSpecification>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#action_of_SBD_5_ReceiveState_161" >
+		<rdf:type rdf:resource="&standard-pass-ont;Action" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >action_of_SBD_5_ReceiveState_161</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >action_of_SBD_5_ReceiveState_161</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveState_161" ></standard-pass-ont:contains>
+		<standard-pass-ont:contains rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveTransition_194" ></standard-pass-ont:contains>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveTransition_194" >
+		<rdf:type rdf:resource="&standard-pass-ont;ReceiveTransition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_ReceiveTransition_194</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >From: Employee
+Msg: Vacation Request</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:hasSourceState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveState_161" ></standard-pass-ont:hasSourceState>
+		<standard-pass-ont:hasTargetState rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_DoState_37" ></standard-pass-ont:hasTargetState>
+		<standard-pass-ont:hasPriorityNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#positiveInteger" >1</standard-pass-ont:hasPriorityNumber>
+		<standard-pass-ont:hasTransitionCondition rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveTransition_194_receiveTransitionCondition" ></standard-pass-ont:hasTransitionCondition>
+	</owl:NamedIndividual>
+	<owl:NamedIndividual rdf:about="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SBD_5_ReceiveTransition_194_receiveTransitionCondition" >
+		<rdf:type rdf:resource="&standard-pass-ont;ReceiveTransitionCondition" ></rdf:type>
+		<standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string" >SBD_5_ReceiveTransition_194_receiveTransitionCondition</standard-pass-ont:hasModelComponentID>
+		<standard-pass-ont:hasModelComponentLabel xml:lang="en" >SBD_5_ReceiveTransition_194_receiveTransitionCondition</standard-pass-ont:hasModelComponentLabel>
+		<standard-pass-ont:requiresMessageSentFrom rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_FullySpecifiedSubject_2" ></standard-pass-ont:requiresMessageSentFrom>
+		<standard-pass-ont:requiresReceptionOfMessage rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_MessageSpecification_100" ></standard-pass-ont:requiresReceptionOfMessage>
+		<standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://subjective-me.jimdo.com/s-bpm/processmodels/2025-04-15/Zeichenblatt-1#SID_1_StandardMessageConnector_96_SID_1_MessageSpecification_100" ></standard-pass-ont:requiresPerformedMessageExchange>
+		<standard-pass-ont:hasReceiveType rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTypeStandard" ></standard-pass-ont:hasReceiveType>
+	</owl:NamedIndividual>
+</rdf:RDF>
+

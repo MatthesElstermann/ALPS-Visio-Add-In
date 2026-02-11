@@ -1,4 +1,4 @@
-﻿namespace ALPS_Visio_AddIn_rewrite
+﻿namespace VisioAddIn
 {
     public static class ALPSConstants
     {

@@ -1,33 +1,32 @@
-using System.Collections.Generic;
-using System.Linq;
 using alps.net.api.ALPS;
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using alps.net.api.util;
 using Visio = Microsoft.Office.Interop.Visio;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
+using System.Diagnostics;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioMessageSpecification : MessageSpecification, IVisioExportableWithShape
     {
-        private const string type = ALPSConstants.alpsSIDMasterMessage;
+        private const string shapeType = Constants.SIDMasters.Message;
+
         private readonly IShapeExport export;
+        public VisioMessageSpecification(IModelLayer layer) : base(layer) { export = new PASSProcessModelElementExport(this); }
+        protected VisioMessageSpecification() { export = new PASSProcessModelElementExport(this); }
 
-        public VisioMessageSpecification(IModelLayer layer) : base(layer)
+        public void ExportToVisio(Visio.Page page)
         {
-            export = new MessageSpecificationExport(this);
+            if (this.GetShape() != null) return;
+
+            export.Export(shapeType, page, VH.GetBounds(this));
+
+            // TODO: containsPayloadDescription
         }
 
-        protected VisioMessageSpecification()
+        public bool PrepareDimensions() // TODO: prepare dimensions
         {
-            export = new MessageSpecificationExport(this);
-        }
-
-        public void exportToVisio(Visio.Page currentPage)
-        {
-            if (getShape() != null) return;
-
-            export.export(VisioHelper.ShapeType.SID, currentPage, type, new List<ISimple2DVisualizationPoint>(getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>()), this);
+            return false;
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
@@ -35,19 +34,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             return new VisioMessageSpecification();
         }
 
-        public Visio.Shape getShape()
+        public Visio.Shape GetShape()
         {
-            return export.getShape();
-        }
-
-        public void setShape(Visio.Shape shape)
-        {
-            export.setShape(shape);
-        }
-
-        public bool prep2DInfo()
-        {
-            return false;
+            return export.GetShape();
         }
     }
 }

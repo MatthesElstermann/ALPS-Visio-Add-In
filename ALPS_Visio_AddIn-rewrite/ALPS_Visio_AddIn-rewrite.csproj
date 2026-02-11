@@ -146,6 +146,8 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.2.11.0\lib\net46\Serilog.dll</HintPath>
     </Reference>
@@ -171,6 +173,7 @@
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -179,6 +182,7 @@
     <Reference Include="VDS.Common, Version=1.10.0.0, Culture=neutral, PublicKeyToken=ab5f4eb908061bf0, processorArchitecture=MSIL">
       <HintPath>..\packages\VDS.Common.1.10.0\lib\net40-client\VDS.Common.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Office.Tools.v4.0.Framework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -251,14 +255,13 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="ALPSConstants.cs" />
-    <Compile Include="ALPSGlobalFunctions.cs" />
-    <Compile Include="menu\ALPSRibbon.cs">
+    <Compile Include="OWLImporter.cs" />
+    <Compile Include="_old\ALPSConstants.cs" />
+    <Compile Include="_old\ALPSGlobalFunctions.cs" />
+    <Compile Include="ALPSRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="menu\ALPSRibbon.Designer.cs">
-      <DependentUpon>ALPSRibbon.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Constants.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\States\VisioDoState.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\States\VisioGenericReturnToOriginReference.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\States\VisioRecieveState.cs" />
@@ -271,8 +274,6 @@
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioTimeTransition.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioUserCancelTransition.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\IShapeExport.cs" />
-    <Compile Include="OWLShapes\ExportFunctionality\MessageExchangeExport.cs" />
-    <Compile Include="OWLShapes\ExportFunctionality\MessageSpecificationExport.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\PASSProcessModelElementExport.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\StateExport.cs" />
     <Compile Include="OWLShapes\ExportFunctionality\TransitionExport.cs" />
@@ -289,15 +290,53 @@
     <Compile Include="OWLShapes\VisioClassFactory.cs" />
     <Compile Include="OWLShapes\VisioPASSProcessModel.cs" />
     <Compile Include="OWLShapes\VisioSubjectBehavior.cs" />
-    <Compile Include="OWL\OWLImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ShapeFinder.cs" />
     <Compile Include="VisioHelper.cs" />
-    <EmbeddedResource Include="menu\ALPSRibbon.resx">
-      <DependentUpon>ALPSRibbon.cs</DependentUpon>
-    </EmbeddedResource>
+    <Compile Include="_old\Snapping\DiagramPage.cs" />
+    <Compile Include="_old\Snapping\DiagramPageController.cs" />
+    <Compile Include="_old\Snapping\ModelController.cs" />
+    <Compile Include="_old\Snapping\SBDPage.cs" />
+    <Compile Include="_old\Snapping\SBDPageController.cs" />
+    <Compile Include="_old\Snapping\SBDSnapHandler.cs" />
+    <Compile Include="_old\Snapping\SIDPage.cs" />
+    <Compile Include="_old\Snapping\SIDPageController.cs" />
+    <Compile Include="_old\Snapping\SIDSnapHandler.cs" />
+    <Compile Include="_old\Snapping\SnapHandler.cs" />
+    <Compile Include="_old\Snapping\VisioProcessModel.cs" />
+    <Compile Include="_old\UI\AnchorBarsUsage.cs" />
+    <Compile Include="_old\UI\DirectoryTreeViewItem.cs" />
+    <Compile Include="_old\UI\IDialogCallback.cs" />
+    <Compile Include="_old\UI\TemporaryModelExplorer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="_old\UI\TemporaryModelExplorer.Designer.cs">
+      <DependentUpon>TemporaryModelExplorer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="_old\UI\WindowChangeLayerName.xaml.cs">
+      <DependentUpon>WindowChangeLayerName.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="_old\UI\WindowChangeProperties.xaml.cs">
+      <DependentUpon>WindowChangeProperties.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="_old\UI\WindowChangePropertiesSBD.xaml.cs">
+      <DependentUpon>WindowChangePropertiesSBD.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="_old\UI\WindowDirectory.xaml.cs">
+      <DependentUpon>WindowDirectory.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="_old\UI\WindowSnapConfirmation.xaml.cs">
+      <DependentUpon>WindowSnapConfirmation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="_old\UI\WindowSnapMaintenance.xaml.cs">
+      <DependentUpon>WindowSnapMaintenance.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="_old\util\ShapeCorners.cs" />
+    <Compile Include="_old\util\ShapeEdges.cs" />
+    <Compile Include="_old\util\ShapeGeometry.cs" />
+    <Compile Include="_old\util\Vector2D.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -317,6 +356,9 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>strings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="_old\UI\TemporaryModelExplorer.resx">
+      <DependentUpon>TemporaryModelExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="ALPS_Visio_AddIn-rewrite_TemporaryKey.pfx" />
     <Compile Include="OWLShapes\ExportFunctionality\SubjectExport.cs" />
@@ -352,6 +394,7 @@
       <DependentUpon>ThisAddIn.Designer.xml</DependentUpon>
     </Compile>
     <AppDesigner Include="Properties\" />
+    <None Include="TODO.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\document-open-7.png" />
@@ -367,7 +410,32 @@
     <None Include="Resources\owlIcon2.png" />
     <None Include="Resources\owlIcon2.bmp" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Page Include="_old\UI\WindowChangeLayerName.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="_old\UI\WindowChangeProperties.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="_old\UI\WindowChangePropertiesSBD.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="_old\UI\WindowDirectory.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="_old\UI\WindowSnapConfirmation.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="_old\UI\WindowSnapMaintenance.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

@@ -1,74 +1,88 @@
-using System.Collections.Generic;
-using System.Linq;
 using alps.net.api;
 using alps.net.api.ALPS;
 using alps.net.api.StandardPASS;
-using static ALPS_Visio_AddIn_rewrite.VisioHelper;
+using alps.net.api.util;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class PASSProcessModelElementExport : IShapeExport
     {
-        readonly IPASSProcessModelElement element;
-        protected Visio.Shape shape;
+        private readonly IPASSProcessModelElement element;
 
+        /// <summary>
+        /// Base shape export for elements
+        /// </summary>
         public PASSProcessModelElementExport(IPASSProcessModelElement element)
         {
             this.element = element;
         }
 
-        public virtual void export(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalModelElement = null)
+        /// <summary>
+        /// Exported object shape on page.
+        /// </summary>
+        protected Visio.Shape shape;
+        public virtual void Export(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
         {
-            shape = place(shapeType, page, masterType, points, originalModelElement);
+            this.shape = VH.Place(shapeType, page);
 
-            // set ModelComponentID
-            shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeModelComponentID].Formula = "\"" + element.getModelComponentID() + "\"";
-
-            // add labels
-            string englishLabel = getEnglishLabel(element.getModelComponentLabels(), out IList<IStringWithExtra> otherLabels);
-            if (englishLabel == null)
-            {
-                englishLabel = otherLabels.FirstOrDefault()?.getContent();
-                if (otherLabels.Count > 0) otherLabels.RemoveAt(0);
-            }
-            shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeLabel].Formula = "\"" + englishLabel + "\"";
+            // hasModelComponentID
+            VH.SetProperty(shape, Constants.Properties.ID, element.getModelComponentID());
+            // hasModelComponentLabel
+            VH.SetProperty(shape, Constants.Properties.Label, this.GetEnglishLabel(out IList<IStringWithExtra> otherLabels));
             foreach (IStringWithExtra otherLabel in otherLabels)
+                VH.SetProperty(shape, Constants.Properties.Label + otherLabel.getExtra().ToUpper(), otherLabel.getContent());
+            // TODO: hasAdditionalAttribute into new Fields
+            // some of element.getElementsWithUnspecifiedRelation()
+
+            VH.SetProperty(shape, Constants.Properties.Comment, string.Join(";", element.getComments()));
+
+            // maybe extract positioning
+            if (this.element is IHasSimple2DVisualizationBox)
             {
-                string newRowName = "label" + otherLabel.getExtra().ToUpper();
-                shape.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, newRowName, (short)Visio.VisRowTags.visTagDefault);
-                shape.CellsU["Prop." + newRowName].Formula = "\"" + otherLabel.getContent() + "\"";
+                // set position
+                VH.SetSize(shape, "PinX", bounds[0].getRelative2DPosX() * VH.GetSize(page.PageSheet, "PageWidth"));
+                VH.SetSize(shape, "PinY", bounds[0].getRelative2DPosY() * VH.GetSize(page.PageSheet, "PageHeight"));
+
+                // set dimensions
+                VH.SetSize(shape, "Width", bounds[1].getRelative2DPosX() * VH.GetSize(page.PageSheet, "PageWidth"));
+                VH.SetSize(shape, "Height", bounds[1].getRelative2DPosY() * VH.GetSize(page.PageSheet, "PageHeight"));
             }
-
-            // add comments
-            if (element.getComments().Count > 0) shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeComment].Formula = "\"" + string.Join(";", element.getComments()) + "\"";
-
-            // add type
-            shape.CellsU["Prop." + ALPSConstants.alpsPropertieTypeModelComponentType].Formula = "\"" + element.GetType() + "\"";
         }
 
-        protected string getEnglishLabel(IList<IStringWithExtra> allLabels, out IList<IStringWithExtra> nonEnglishLabels)
+        /// <summary>
+        /// Separate english and non-english labels.
+        /// </summary>
+        /// <remarks>The non-english labels are stored in out-parameter <c>nonEnglishLabels</c>.</remarks>
+        /// <returns>english label</returns>
+        private string GetEnglishLabel(out IList<IStringWithExtra> nonEnglishLabels)
         {
             nonEnglishLabels = new List<IStringWithExtra>();
             IStringWithExtra englishLabel = null;
 
-            foreach (IStringWithExtra label in allLabels)
+            foreach (IStringWithExtra label in element.getModelComponentLabels())
             {
                 if (label.getExtra().ToLower() == "en") englishLabel = label;
                 else nonEnglishLabels.Add(label);
             }
 
+            if (englishLabel ==  null && nonEnglishLabels.Count > 0)
+            {
+                englishLabel = nonEnglishLabels[0];
+                nonEnglishLabels.RemoveAt(0);
+            }
+
             return englishLabel?.getContent();
         }
 
-        public Visio.Shape getShape()
+        public Visio.Shape GetShape()
         {
             return shape;
-        }
-
-        public void setShape(Visio.Shape shape)
-        {
-            this.shape = shape;
         }
     }
 }

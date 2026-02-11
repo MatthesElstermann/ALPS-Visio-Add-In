@@ -1,0 +1,393 @@
+PASSProcessModelElement
+- hasAdditionalAttribute min 0 AdditionalAttribute
+- hasModelComponentID max 1 string
+- hasModelComponentLabel min 0 string
+
+    PASSProcessModel
+    - hasAdditionalAttribute min 1 AdditionalAttribute
+    - hasRelationToModelComponent min 1 MessageExchange
+    - hasRelationToModelComponent min 1 Subject
+    - hasStartSubject min 1 StartSubject
+    > implements only PASSProcesModel
+
+        LayeredPASSProcessModel : ALPSModelElement
+
+    InteractionDescribingComponent
+
+        Subject : SimplePASSElement
+        - hasIncomingMessageExchange min 1 MessageExchange
+        - hasMaximumSubjectInstanceRestriction max 1 int
+        - hasOutgoingMessageExchange min 1 MessageExchange
+        - hasSubjectExecutionMapping min 0 SubjectExecutionMapping
+        > implements only Subject
+
+            FullySpecifiedSubject
+            - containsBaseBehavior exactly 1 SubjectBehavior
+            - containsBehavior min 1 SubjectBehavior
+            - hasDataDefinition max 1 SubjectDataDefinition
+            - hasInputPoolConstraint min 1 InputPoolConstraint
+
+            InterfaceSubject
+            - containsBehavior max 0 SubjectBehavior
+            > references max 1 FullySpecifiedSubject
+
+            MultiSubject
+            - hasMaximumSubjectInstanceRestriction exactly 1 int(>=2)
+                AbstractMultiSubject : AbstractSubject
+            SingleSubject
+            - hasMaximumSubjectInstanceRestriction value 1 
+                AbstractSingleSubject : AbstractSubject
+
+            StartSubject
+
+            AbstractSubject : ALPSSIDComponent
+
+            StandAloneMacroSubject : ALPSSIDComponent
+            > contains exactly 1 MacroBehavior
+
+            SubjectExtension : ALPSSIDComponent
+            > extends exactly 1 Subject
+            > contains only ExtensionBehavior
+
+                GuardExtension
+                MacroExtension
+
+            SubjectGroup : ALPSSIDComponent
+            > contains only Subject
+
+                SystemInterfaceSubject : InterfaceSubject
+                > contains only InterfaceSubject
+
+        SubjectExecutionMapping
+        - hasExecutionMappingDefinition exactly 1 string
+
+            DynamicSubjectExecutionMapping
+            StaticSubjectExecutionMapping
+
+        MessageExchangeList : SimplePASSElement
+        > contains min 1 MessageExchange
+
+        MessageExchange : SimplePASSElement
+        - hasMessageType exactly 1 MessageSpecification
+        - hasReceiver max 1 Subject
+        - hasSender max 1 Subject
+
+            AbstractMessageExchange : ALPSSIDComponent
+            FinalizedMessageExchange : ALPSSIDComponent
+
+        MessageSpecification : SimplePASSElement
+        - containsPayloadDescription max 1 PayloadDescription
+
+        InputPoolConstraint
+        - hasHandlingStrategy exactly 1 InputPoolConstraintHandlingStrategy
+        - hasLimit exactly 1 int(>=0)
+
+            MessageSenderTypeConstraint
+            > references exactly 1 MessageSpecification
+            > references exactly 1 Subject
+            MessageTypeConstraint
+            > references exactly 1 MessageSpecification
+            SenderTypeConstraint
+            > references exactly 1 Subject
+
+        InputPoolConstraintHandlingStrategy
+        +Instance InputPoolConstraintStrategy-Blocking
+        +Instance InputPoolConstraintStrategy-DeleteLatest
+        +Instance InputPoolConstraintStrategy-DeleteOldest
+        +Instance InputPoolConstraintStrategy-Drop
+
+        ALPSSIDComponent : ALPSModelElement
+
+            ActorPlaceHolder
+
+            CommunicationChannel
+            - hasCorrespondent exactly 2 Subject
+
+                BiDirectionalCommunicationChannel
+                UniDirectionalCommunicationChannel
+                - hasReceiver max 1 Subject
+                - hasSender max 1 Subject
+            
+            CommunicationRestriction
+            - hasCorrespondent exactly 2 Subject
+
+    SubjectBehavior
+    - hasInitialState exactly 1 InitialStateOfBehavior
+    - hasPriorityNumber exactly 1 int(>=0)
+    > contains only BehaviorDescribingComponent
+    > implements min 1 SubjectBehavior
+    
+        GuardBehavior
+        - guardsBehavior min 1 SubjectBehavior
+        - guardsState min 1 State
+
+        MacroBehavior
+        > contains min 1 GenericReturnToOriginReference
+        > contains min 1 StateReference
+        > contains max 0 EndState
+
+        SubjectBaseBehavior : SimplePASSElement
+        - hasEndState min 1 EndState
+        > contains max 0 StateReference
+
+        ExtensionBehavior : ALPSModelElement
+
+    BehaviorDescribingComponent
+    - belongsTo exactly 1 SubjectBehavior
+
+        State:
+        - belongsTo exactly 1 Action
+        - guardedBy min 1 GuardBehavior
+        - hasFunctionSpecification max 1 FunctionSpecification
+        - hasIncomingTransition min 0 Transition
+        - hasOutgoingTransition min 0 Transition
+        > implements only State
+
+            ChoiceSegment
+            > contains min 2 ChoiceSegmentPath
+
+            ChoiceSegmentPath
+            - belongsTo exactly 1 ChoiceSegment
+            - hasEndState exactly 1 State
+            - hasInitialState exactly 1 InitialStateOfChoiceSegmentPath
+            - isOptionalToEndChoiceSegmentPath max 1 bool
+            - isOptionalToStartChoiceSegmentPath max 1 bool
+            > contains min 1 State
+
+                MandatoryToEndChoiceSegmentPath
+                - isOptionalToStartChoiceSegmentPath value true 
+                MandatoryToStartChoiceSegmentPath
+                - isOptionalToEndChoiceSegmentPath value true 
+                OptionalToEndChoiceSegmentPath
+                - isOptionalToStartChoiceSegmentPath value false 
+                OptionalToStartChoiceSegmentPath
+                - isOptionalToEndChoiceSegmentPath value false 
+
+            InitialStateOfChoiceSegmentPath
+            - belongsTo exactly 1 ChoiceSegmentPath
+
+            MacroState
+            - referencesMacroBehavior exactly 1 MacroBehavior
+            > contains min 1 StateReference
+                
+            StateReference
+            > references exactly 1 State
+
+            GenericReturnToOriginReference
+
+            EndState : SimplePASSElement
+            InitialStateOfBehavior : SimplePASSElement
+            StandardPASSState : SimplePASSElement
+
+                DoState
+                - hasDataMappingFunction min 1 DataMappingIncomingToLocal
+                - hasDataMappingFunction min 1 DataMappingLocalToOutgoing
+                - hasFunctionSpecification only DoFunction
+                - hasOutgoingTransition max 0 ReceiveTransition
+                - hasOutgoingTransition max 0 SendTransition
+
+                ReceiveState
+                - hasFunctionSpecification only ReceiveFunction
+                - hasOutgoingTransition min 1 Transition
+                - hasOutgoingTransition max 0 DoTransition
+                - hasOutgoingTransition max 0 SendTransition
+
+                SendState
+                - hasFunctionSpecification only SendFunction
+                - hasOutgoingTransition max 1 SendTransition
+                - hasOutgoingTransition min 0 SendingFailedTransition
+                - hasOutgoingTransition min 1 Transition
+                - hasOutgoingTransition max 0 DoTransition
+                - hasOutgoingTransition max 0 ReceiveTransition
+            
+            AbstractState : ALPSSBDComponent
+                AbstractDoState : DoState
+                AbstractReceiveState : ReceiveState
+                AbstractSendState : SendState
+                GeneralAbstractState
+            FinalizedState : ALPSSBDComponent
+            GroupState : ALPSSBDComponent
+            StatePlaceHolder : ALPSSBDComponent
+
+        Action
+        > contains exactly 1 State
+        > contains min 1 Transition
+
+        FunctionSpecification : SimplePASSElement
+        - hasToolSpecificDefinition exactly 1 string
+
+            CommunicationAct
+                ReceiveFunction
+                +Instance DefaultFunctionReceive1_EnvironmentChoice
+                +Instance DefaultFunctionReceive2_AutoReceiveEarliest
+                SendFunction
+                +Instance DefaultFunctionSend
+            DoFunction
+            +Instance DefaultFunctionDo1_EnvironmentChoice
+            +Instance DefaultFunctionDo2_AutomaticEvaluation
+
+        Transition
+        - belongsTo max 1 Action
+        - hasSourceState only State
+        - hasTargetState only State
+        - hasTransitionCondition exactly 1 TransitionCondition
+        > implements only Transition
+
+            CommunicationTransition : SimplePASSElement
+            - hasTransitionCondition exactly 1 MessageExchangeCondition
+
+                ReceiveTransition
+                - hasDataMappingFunction min 1 DataMappingIncomingToLocal
+                - hasPriorityNumber max 1 int(>=0)
+                - hasTransitionCondition exactly 1 ReceiveTransitionCondition
+
+                SendTransition
+                - hasDataMappingFunction min 1 DataMappingLocalToOutgoing
+                - hasTransitionCondition exactly 1 SendTransitionCondition
+
+            DoTransition : SimplePASSElement
+            - hasPriorityNumber max 1 int(>=0)
+
+            SendingFailedTransition
+            - hasSourceState only SendState
+            - hasTransitionCondition exactly 1 SendingFailedCondition
+
+            TimeTransition
+
+                ReminderTransition
+                - hasSourceState max 0 SendState
+
+                    CalendarBasedReminderTransition
+                    TimeBasedReminderTransition
+
+                TimerTransition
+
+                    BusinessDayTimerTransition
+                    DayTimeTimerTransition
+                    YearMonthTimerTransition
+
+            UserCancelTransition
+
+            AbstractPASSTransition : ALPSSBDComponent
+                AdviceTransitionType
+                    AdviceDoTransition : DoTransition
+                    AdviceReceiveTransition : ReceiveTransition
+                    AdviceSendTransition : SendTransition
+                FinalizedTransitionType
+                    FinalizedDoTransition : DoTransition
+                    FinalizedReceiveTransition : ReceiveTransition
+                    FinalizedSendTransition : SendTransition
+                FlowRestrictor
+                PrecedenceTransitionType
+                    PrecedenceDoTransition : DoTransition
+                    PrecedenceReceiveTransition : ReceiveTransition
+                    PrecedenceSendTransition : SendTransition
+                TriggerTransitionType
+                    TriggerDoTransition : DoTransition
+                    TriggerReceiveTransition : ReceiveTransition
+                    TriggerSendTransition : SendTransition
+
+        TransitionCondition
+        - hasToolSpecificDefinition max 1 string
+
+            DoTransitionCondition : SimplePASSElement
+
+            MessageExchangeCondition : SimplePASSElement
+            - requiresPerformedMessageExchange exactly 1 MessageExchange
+
+                ReceiveTransitionCondition
+                - hasMultiReceiveLowerBound max 1 int(>0)
+                - hasMultiReceiveUpperBound max 1 int(>0)
+                - hasReceiveType max 1 ReceiveType
+                - requiresMessageSentFrom max 1 Subject
+                - requiresReceptionOfMessage max 1 MessageSpecification
+
+                SendTransitionCondition
+                - hasMultiSendLowerBound max 1 int(>0)
+                - hasMultiSendUpperBound max 1 int(>0)
+                - hasSendType max 1 SendType
+                - requiresMessageSentTo max 1 Subject
+                - requiresSendingOfMessage max 1 MessageSpecification
+
+            SendingFailedCondition
+
+            TimeTransitionCondition
+            - hasTimeValue exactly 1 string
+
+                ReminderEventTransitionCondition
+
+                    CalendarBasedReminderTransitionCondition
+                    TimeBasedReminderTransitionCondition
+
+                TimerTransitionCondition
+
+                    BusinessDayTimerTransitionCondition
+                    DayTimeTimerTransitionCondition
+                    - hasTimeValue exactly 1 dateTime
+                    YearMonthTimerTransitionCondition
+                    - hasTimeValue exactly 1 yearMonthDuration
+
+        ReceiveType
+        +Instance ReceiveTypeMultiReceiveFromAllKnown
+        +Instance ReceiveTypeMultiReceiveFromKnwon
+        +Instance ReceiveTypeStandard
+
+        SendType
+        +Instance SendTypeMultiSendToAll
+        +Instance SendTypeMultiSendToKnown
+        +Instance SendTypeMultiSendToNew
+        +Instance SendTypeStandard
+
+        ALPSSBDComponent : ALPSModelElement
+    
+    DataDescribingComponent
+    
+        DataMappingFunction : SimplePASSElement
+        - hasFeelExpressionAsDataMapping OR hasToolSpecificDefinition exactly 1 string
+        - hasDataMappingString exactly 1 string
+
+            DataMappingIncomingToLocal
+            DataMappingLocalToOutgoing
+        
+        DataObjectDefinition
+        - hasDataType exactly 1 DataTypeDefinition
+
+            DataObjectListDefinition
+            SubjectDataDefinition
+            PayloadDataObjectDefinition : PayloadDescription, SimplePASSElement ###
+        
+        DataTypeDefinition
+        > contains min 1 DataObjectDefinition
+
+            CustomOrExternalDataTypeDefinition
+
+                JSONDataTypeDefinition
+                OWLDataTypeDefinition
+                XSD-DataTypeDefinition
+            
+            ModelBuiltInDataTypes : SimplePASSElement
+        
+        PayloadDescription
+
+            PayloadPhysicalObjectDescrption
+            PayloadDataObjectDefinition : DataObjectDefinition, SimplePASSElement ###
+
+    ALPSModelElement
+
+        ModelLayer
+            - hasPriorityNumber exactly 1 int(>0)
+            > implements only ModelLayer
+            > extends max 1 ModelLayer
+            > contains min 1 InteractionDescribingComponent
+            
+                AbstractLayer
+                > contains min 1 ALPSModelElement
+                BaseLayer
+                > contains max 0 ALPSModelElement
+                ExtensionLayer
+                > contains min 1 SubjectExtension
+                GuardLayer
+                - guardsLayer min 1 ModelLayer
+                > contains min 1 GuardExtension
+                MacroLayer
+                > contains min 1 MacroExtension

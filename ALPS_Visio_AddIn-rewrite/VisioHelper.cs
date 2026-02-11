@@ -1,32 +1,34 @@
-﻿using System;
-using Visio = Microsoft.Office.Interop.Visio;
-using static Microsoft.Office.Interop.Visio.VisSectionIndices;
-using static Microsoft.Office.Interop.Visio.VisRowTags;
-using System.Diagnostics;
-using alps.net.api.ALPS;
+﻿using alps.net.api.ALPS;
 using alps.net.api.StandardPASS;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using static Microsoft.Office.Interop.Visio.VisRowTags;
+using static Microsoft.Office.Interop.Visio.VisSectionIndices;
+using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
-    public static class VisioHelper
+    public static class VisioHelper // TODO: docs, rework
     {
         public static void setVBAListenersRunning(Boolean newStatus)
         {
             Visio.IVDocument myActiveDocument = Globals.ThisAddIn.Application.ActiveDocument;
 
-            if (myActiveDocument.DocumentSheet.CellExistsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun, 0] == 0)
+            if (myActiveDocument.DocumentSheet.CellExistsU["Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun, 0] == 0)
             {
-                myActiveDocument.DocumentSheet.AddNamedRow((short)visSectionProp, ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun, (short)visTagDefault);
+                myActiveDocument.DocumentSheet.AddNamedRow((short)visSectionProp, Constants.Properties.InteropWithVSTOShouldListenersRun, (short)visTagDefault);
             }
 
             if (newStatus)
             {
-                myActiveDocument.DocumentSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun].Formula = "-1";
+                myActiveDocument.DocumentSheet.CellsU["Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun].Formula = "-1";
             }
             else
             {
-                myActiveDocument.DocumentSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypeInteropWithVSTOShouldListenersRun].Formula = "0";
+                myActiveDocument.DocumentSheet.CellsU["Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun].Formula = "0";
             }
             ;
         }
@@ -83,24 +85,138 @@ namespace ALPS_Visio_AddIn_rewrite
             SBD, SID
         }
 
-        public static Visio.Shape place(ShapeType shapeType, Visio.Page page, string masterType, IList<ISimple2DVisualizationPoint> points = null, IPASSProcessModelElement originalElement = null)
+        public static Visio.Shape Place(string shapeType, Visio.Page page)
         {
-            Visio.Document stencil = null;
-            switch (shapeType)
-            {
-                case ShapeType.SBD:
-                    stencil = VisioHelper.openStencil(VisioStencils.SBD_STENCIL);
-                    break;
-                case ShapeType.SID:
-                    stencil = VisioHelper.openStencil(VisioStencils.SID_STENCIL);
-                    break;
-            }
+            Visio.Document stencil = VisioHelper.openStencil(VisioHelper.GetStencil(shapeType));
 
-            Visio.Master sidMaster = stencil.Masters.get_ItemU(masterType);
+            Visio.Master sidMaster = stencil.Masters.get_ItemU(shapeType);
 
             Visio.Shape droppedShape = page.Drop(sidMaster, 0, 0);
 
             return droppedShape;
+        }
+
+        public static VisioStencils GetStencil(string shapeType)
+        {
+            var field = typeof(VisioAddIn.ALPSConstants).GetFields(
+                System.Reflection.BindingFlags.Public |
+                System.Reflection.BindingFlags.Static |
+                System.Reflection.BindingFlags.FlattenHierarchy)
+                .FirstOrDefault(f => f.IsLiteral && !f.IsInitOnly &&
+                                     (f.Name.Contains("SID") || f.Name.Contains("SBD")) &&
+                                     f.GetRawConstantValue().ToString() == shapeType);
+
+            if (field.Name.Contains("SID"))
+                return VisioStencils.SID_STENCIL;
+
+            if (field.Name.Contains("SBD"))
+                return VisioStencils.SBD_STENCIL;
+
+            throw new ArgumentException();
+        }
+
+        public static void SetHyperlink(Visio.Shape shape, string property, string value)
+        {
+            if (shape.CellExistsU["Hyperlink." + property, 0] == 0)
+                shape.AddNamedRow((short)visSectionHyperlink, property, (short)visTagDefault);
+            //shape.Hyperlinks.ItemU["Hyperlink." + property].Address = "\"" + value + "\""; // shape.Hyperlinks.ItemU does not exist idk
+        }
+        public static void SetProperty(Visio.Shape shape, string property, string value)
+        {
+            if (shape.CellExistsU["Prop." + property, 0] == 0) shape.AddNamedRow((short)visSectionProp, property, (short)visTagDefault);
+
+            shape.CellsU["Prop." + property].Formula = "\"" + value + "\"";
+        }
+        public static void SetBool(Visio.Shape shape, string property, bool value)
+        {
+            if (shape.CellExistsU["Prop." + property, 0] == 0) shape.AddNamedRow((short)visSectionProp, property, (short)visTagDefault);
+
+            shape.CellsU["Prop." + property].Formula = value ? "=TRUE" : "=FALSE";
+        }
+        public static void SetSize(Visio.Shape shape, string cell, double value)
+        {
+            if (shape.CellExistsU[cell, 0] == 0) shape.AddNamedRow((short)visSectionNone, cell, (short)visTagDefault);
+
+            shape.CellsU[cell].Formula = value.ToString(CultureInfo.InvariantCulture);
+        }
+        public static double GetSize(Visio.Shape shape, string cell)
+        {
+            return shape.CellsU[cell].Result[""];
+        }
+
+        public static void SetPropertyU(Visio.Shape shape, string property, object value)
+        {
+            SetCell(shape, visSectionProp, property, CellFormulaMode.U, CellValueType.Normal, value);
+        }
+        public static void SetPropertyULiteral(Visio.Shape shape, string property, object value)
+        {
+            SetCell(shape, visSectionProp, property, CellFormulaMode.U, CellValueType.Literal, value);
+        }
+        public static void SetPropertyFormulaU(Visio.Shape shape, string property, object value)
+        {
+            SetCell(shape, visSectionProp, property, CellFormulaMode.U, CellValueType.Formula, value);
+        }
+        public static void SetUser(Visio.Shape shape, string user, object value)
+        {
+            SetCell(shape, visSectionUser, user, CellFormulaMode.Normal, CellValueType.Literal, value);
+        }
+        public static void SetSizeMM(Visio.Shape shape, string cell, object value)
+        {
+            SetCell(shape, null, cell, CellFormulaMode.U, CellValueType.Size, value);
+        }
+        private enum CellFormulaMode
+        {
+            Normal,
+            U,
+            Force,
+            ForceU
+        }
+        private enum CellValueType
+        {
+            Literal,
+            Formula,
+            Size,
+            Normal
+        }
+        private static void SetCell(Visio.Shape shape, Visio.VisSectionIndices? section, string rowName, CellFormulaMode formulaMode, CellValueType valueType, object value)
+        {
+            string sectionName = "";
+            switch (section)
+            {
+                case visSectionProp: sectionName = "Prop."; break;
+                case visSectionUser: sectionName = "User."; break;
+            }
+
+            // Ensure row exists
+            if (shape.CellExistsU[sectionName + rowName, 0] == 0)
+            {
+                shape.AddNamedRow((short)section, rowName, (short)visTagDefault);
+            }
+
+            // Get the cell
+            Visio.Cell cell = shape.CellsU[sectionName + rowName];
+
+            // Convert value properly
+            if (value is IFormattable formattable) value = formattable.ToString(null, CultureInfo.InvariantCulture);
+
+            // Build the value string
+            string valueString = "";
+            switch (valueType)
+            {
+                case CellValueType.Formula: valueString = "=" + value; break;
+                case CellValueType.Size: valueString = value + " mm"; break;
+                case CellValueType.Literal: valueString = "\"" + value + "\""; break;
+                case CellValueType.Normal: valueString = "" + value; break;
+            }
+
+            // Apply according to formula mode
+            switch (formulaMode)
+            {
+                case CellFormulaMode.Normal: cell.Formula = valueString; break;
+                case CellFormulaMode.U: cell.FormulaU = valueString; break;
+                case CellFormulaMode.Force: cell.FormulaForce = valueString; break;
+                case CellFormulaMode.ForceU: cell.FormulaForceU = valueString; break;
+            }
         }
 
         /// <summary>
@@ -123,41 +239,41 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
 
-
+            // TODO: check if name already exists; if so, then change it in a meaningful way
             page.Name = name;
             page.NameU = nameU;
 
             page.PageSheet.AddSection((short)Visio.VisSectionIndices.visSectionProp);
 
-            if (page.PageSheet.CellExistsU["Prop." + ALPSConstants.alpsPropertieTypePageType, 0] == 0)
+            if (page.PageSheet.CellExistsU["Prop." + Constants.Properties.PageType, 0] == 0)
             {
-                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypePageType, 0);
-                page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypePageType].FormulaU = "\"" + ALPSConstants.alpsPropertieValueSIDPage + "\"";
+                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageType, 0);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU = "\"" + Constants.Properties.SIDPage + "\"";
 
                 //add and set "Model Name"
-                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypePageModelURI, 0);
-                page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypePageModelURI].FormulaU = "\"" + modelURI + "\"";
+                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageModelURI, 0);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageModelURI].FormulaU = "\"" + modelURI + "\"";
 
                 //add and set "layer"
-                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypePageLayer, 0);
-                page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypePageLayer].FormulaU = "\"" + nameU + "\"";
+                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageLayer, 0);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU = "\"" + nameU + "\"";
 
 
                 //add and set "extends"
-                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypeExtends, 0);
-                page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypeExtends].FormulaU = "\"" + extends + "\"";
+                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.Transition.Extends, 0);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Extends].FormulaU = "\"" + extends + "\"";
 
                 //add and set "implements"
-                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertyTypeImplements, 0);
-                page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertyTypeImplements].FormulaU = "\"" + implements + "\"";
+                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.Transition.Implements, 0);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Implements].FormulaU = "\"" + implements + "\"";
 
                 //add and set "execution priority"
-                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypePriorityOrderNumber, 0);
-                page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypePriorityOrderNumber].FormulaU = "\"" + priority + "\"";
+                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PriorityOrderNumber, 0);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PriorityOrderNumber].FormulaU = "\"" + priority + "\"";
 
-                if (page.Document.DocumentSheet.CellExistsU["Prop." + ALPSConstants.alpsPropertieTypeDocumentType, 0] == 0)
+                if (page.Document.DocumentSheet.CellExistsU["Prop." + Constants.Properties.DocumentType, 0] == 0)
                 {
-                    page.Document.DocumentSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypeDocumentType, 0);
+                    page.Document.DocumentSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.DocumentType, 0);
                 }
             }
             return page;
@@ -176,27 +292,32 @@ namespace ALPS_Visio_AddIn_rewrite
             page.Name = name;
             page.NameU = nameU;
             //hyperlinks
-            page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionHyperlink, ALPSConstants.alpsHyperlinksLinkedSIDPage, 0);
-            page.PageSheet.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinksLinkedSIDPage].SubAddress = sidPage.NameU;
+            page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionHyperlink, Constants.Properties.LinkedSIDPage, 0);
+            page.PageSheet.Hyperlinks.ItemU[Constants.Properties.LinkedSIDPage].SubAddress = sidPage.NameU;
             page.PageSheet.AddSection((short)Visio.VisSectionIndices.visSectionProp);
             //page layer props
-            page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypePageLayer, 0);
-            page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypePageLayer].FormulaU =
-                "\"" + sidPage.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypePageLayer].ResultStr[""] + "\"";
+            page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageLayer, 0);
+            page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU =
+                "\"" + sidPage.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].ResultStr[""] + "\"";
 
-            if (page.PageSheet.CellExistsU["Prop." + ALPSConstants.alpsPropertieTypePageType, 0] == 0)
+            if (page.PageSheet.CellExistsU["Prop." + Constants.Properties.PageType, 0] == 0)
             {
-                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypePageType, 0);
-                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, ALPSConstants.alpsPropertieTypeSBDLinkedSubjectID, 0);
-                page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypePageType].FormulaU =
-                    "\"" + ALPSConstants.alpsPropertieValueSBDPage + "\"";
-                page.PageSheet.CellsU["Prop." + ALPSConstants.alpsPropertieTypeSBDLinkedSubjectID].FormulaU = subjectShape.ID.ToString();
+                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageType, 0);
+                page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.SBDLinkedSubjectID, 0);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU =
+                    "\"" + Constants.Properties.SBDPage + "\"";
+                page.PageSheet.CellsU["Prop." + Constants.Properties.SBDLinkedSubjectID].FormulaU = subjectShape.ID.ToString();
             }
 
             //remove comment when it is assured that shapes are only valid s-bpm elements.
-            subjectShape.Hyperlinks.ItemU[ALPSConstants.alpsHyperlinkTypeLinkedSBD].SubAddress = "" + page.NameU + "";
+            subjectShape.Hyperlinks.ItemU[Constants.Properties.LinkedSBD].SubAddress = "" + page.NameU + "";
 
             return page;
+        }
+
+        public static List<ISimple2DVisualizationPoint> GetBounds(PASSProcessModelElement element)
+        {
+            return new List<ISimple2DVisualizationPoint>(element.getElementsWithUnspecifiedRelation().Values.OfType<ISimple2DVisualizationPoint>());
         }
     }
 }

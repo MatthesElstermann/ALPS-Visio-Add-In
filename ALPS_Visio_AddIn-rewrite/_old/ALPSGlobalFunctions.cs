@@ -1,7 +1,7 @@
 ﻿using Microsoft.Office.Interop.Visio;
 using System;
 
-namespace ALPS_Visio_AddIn_rewrite
+namespace VisioAddIn
 {
     public class ALPSGlobalFunctions
     {
