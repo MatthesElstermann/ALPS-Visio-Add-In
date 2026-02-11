@@ -51,6 +51,10 @@ muss dringend überarbeitet werden! `ShapeFinder` ist für das Finden der Stenci
 ## nächste Schritte
 Jetzt da du dich hoffentlich in angemessenerer Zeit einarbeiten konntest, kommen die nächsten Aufgaben auf dich zu.
 
+### Probleme
+- Strings müssen escaped werden, bevor sie über `VisioHelper` als Property gesetzt werden: Es gab z.B. ein Problem, wenn
+ein Label von `GetEnglishLabel` in `PASSProcessModelElementExport` Anführungszeichen (`"`) enthält.
+
 ### Aufgaben
 - Aktuell crasht das AddIn, wenn ein Name (z.B. einer Seite) bereits existiert. (Siehe TODO in `VisioHelper.cs`, Zeile 242.)
 Zum Testen muss auf den Prompt des VBA-Makros mit **Nein** geantwortet werden.
