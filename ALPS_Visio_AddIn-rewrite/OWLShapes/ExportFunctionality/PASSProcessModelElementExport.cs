@@ -43,7 +43,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             VH.SetProperty(shape, Constants.Properties.Comment, string.Join(";", element.getComments()));
 
             // maybe extract positioning
-            if (this is IHasSimple2DVisualizationBox)
+            if (this.element is IHasSimple2DVisualizationBox)
             {
                 // set position
                 VH.SetSize(shape, "PinX", bounds[0].getRelative2DPosX() * VH.GetSize(page.PageSheet, "PageWidth"));

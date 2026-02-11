@@ -239,7 +239,7 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
 
-
+            // TODO: check if name already exists; if so, then change it in a meaningful way
             page.Name = name;
             page.NameU = nameU;
 

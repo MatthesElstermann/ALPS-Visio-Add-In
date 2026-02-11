@@ -51,11 +51,9 @@ muss dringend überarbeitet werden! `ShapeFinder` ist für das Finden der Stenci
 ## nächste Schritte
 Jetzt da du dich hoffentlich in angemessenerer Zeit einarbeiten konntest, kommen die nächsten Aufgaben auf dich zu.
 
-### Probleme
-- Aktuell funktioniert das Anordnen **mit** Koordinaten nicht. Vor kurzem hat es noch funktioniert und ich habe eigentlich
-nichts daran geändert.
-
 ### Aufgaben
+- Aktuell crasht das AddIn, wenn ein Name (z.B. einer Seite) bereits existiert. (Siehe TODO in `VisioHelper.cs`, Zeile 242.)
+Zum Testen muss auf den Prompt des VBA-Makros mit **Nein** geantwortet werden.
 - Das Anordnen **ohne** Koordinaten ist aktuell nicht implementiert. Die Vorbedingung existiert:
 `IVisioExportableWithShape#PrepareDimensions` gibt `false` zurück, wenn keine Koordinaten existieren. Ein Ansatz für einen
 Algorithmus findet sich in den Branches `main` und `development`; im Branch `rewrite` wurde dieser zwecks Übersicht zunächst
@@ -79,7 +77,8 @@ gefunden, konnte aber auch nicht verifizieren, dass sie nicht in der API existie
 
 ## Empfehlungen und persönliche Hinweise
 Ich habe im Laufe meiner Entwicklung mehrere *Mini-Dokumentationen* geschrieben, diese habe ich alle mit in den `docs`
-Ordner im Wurzelordner gelegt. (`documentation.md`, `combined-onts.notes`, `Data in ShapeSheet.md`)
+Ordner im Wurzelordner gelegt. (`documentation.md`, `combined-onts.notes`, `Data in ShapeSheet.md`) Ebenfalls beigefügt ist
+eine Syntax-Highlight Erweiterung für VSCodium (wahrscheinlich auch VSCode) für die `.notes` Datei.
 
 Protégé ist manchmal etwas komisch, dennoch hilft der Reasoner sehr gut dabei, die Ontologie zu verstehen.
 
@@ -88,6 +87,10 @@ Dein Computer ist nicht langsam, das ist Visio.
 Die nächsten Dateien, an denen ich arbeiten wollte waren: `SubjectExport`, `StateExport`, `TransitionExport` und
 `SubjectBehavior`. Alle anderen sollten eigentlich soweit fertig implementiert sein (wobei ja wie oben erwähnt, neuerdings
 das Anordnen nicht mehr funktioniert).
+
+Ich habe mal noch die OWL-Datei in den `docs` Ordner hinzugefügt, die ich immer zum Testen benutzt habe:
+`[Test]_Vacation_Request_2D.owl`. Die Variante ohne Koordinaten (`[Test]_Vacation_Request.owl`) ist auch dabei, funktioniert
+aber wie oben gesagt aktuell nicht.
 
 ---
 
