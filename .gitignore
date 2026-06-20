@@ -159,3 +159,11 @@ VisioAddIn1/obj/
 /docs/latex/main.aux
 /VisioAddIn/logs/logfile.txt
 /ALPS_Visio_AddIn-rewrite/logs/logfile.txt
+
+# Claude-Code / BA-Arbeitsdateien (lokale Doku, nicht ins Repo)
+/CLAUDE.md
+/PROMPT-PROTOKOLL.md
+/CODE-AENDERUNGEN.md
+
+# macOS
+.DS_Store
