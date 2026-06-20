@@ -3,6 +3,7 @@ using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
 using ALPS_Visio_AddIn_rewrite.OWLShapes;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 
@@ -26,11 +27,28 @@ namespace ALPS_Visio_AddIn_rewrite
             ReflectiveEnumerator.addAssemblyToCheckForTypes(Assembly.GetExecutingAssembly());
             parser.setModelElementFactory(new VisioClassFactory());
 
+            // Load the ontology (parsing structure) from the embedded resources, written to
+            // temp files. The previous relative paths ("../../Resources/...") only resolved
+            // when the current working directory was the build output folder -- when the
+            // add-in is hosted in Visio the CWD differs, so the ontology was not found and the
+            // import silently produced nothing. (Imports are resolved by ontology IRI from the
+            // file content, so the file location does not matter.)
             parser.loadOWLParsingStructure(new List<string>
             {
-                "../../Resources/standard_PASS_ont_v_1.1.0.owl",
-                "../../Resources/ALPS_ont_v_0.8.0.owl"
+                WriteOntologyToTempFile("standard_PASS_ont_v_1.1.0.owl", Properties.Resources.standard_PASS_ont_v_1_1_0),
+                WriteOntologyToTempFile("ALPS_ont_v_0.8.0.owl", Properties.Resources.ALPS_ont_v_0_8_0)
             });
+        }
+
+        /// <summary>
+        /// Writes an embedded ontology resource to a temp file and returns its path, so the
+        /// parser can load it by path independent of the current working directory.
+        /// </summary>
+        private static string WriteOntologyToTempFile(string fileName, byte[] content)
+        {
+            string path = Path.Combine(Path.GetTempPath(), fileName);
+            File.WriteAllBytes(path, content);
+            return path;
         }
 
         /// <summary>
@@ -40,16 +58,25 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             IList<IPASSProcessModel> passProcessModels = parser.loadModels(new List<string> { fileName });
 
+            // FEAT: import all models -- currently only the first model is imported.
+            // Make a missing model visible instead of silently doing nothing.
+            if (passProcessModels.Count == 0 || !(passProcessModels[0] is IVisioExportable exportable))
+            {
+                System.Windows.Forms.MessageBox.Show(
+                    "Keine importierbaren PASS-/ALPS-Modelle in der Datei gefunden:\n" + fileName +
+                    "\n\nHinweis: Ontologie-Dateien (Schema) enthalten keine Modelle und können " +
+                    "nicht importiert werden.",
+                    "OWL-Import");
+                return;
+            }
+
             // open stencils to reduce load time
             VH.openStencil(VH.VisioStencils.SID_STENCIL);
 
             // disable VBA listeners to prevent interference
             VH.setVBAListenersRunning(false);
 
-            if (passProcessModels.Count > 0 && passProcessModels[0] is IVisioExportable exportable) // FEAT: import all models
-            {
-                exportable.ExportToVisio(null); // FEAT: import into current page
-            }
+            exportable.ExportToVisio(null); // FEAT: import into current page
 
             VH.setVBAListenersRunning(true);
         }
