@@ -47,32 +47,36 @@ namespace ALPS_Visio_AddIn_rewrite
         /// <returns>The name of the file with the specified prefix that is supposed to be the newest file with this prefix</returns>
         private static String getShapes(String prefix)
         {
-            String path = Globals.ThisAddIn.Application.MyShapesPath;
-            DirectoryInfo myShapes = new DirectoryInfo(path);
-            String regex = prefix + versionPattern + ending;
-            // Debug.Print("regex: " + regex);
-            List<FileInfo> possibleFiles = getMatchingFiles(myShapes, regex);
-            if (possibleFiles == null || possibleFiles.Count == 0)
+            // Anchor the name to the prefix so Visio lock files (e.g. "~$$Abstract PASS SID...")
+            // are not mistaken for the stencil itself.
+            String regex = "^" + prefix + versionPattern + ending;
+
+            // Application.MyShapesPath may list several folders separated by ';'.
+            // Search each existing one and return the first matching stencil.
+            String pathSetting = Globals.ThisAddIn.Application.MyShapesPath ?? "";
+            foreach (String rawPath in pathSetting.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                //Debug.Print("in between: " + prefix + " v.x.x.x.x" + ending);
-                return prefix + " v.x.x.x.x" + ending;
-            }
-            FileInfo newestFile = possibleFiles.First();
-            foreach (FileInfo fileInfo in possibleFiles)
-            {
-                String name = getNewest(newestFile.Name, fileInfo.Name);
-                if (!newestFile.Name.Equals(name))
+                String path = rawPath.Trim();
+                if (path.Length == 0 || !Directory.Exists(path)) continue;
+
+                List<FileInfo> possibleFiles = getMatchingFiles(new DirectoryInfo(path), regex);
+                if (possibleFiles == null || possibleFiles.Count == 0) continue;
+
+                FileInfo newestFile = possibleFiles.First();
+                foreach (FileInfo fileInfo in possibleFiles)
                 {
-                    newestFile = fileInfo;
+                    if (!newestFile.Name.Equals(getNewest(newestFile.Name, fileInfo.Name)))
+                    {
+                        newestFile = fileInfo;
+                    }
                 }
+
+                // Return the full path so Documents.OpenEx resolves it reliably.
+                return newestFile.FullName;
             }
-            //Debug.Print("newestFile.Name;: " + newestFile.Name + " - startswith: " + newestFile.Name.StartsWith("~$$"));
-            if (newestFile.Name.StartsWith("~$$"))
-            {
-                //Debug.Print("delete!!!!");
-                newestFile.Delete();
-            }
-            return newestFile.Name;
+
+            // No matching stencil found in any configured My-Shapes folder.
+            return prefix + " v.x.x.x.x" + ending;
         }
 
 

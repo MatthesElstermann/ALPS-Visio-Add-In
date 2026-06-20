@@ -73,7 +73,8 @@ namespace ALPS_Visio_AddIn_rewrite
                         msg += ShapeFinder.getSBDName();
                         break;
                 }
-                msg += "\" to exist in \"my Shapes\" folder.\n";
+                msg += "\" to exist in the \"My Shapes\" folder.\n";
+                msg += "My Shapes path (Application.MyShapesPath): " + Globals.ThisAddIn.Application.MyShapesPath + "\n";
                 msg += "Error: " + e.Message;
                 System.Windows.Forms.MessageBox.Show(msg);
             }
@@ -261,28 +262,28 @@ namespace ALPS_Visio_AddIn_rewrite
             if (page.PageSheet.CellExistsU["Prop." + Constants.Properties.PageType, 0] == 0)
             {
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageType, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU = "\"" + Constants.Properties.SIDPage + "\"";
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU = QuoteLiteral(Constants.Properties.SIDPage);
 
                 //add and set "Model Name"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageModelURI, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.PageModelURI].FormulaU = "\"" + modelURI + "\"";
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageModelURI].FormulaU = QuoteLiteral(modelURI);
 
                 //add and set "layer"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageLayer, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU = "\"" + nameU + "\"";
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU = QuoteLiteral(nameU);
 
 
                 //add and set "extends"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.Transition.Extends, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Extends].FormulaU = "\"" + extends + "\"";
+                page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Extends].FormulaU = QuoteLiteral(extends);
 
                 //add and set "implements"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.Transition.Implements, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Implements].FormulaU = "\"" + implements + "\"";
+                page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Implements].FormulaU = QuoteLiteral(implements);
 
                 //add and set "execution priority"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PriorityOrderNumber, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.PriorityOrderNumber].FormulaU = "\"" + priority + "\"";
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PriorityOrderNumber].FormulaU = QuoteLiteral(priority);
 
                 if (page.Document.DocumentSheet.CellExistsU["Prop." + Constants.Properties.DocumentType, 0] == 0)
                 {
@@ -311,14 +312,14 @@ namespace ALPS_Visio_AddIn_rewrite
             //page layer props
             page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageLayer, 0);
             page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU =
-                "\"" + sidPage.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].ResultStr[""] + "\"";
+                QuoteLiteral(sidPage.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].ResultStr[""]);
 
             if (page.PageSheet.CellExistsU["Prop." + Constants.Properties.PageType, 0] == 0)
             {
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageType, 0);
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.SBDLinkedSubjectID, 0);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU =
-                    "\"" + Constants.Properties.SBDPage + "\"";
+                    QuoteLiteral(Constants.Properties.SBDPage);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.SBDLinkedSubjectID].FormulaU = subjectShape.ID.ToString();
             }
 

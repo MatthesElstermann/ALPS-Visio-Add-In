@@ -53,8 +53,10 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             if (tempList.Count > 0)
             {
                 string dataMappingString = tempList[0].getDataMappingString();
-                dataMappingString = VisioAddIn.ALPSGlobalFunctions.prepareXMLLiteralForEntryIntoVisioShapeData(dataMappingString);
 
+                // QuoteLiteral (via SetPropertyULiteral) escaped Anfuehrungszeichen korrekt;
+                // der alte CHAR(13)-Workaround (prepareXMLLiteralForEntryIntoVisioShapeData)
+                // ist dadurch ueberfluessig und wuerde doppelt escapen.
                 if (getDataMappingFunctions().Count > 0) VH.SetPropertyULiteral(export.GetShape(), Constants.Properties.Transition.DataMappingOutgoing, dataMappingString);
             }
         }
