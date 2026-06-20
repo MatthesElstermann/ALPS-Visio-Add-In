@@ -395,6 +395,7 @@
     </Compile>
     <AppDesigner Include="Properties\" />
     <None Include="TODO.md" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\document-open-7.png" />
