@@ -234,6 +234,29 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
+        /// Returns a page name not yet used by any other page in the document. Visio rejects
+        /// duplicate page names ("... wird bereits verwendet"); if the desired name is taken,
+        /// a numeric suffix is appended.
+        /// </summary>
+        private static string GetUniquePageName(Visio.Page newPage, string desiredName)
+        {
+            HashSet<string> taken = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (Visio.Page other in newPage.Document.Pages)
+            {
+                if (other.ID == newPage.ID) continue;
+                taken.Add(other.Name);
+                taken.Add(other.NameU);
+            }
+
+            if (!taken.Contains(desiredName)) return desiredName;
+            for (int i = 2; ; i++)
+            {
+                string candidate = desiredName + "_" + i;
+                if (!taken.Contains(candidate)) return candidate;
+            }
+        }
+
+        /// <summary>
         /// creates a new diagram page in visio
         /// and turns it into a sid page by setting all given parameters.
         /// </summary>
@@ -253,9 +276,9 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
 
-            // TODO: check if name already exists; if so, then change it in a meaningful way
-            page.Name = name;
-            page.NameU = nameU;
+            // Visio rejects duplicate page names -- derive unique variants before assigning.
+            page.Name = GetUniquePageName(page, name);
+            page.NameU = GetUniquePageName(page, nameU);
 
             page.PageSheet.AddSection((short)Visio.VisSectionIndices.visSectionProp);
 
@@ -303,8 +326,8 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             Debug.Print("creating new SBD page");
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
-            page.Name = name;
-            page.NameU = nameU;
+            page.Name = GetUniquePageName(page, name);
+            page.NameU = GetUniquePageName(page, nameU);
             //hyperlinks
             page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionHyperlink, Constants.Properties.LinkedSIDPage, 0);
             page.PageSheet.Hyperlinks.ItemU[Constants.Properties.LinkedSIDPage].SubAddress = sidPage.NameU;
