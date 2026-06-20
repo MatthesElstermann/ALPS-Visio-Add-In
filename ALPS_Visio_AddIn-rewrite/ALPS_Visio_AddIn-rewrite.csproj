@@ -360,6 +360,7 @@
     <EmbeddedResource Include="_old\UI\TemporaryModelExplorer.resx">
       <DependentUpon>TemporaryModelExplorer.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="ALPS_Visio_AddIn-rewrite_1_TemporaryKey.pfx" />
     <None Include="ALPS_Visio_AddIn-rewrite_TemporaryKey.pfx" />
     <Compile Include="OWLShapes\ExportFunctionality\SubjectExport.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioCommunicationRestriction.cs" />
@@ -445,10 +446,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>6CD8CB71E43DA021047ABF8DB6F90A93060936E6</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>EB2014D41CBA35628A20CC0EBC7636D127E91766</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ALPS_Visio_AddIn-rewrite_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ALPS_Visio_AddIn-rewrite_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
