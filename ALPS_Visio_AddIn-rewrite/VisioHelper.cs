@@ -121,11 +121,24 @@ namespace ALPS_Visio_AddIn_rewrite
                 shape.AddNamedRow((short)visSectionHyperlink, property, (short)visTagDefault);
             //shape.Hyperlinks.ItemU["Hyperlink." + property].Address = "\"" + value + "\""; // shape.Hyperlinks.ItemU does not exist idk
         }
+        /// <summary>
+        /// Wraps a value as a Visio ShapeSheet string literal, escaping embedded
+        /// double quotes by doubling them (<c>"</c> becomes <c>""</c>). Without this,
+        /// any value containing a quote (e.g. a label returned by <c>GetEnglishLabel</c>)
+        /// produces an invalid formula and the property silently fails to be set.
+        /// </summary>
+        /// <param name="value">the raw value to embed; <c>null</c> becomes an empty string</param>
+        /// <returns>the value as a quoted, escaped Visio formula literal</returns>
+        public static string QuoteLiteral(object value)
+        {
+            return "\"" + (value?.ToString() ?? string.Empty).Replace("\"", "\"\"") + "\"";
+        }
+
         public static void SetProperty(Visio.Shape shape, string property, string value)
         {
             if (shape.CellExistsU["Prop." + property, 0] == 0) shape.AddNamedRow((short)visSectionProp, property, (short)visTagDefault);
 
-            shape.CellsU["Prop." + property].Formula = "\"" + value + "\"";
+            shape.CellsU["Prop." + property].Formula = QuoteLiteral(value);
         }
         public static void SetBool(Visio.Shape shape, string property, bool value)
         {
@@ -205,7 +218,7 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 case CellValueType.Formula: valueString = "=" + value; break;
                 case CellValueType.Size: valueString = value + " mm"; break;
-                case CellValueType.Literal: valueString = "\"" + value + "\""; break;
+                case CellValueType.Literal: valueString = QuoteLiteral(value); break;
                 case CellValueType.Normal: valueString = "" + value; break;
             }
 
