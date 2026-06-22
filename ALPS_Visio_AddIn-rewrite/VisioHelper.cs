@@ -276,9 +276,13 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
 
-            // Visio rejects duplicate page names -- derive unique variants before assigning.
+            // Visio rejects duplicate page names -- derive a unique variant before assigning.
+            // NameU must mirror Name: the caller passes a placeholder (" ") for nameU, and a
+            // whitespace NameU makes Visio discard the name and fall back to its default
+            // ("Zeichenblatt-2"). Reusing the page's own unique name keeps NameU valid and
+            // also fixes the SBD->SID hyperlink, which targets the SID page's NameU.
             page.Name = GetUniquePageName(page, name);
-            page.NameU = GetUniquePageName(page, nameU);
+            page.NameU = page.Name;
 
             page.PageSheet.AddSection((short)Visio.VisSectionIndices.visSectionProp);
 
