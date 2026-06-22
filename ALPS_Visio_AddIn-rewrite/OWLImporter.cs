@@ -70,11 +70,14 @@ namespace ALPS_Visio_AddIn_rewrite
                 return;
             }
 
+            // Disable the stencil's VBA listeners BEFORE opening the stencil, so the flag cell
+            // already exists (= 0) when the stencil's VBA initializes. Otherwise the stencil
+            // runs its "Willkommen"-routine, which on close renames the freshly created SID
+            // page back to the Visio default ("Zeichenblatt-2").
+            VH.setVBAListenersRunning(false);
+
             // open stencils to reduce load time
             VH.openStencil(VH.VisioStencils.SID_STENCIL);
-
-            // disable VBA listeners to prevent interference
-            VH.setVBAListenersRunning(false);
 
             exportable.ExportToVisio(null); // FEAT: import into current page
 
