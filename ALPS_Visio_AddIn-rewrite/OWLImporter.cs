@@ -81,7 +81,12 @@ namespace ALPS_Visio_AddIn_rewrite
 
             exportable.ExportToVisio(null); // FEAT: import into current page
 
-            VH.setVBAListenersRunning(true);
+            // VBA listeners are intentionally NOT re-enabled here. The stencil's run-mode
+            // welcome routine renames the imported SID page when its popup is closed (which
+            // happens AFTER this method returns); re-enabling the flag would let that routine
+            // run. Keeping it at 0 keeps the stencil VBA quiet -- the rewrite manages page and
+            // model state itself.
+            // VH.setVBAListenersRunning(true);
         }
     }
 }
