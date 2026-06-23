@@ -28,8 +28,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             bool anyHadCoordinates = false;
             var exportedSubjects = new List<ISubject>();
+            var messageExchangeLists = new List<IVisioExportable>();
 
-            foreach (IPASSProcessModelElement modelElement in this.getElements().Values.OrderBy(el => el is IMessageExchangeList))
+            // First pass: export subjects (message lists are deferred — they glue connectors
+            // to the subject shapes and must run after the subjects have their final position).
+            foreach (IPASSProcessModelElement modelElement in this.getElements().Values)
             {
                 if (!(modelElement is IVisioExportable exportable)) continue;
 
@@ -43,12 +46,20 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 }
                 else if (modelElement is IMessageExchangeList)
                 {
-                    exportable.ExportToVisio(page);
+                    messageExchangeLists.Add(exportable);
                 }
             }
 
+            // Position the subjects before drawing the message connectors. Otherwise the
+            // message box is centered on the connector while the subjects still sit at their
+            // drop position; moving them afterwards drags the (glued) connector along but
+            // leaves the box behind at (0,0).
             if (!anyHadCoordinates && exportedSubjects.Count > 0)
                 ApplyHorizontalLayout(exportedSubjects, page);
+
+            // Second pass: now that subjects are placed, draw the message exchange lists.
+            foreach (IVisioExportable messageExchangeList in messageExchangeLists)
+                messageExchangeList.ExportToVisio(page);
         }
 
         /// <summary>
