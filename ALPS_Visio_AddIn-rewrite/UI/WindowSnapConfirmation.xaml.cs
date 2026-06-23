@@ -10,8 +10,6 @@ namespace ALPS_Visio_AddIn_rewrite
     public partial class WindowSnapConfirmation : System.Windows.Window
     {
 
-        private static WindowSnapConfirmation inst;
-
         private SnapHandler snapHandler;
 
         private Shape snappingShape;
