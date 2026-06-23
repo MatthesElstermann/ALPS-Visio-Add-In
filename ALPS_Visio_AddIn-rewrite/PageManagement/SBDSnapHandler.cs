@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using VisioAddIn;
-
 namespace ALPS_Visio_AddIn_rewrite
 {
     /// <summary>

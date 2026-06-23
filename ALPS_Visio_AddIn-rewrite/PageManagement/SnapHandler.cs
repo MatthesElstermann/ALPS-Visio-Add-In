@@ -2,8 +2,6 @@ using Microsoft.Office.Interop.Visio;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using VisioAddIn;
-
 namespace ALPS_Visio_AddIn_rewrite
 {
     public abstract class SnapHandler

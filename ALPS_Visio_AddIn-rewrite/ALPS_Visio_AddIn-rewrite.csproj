@@ -305,25 +305,25 @@
     <Compile Include="PageManagement\SBDSnapHandler.cs" />
     <Compile Include="PageManagement\SIDSnapHandler.cs" />
     <Compile Include="PageManagement\SnapHandler.cs" />
-    <Compile Include="_old\UI\AnchorBarsUsage.cs" />
-    <Compile Include="_old\UI\DirectoryTreeViewItem.cs" />
-    <Compile Include="_old\UI\IDialogCallback.cs" />
-    <Compile Include="_old\UI\WindowChangeLayerName.xaml.cs">
+    <Compile Include="UI\AnchorBarsUsage.cs" />
+    <Compile Include="UI\DirectoryTreeViewItem.cs" />
+    <Compile Include="UI\IDialogCallback.cs" />
+    <Compile Include="UI\WindowChangeLayerName.xaml.cs">
       <DependentUpon>WindowChangeLayerName.xaml</DependentUpon>
     </Compile>
-    <Compile Include="_old\UI\WindowChangeProperties.xaml.cs">
+    <Compile Include="UI\WindowChangeProperties.xaml.cs">
       <DependentUpon>WindowChangeProperties.xaml</DependentUpon>
     </Compile>
-    <Compile Include="_old\UI\WindowChangePropertiesSBD.xaml.cs">
+    <Compile Include="UI\WindowChangePropertiesSBD.xaml.cs">
       <DependentUpon>WindowChangePropertiesSBD.xaml</DependentUpon>
     </Compile>
-    <Compile Include="_old\UI\WindowDirectory.xaml.cs">
+    <Compile Include="UI\WindowDirectory.xaml.cs">
       <DependentUpon>WindowDirectory.xaml</DependentUpon>
     </Compile>
-    <Compile Include="_old\UI\WindowSnapConfirmation.xaml.cs">
+    <Compile Include="UI\WindowSnapConfirmation.xaml.cs">
       <DependentUpon>WindowSnapConfirmation.xaml</DependentUpon>
     </Compile>
-    <Compile Include="_old\UI\WindowSnapMaintenance.xaml.cs">
+    <Compile Include="UI\WindowSnapMaintenance.xaml.cs">
       <DependentUpon>WindowSnapMaintenance.xaml</DependentUpon>
     </Compile>
     <Compile Include="PageManagement\ShapeCorners.cs" />
@@ -403,27 +403,27 @@
     <None Include="Resources\owlIcon2.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="_old\UI\WindowChangeLayerName.xaml">
+    <Page Include="UI\WindowChangeLayerName.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="_old\UI\WindowChangeProperties.xaml">
+    <Page Include="UI\WindowChangeProperties.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="_old\UI\WindowChangePropertiesSBD.xaml">
+    <Page Include="UI\WindowChangePropertiesSBD.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="_old\UI\WindowDirectory.xaml">
+    <Page Include="UI\WindowDirectory.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="_old\UI\WindowSnapConfirmation.xaml">
+    <Page Include="UI\WindowSnapConfirmation.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="_old\UI\WindowSnapMaintenance.xaml">
+    <Page Include="UI\WindowSnapMaintenance.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

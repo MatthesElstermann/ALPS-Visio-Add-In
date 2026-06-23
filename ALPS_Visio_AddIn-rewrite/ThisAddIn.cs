@@ -1,6 +1,5 @@
 ﻿using Microsoft.Office.Interop.Visio;
 using System.Windows.Forms;
-using VisioAddIn;
 using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite
