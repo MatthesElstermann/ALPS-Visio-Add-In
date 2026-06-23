@@ -28,7 +28,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             {
                 VH.SetUser(export.GetShape(), Constants.Properties.Transition.ReceiverSenderListForSubject, ";" + receiver.getModelComponentLabelsAsStrings()[0]);
                 VH.SetUser(export.GetShape(), Constants.Properties.Transition.ReceiverSenderListForSubjectID, ";" + receiver.getModelComponentID());
-                VH.SetPropertyFormulaU(export.GetShape(), Constants.Properties.Transition.ReceivingSubject, "INDEX(1,Prop.receivingSubject.Format)");
+                VH.SetPropFormula(export.GetShape(), Constants.Properties.Transition.ReceivingSubject, "INDEX(1,Prop.receivingSubject.Format)");
             }
 
             // message
@@ -36,17 +36,16 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             if (messageSpec != null && messageSpec.getModelComponentLabels().Count > 0)
             {
                 VH.SetUser(export.GetShape(), Constants.Properties.Transition.PossibleMessageList, ";" + messageSpec.getModelComponentLabelsAsStrings()[0]);
-                
                 VH.SetUser(export.GetShape(), Constants.Properties.Transition.PossibleMessageListID, ";" + messageSpec.getModelComponentID());
-                VH.SetPropertyFormulaU(export.GetShape(), Constants.Properties.Transition.Message, "INDEX(1, Prop.Message.Format)");
+                VH.SetPropFormula(export.GetShape(), Constants.Properties.Transition.Message, "INDEX(1, Prop.Message.Format)");
             }
 
             // multiple sends
-            VH.SetProperty(export.GetShape(), Constants.Properties.Transition.MultiSendLowerBound, "" + getTransitionCondition().getMultipleLowerBound());
-            VH.SetProperty(export.GetShape(), Constants.Properties.Transition.MultiSendUpperBound, "" + getTransitionCondition().getMultipleUpperBound());
+            VH.SetProp(export.GetShape(), Constants.Properties.Transition.MultiSendLowerBound, getTransitionCondition().getMultipleLowerBound().ToString());
+            VH.SetProp(export.GetShape(), Constants.Properties.Transition.MultiSendUpperBound, getTransitionCondition().getMultipleUpperBound().ToString());
 
             // send type
-            VH.SetPropertyU(export.GetShape(), Constants.Properties.Transition.SendType, "INDEX(" + (int)getTransitionCondition().getSendType() + ", Prop.sendingType.Format)");
+            VH.SetPropFormula(export.GetShape(), Constants.Properties.Transition.SendType, "INDEX(" + (int)getTransitionCondition().getSendType() + ", Prop.sendingType.Format)");
 
             // add data mapping
             List<IDataMappingLocalToOutgoing> tempList = getDataMappingFunctions().Values.ToList();
@@ -54,10 +53,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             {
                 string dataMappingString = tempList[0].getDataMappingString();
 
-                // QuoteLiteral (via SetPropertyULiteral) escaped Anfuehrungszeichen korrekt;
-                // der alte CHAR(13)-Workaround (prepareXMLLiteralForEntryIntoVisioShapeData)
-                // ist dadurch ueberfluessig und wuerde doppelt escapen.
-                if (getDataMappingFunctions().Count > 0) VH.SetPropertyULiteral(export.GetShape(), Constants.Properties.Transition.DataMappingOutgoing, dataMappingString);
+                if (getDataMappingFunctions().Count > 0) VH.SetProp(export.GetShape(), Constants.Properties.Transition.DataMappingOutgoing, dataMappingString);
             }
         }
 

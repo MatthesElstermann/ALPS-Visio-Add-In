@@ -19,7 +19,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             SetPageDimensions(page);
 
             // hasPriorityNumber
-            VH.SetProperty(page.PageSheet, Constants.Properties.PriorityOrderNumber, this.priorityNumber.ToString());
+            VH.SetProp(page.PageSheet, Constants.Properties.PriorityOrderNumber, this.priorityNumber.ToString());
 
             foreach (IPASSProcessModelElement modelElement in this.getElements().Values.OrderBy(el => el is IMessageExchangeList))
             {
@@ -61,8 +61,8 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             // FEAT: round to nearest A4 page
 
-            VH.SetSizeMM(page.PageSheet, "PageWidth", newPageWidth);
-            VH.SetSizeMM(page.PageSheet, "PageHeight", newPageHeight);
+            VH.SetCellMM(page.PageSheet, "PageWidth", newPageWidth);
+            VH.SetCellMM(page.PageSheet, "PageHeight", newPageHeight);
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()

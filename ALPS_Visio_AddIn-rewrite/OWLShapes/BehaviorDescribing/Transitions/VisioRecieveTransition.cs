@@ -28,7 +28,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             {
                 VH.SetUser(export.GetShape(), Constants.Properties.Transition.ReceiverSenderListForSubject, ";" + sender.getModelComponentLabelsAsStrings()[0]);
                 VH.SetUser(export.GetShape(), Constants.Properties.Transition.ReceiverSenderListForSubjectID, ";" + sender.getModelComponentID());
-                export.GetShape().CellsU["Prop." + Constants.Properties.Transition.MessageSender].FormulaU = "=INDEX(1, Prop.senderOfMessage.Format)";
+                VH.SetPropFormula(export.GetShape(), Constants.Properties.Transition.MessageSender, "=INDEX(1, Prop.senderOfMessage.Format)");
             }
 
             // message
@@ -37,31 +37,26 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             {
                 VH.SetUser(export.GetShape(), Constants.Properties.Transition.PossibleMessageList, ";" + messageSpec.getModelComponentLabelsAsStrings()[0]);
                 VH.SetUser(export.GetShape(), Constants.Properties.Transition.PossibleMessageListID, ";" + messageSpec.getModelComponentID());
-                export.GetShape().CellsU["Prop." + Constants.Properties.Transition.Message].FormulaU = "=INDEX(1, Prop.Message.Format)";
+                VH.SetPropFormula(export.GetShape(), Constants.Properties.Transition.Message, "=INDEX(1, Prop.Message.Format)");
             }
 
-            // multiple sends
-            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.MultiReceiveLowerBound].Formula = VH.QuoteLiteral(getTransitionCondition().getMultipleLowerBound());
-            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.MultiReceiveUpperBound].Formula = VH.QuoteLiteral(getTransitionCondition().getMultipleUpperBound());
+            // multiple receives
+            VH.SetProp(export.GetShape(), Constants.Properties.Transition.MultiReceiveLowerBound, getTransitionCondition().getMultipleLowerBound().ToString());
+            VH.SetProp(export.GetShape(), Constants.Properties.Transition.MultiReceiveUpperBound, getTransitionCondition().getMultipleUpperBound().ToString());
 
             // priority number
-            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.AlternativePriorityNumber].Formula = VH.QuoteLiteral(getPriorityNumber());
+            VH.SetProp(export.GetShape(), Constants.Properties.Transition.AlternativePriorityNumber, getPriorityNumber().ToString());
 
-            // recieve type
-            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.ReceiveType].FormulaU = "INDEX(" + (int)getTransitionCondition().getReceiveType() + ", Prop.receiveType.Format)";
+            // receive type
+            VH.SetPropFormula(export.GetShape(), Constants.Properties.Transition.ReceiveType,
+                "INDEX(" + (int)getTransitionCondition().getReceiveType() + ", Prop.receiveType.Format)");
 
-            // add data mapping
+            // data mapping
             if (getDataMappingFunctions().Count > 0)
             {
                 List<IDataMappingIncomingToLocal> tempList = getDataMappingFunctions().Values.ToList();
                 if (tempList.Count > 0)
-                {
-                    string dataMappingString = tempList[0].getDataMappingString();
-
-                    // QuoteLiteral escaped Anfuehrungszeichen korrekt; der alte
-                    // CHAR(13)-Workaround (prepareXMLLiteralForEntryIntoVisioShapeData) entfaellt.
-                    export.GetShape().CellsU["Prop." + Constants.Properties.Transition.DataMappingIncomming].Formula = VH.QuoteLiteral(dataMappingString);
-                }
+                    VH.SetProp(export.GetShape(), Constants.Properties.Transition.DataMappingIncomming, tempList[0].getDataMappingString());
             }
         }
 

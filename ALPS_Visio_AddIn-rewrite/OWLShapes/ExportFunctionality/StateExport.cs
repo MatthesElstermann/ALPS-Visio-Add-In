@@ -23,13 +23,13 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             base.Export(shapeType, page, bounds);
 
             // EndState
-            VH.SetBool(shape, Constants.Properties.State.End, state.isStateType(IState.StateType.EndState));
+            VH.SetPropBool(shape, Constants.Properties.State.End, state.isStateType(IState.StateType.EndState));
             // InitialStateOfBehavior
-            VH.SetBool(shape, Constants.Properties.State.Start, state.isStateType(IState.StateType.InitialStateOfBehavior));
+            VH.SetPropBool(shape, Constants.Properties.State.Start, state.isStateType(IState.StateType.InitialStateOfBehavior));
             // AbstractState
-            VH.SetBool(shape, Constants.Properties.State.Abstract, state.isStateType(IState.StateType.Abstract));
+            VH.SetPropBool(shape, Constants.Properties.State.Abstract, state.isStateType(IState.StateType.Abstract));
             // FinalizedState
-            VH.SetBool(shape, Constants.Properties.State.Finalized, state.isStateType(IState.StateType.Finalized));
+            VH.SetPropBool(shape, Constants.Properties.State.Finalized, state.isStateType(IState.StateType.Finalized));
 
             // TODO: hasFunctionSpecification max 1 FunctionSpecification (hasToolSpecificDefinition exactly 1 string)
             // -> ReceiveFunction (EnvironmentChoice, AutoReceiveEarliest), SendFunction (Default), DoFunction (EnvironmentChoice, AutomaticEvaluation)

@@ -27,16 +27,16 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             // TODO: hasSubjectExecutionMapping
             // VH.SetProperty(shape, Constants.Properties.ExecutionMapping, subject.getSubjectExecutionMapping().getExecutionMappingDefinition())
-            VH.SetProperty(shape, Constants.Properties.Subject.Implements, string.Join(";", subject.getImplementedInterfaces()));
+            VH.SetProp(shape, Constants.Properties.Subject.Implements, string.Join(";", subject.getImplementedInterfaces()));
             // TODO: final -> ont
 
             // MultiSubject
-            VH.SetBool(shape, Constants.Properties.Subject.Multi, subject is IMultiSubject);
+            VH.SetPropBool(shape, Constants.Properties.Subject.Multi, subject is IMultiSubject);
             // hasMaximumSubjectInstanceRestriction
-            VH.SetProperty(shape, Constants.Properties.MaximumNumberOfInstantiation, subject.getInstanceRestriction().ToString());
+            VH.SetProp(shape, Constants.Properties.MaximumNumberOfInstantiation, subject.getInstanceRestriction().ToString());
 
             // AbstractSubject
-            VH.SetBool(shape, Constants.Properties.Subject.Abstract, subject.isAbstract());
+            VH.SetPropBool(shape, Constants.Properties.Subject.Abstract, subject.isAbstract());
 
             // FullySpecifiedSubject
             if (subject is IFullySpecifiedSubject fullySpecifiedSubject)
@@ -65,7 +65,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             }
 
             // StartSubject
-            VH.SetBool(shape, Constants.Properties.Subject.Start, subject.isRole(ISubject.Role.StartSubject));
+            VH.SetPropBool(shape, Constants.Properties.Subject.Start, subject.isRole(ISubject.Role.StartSubject));
 
             // InterfaceSubject
             if (subject is IInterfaceSubject interfaceSubject)

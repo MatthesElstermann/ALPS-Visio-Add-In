@@ -32,26 +32,26 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             this.shape = VH.Place(shapeType, page);
 
             // hasModelComponentID
-            VH.SetProperty(shape, Constants.Properties.ID, element.getModelComponentID());
+            VH.SetProp(shape, Constants.Properties.ID, element.getModelComponentID());
             // hasModelComponentLabel
-            VH.SetProperty(shape, Constants.Properties.Label, this.GetEnglishLabel(out IList<IStringWithExtra> otherLabels));
+            VH.SetProp(shape, Constants.Properties.Label, this.GetEnglishLabel(out IList<IStringWithExtra> otherLabels));
             foreach (IStringWithExtra otherLabel in otherLabels)
-                VH.SetProperty(shape, Constants.Properties.Label + otherLabel.getExtra().ToUpper(), otherLabel.getContent());
+                VH.SetProp(shape, Constants.Properties.Label + otherLabel.getExtra().ToUpper(), otherLabel.getContent());
             // TODO: hasAdditionalAttribute into new Fields
             // some of element.getElementsWithUnspecifiedRelation()
 
-            VH.SetProperty(shape, Constants.Properties.Comment, string.Join(";", element.getComments()));
+            VH.SetProp(shape, Constants.Properties.Comment, string.Join(";", element.getComments()));
 
             // maybe extract positioning
             if (this.element is IHasSimple2DVisualizationBox)
             {
                 // set position
-                VH.SetSize(shape, "PinX", bounds[0].getRelative2DPosX() * VH.GetSize(page.PageSheet, "PageWidth"));
-                VH.SetSize(shape, "PinY", bounds[0].getRelative2DPosY() * VH.GetSize(page.PageSheet, "PageHeight"));
+                VH.SetCell(shape, "PinX", bounds[0].getRelative2DPosX() * VH.GetCell(page.PageSheet, "PageWidth"));
+                VH.SetCell(shape, "PinY", bounds[0].getRelative2DPosY() * VH.GetCell(page.PageSheet, "PageHeight"));
 
                 // set dimensions
-                VH.SetSize(shape, "Width", bounds[1].getRelative2DPosX() * VH.GetSize(page.PageSheet, "PageWidth"));
-                VH.SetSize(shape, "Height", bounds[1].getRelative2DPosY() * VH.GetSize(page.PageSheet, "PageHeight"));
+                VH.SetCell(shape, "Width", bounds[1].getRelative2DPosX() * VH.GetCell(page.PageSheet, "PageWidth"));
+                VH.SetCell(shape, "Height", bounds[1].getRelative2DPosY() * VH.GetCell(page.PageSheet, "PageHeight"));
             }
         }
 

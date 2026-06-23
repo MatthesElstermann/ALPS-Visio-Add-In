@@ -22,13 +22,13 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             ITimeTransitionCondition condition = this.getTransitionCondition();
 
             // transition type
-            export.GetShape().CellsU["Prop." + Constants.Properties.Transition.TimeOutType].FormulaU = "INDEX(" + (int)condition.getTimeTransitionType() + ", Prop." + Constants.Properties.Transition.TimeOutType + ".Format)";
-            VH.SetPropertyU(export.GetShape(), Constants.Properties.Transition.TimeOutType, "INDEX(" + (int)condition.getTimeTransitionType() + ", Prop.timeOutType.Format)");
+            VH.SetPropFormula(export.GetShape(), Constants.Properties.Transition.TimeOutType,
+                "INDEX(" + (int)condition.getTimeTransitionType() + ", Prop." + Constants.Properties.Transition.TimeOutType + ".Format)");
 
             // timeout
             bool isReminder = condition.getTimeTransitionType() == ITimeTransitionCondition.TimeTransitionConditionType.TimeBasedReminder || condition.getTimeTransitionType() == ITimeTransitionCondition.TimeTransitionConditionType.CalendarBasedReminder;
-            if (isReminder) VH.SetProperty(export.GetShape(), Constants.Properties.Transition.TimeOutDate, condition.getTimeValue());
-            else VH.SetProperty(export.GetShape(), Constants.Properties.Transition.TimeOutTime, condition.getTimeValue());
+            if (isReminder) VH.SetProp(export.GetShape(), Constants.Properties.Transition.TimeOutDate, condition.getTimeValue());
+            else VH.SetProp(export.GetShape(), Constants.Properties.Transition.TimeOutTime, condition.getTimeValue());
         }
 
         public bool PrepareDimensions() // TODO: prepare dimensions

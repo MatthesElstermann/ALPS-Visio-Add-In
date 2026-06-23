@@ -1,4 +1,4 @@
-﻿using alps.net.api.ALPS;
+using alps.net.api.ALPS;
 using alps.net.api.StandardPASS;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
-    public static class VisioHelper // TODO: docs, rework
+    public static class VisioHelper
     {
         public static void setVBAListenersRunning(Boolean newStatus)
         {
@@ -22,15 +22,8 @@ namespace ALPS_Visio_AddIn_rewrite
                 myActiveDocument.DocumentSheet.AddNamedRow((short)visSectionProp, Constants.Properties.InteropWithVSTOShouldListenersRun, (short)visTagDefault);
             }
 
-            if (newStatus)
-            {
-                myActiveDocument.DocumentSheet.CellsU["Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun].Formula = "-1";
-            }
-            else
-            {
-                myActiveDocument.DocumentSheet.CellsU["Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun].Formula = "0";
-            }
-            ;
+            myActiveDocument.DocumentSheet.CellsU["Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun].Formula =
+                newStatus ? "-1" : "0";
         }
 
         public enum VisioStencils
@@ -40,9 +33,8 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Opens the latest SID-Stencil file from specified shape-folder
+        /// Opens the latest stencil file from the configured Shapes folder.
         /// </summary>
-        /// <returns>The specified stencil file or null</returns>
         public static Visio.Document openStencil(VisioStencils stencil)
         {
             Visio.Documents visioDocs = Globals.ThisAddIn.Application.Documents;
@@ -51,50 +43,27 @@ namespace ALPS_Visio_AddIn_rewrite
                 switch (stencil)
                 {
                     case VisioStencils.SID_STENCIL:
-                        Visio.Document sidShapes = visioDocs.OpenEx(ShapeFinder.getSIDName(),
-                            (short)Visio.VisOpenSaveArgs.visOpenDocked);
-                        return sidShapes;
+                        return visioDocs.OpenEx(ShapeFinder.getSIDName(), (short)Visio.VisOpenSaveArgs.visOpenDocked);
                     case VisioStencils.SBD_STENCIL:
-                        Visio.Document sbdShapes = visioDocs.OpenEx(ShapeFinder.getSBDName(),
-                            (short)Visio.VisOpenSaveArgs.visOpenDocked);
-                        return sbdShapes;
+                        return visioDocs.OpenEx(ShapeFinder.getSBDName(), (short)Visio.VisOpenSaveArgs.visOpenDocked);
                 }
-
             }
             catch (System.Runtime.InteropServices.COMException e)
             {
-                string msg = "Failed to load SID Shapes. Expecting file \"";
-                switch (stencil)
-                {
-                    case VisioStencils.SID_STENCIL:
-                        msg += ShapeFinder.getSIDName();
-                        break;
-                    case VisioStencils.SBD_STENCIL:
-                        msg += ShapeFinder.getSBDName();
-                        break;
-                }
-                msg += "\" to exist in the \"My Shapes\" folder.\n";
-                msg += "My Shapes path (Application.MyShapesPath): " + Globals.ThisAddIn.Application.MyShapesPath + "\n";
-                msg += "Error: " + e.Message;
+                string name = stencil == VisioStencils.SID_STENCIL ? ShapeFinder.getSIDName() : ShapeFinder.getSBDName();
+                string msg = "Failed to load SID Shapes. Expecting file \"" + name + "\" to exist in the \"My Shapes\" folder.\n"
+                           + "My Shapes path (Application.MyShapesPath): " + Globals.ThisAddIn.Application.MyShapesPath + "\n"
+                           + "Error: " + e.Message;
                 System.Windows.Forms.MessageBox.Show(msg);
             }
             return null;
         }
 
-        public enum ShapeType
-        {
-            SBD, SID
-        }
-
         public static Visio.Shape Place(string shapeType, Visio.Page page)
         {
-            Visio.Document stencil = VisioHelper.openStencil(VisioHelper.GetStencil(shapeType));
-
+            Visio.Document stencil = openStencil(GetStencil(shapeType));
             Visio.Master sidMaster = stencil.Masters.get_ItemU(shapeType);
-
-            Visio.Shape droppedShape = page.Drop(sidMaster, 0, 0);
-
-            return droppedShape;
+            return page.Drop(sidMaster, 0, 0);
         }
 
         public static VisioStencils GetStencil(string shapeType)
@@ -107,136 +76,102 @@ namespace ALPS_Visio_AddIn_rewrite
                                      (f.Name.Contains("SID") || f.Name.Contains("SBD")) &&
                                      f.GetRawConstantValue().ToString() == shapeType);
 
-            if (field.Name.Contains("SID"))
-                return VisioStencils.SID_STENCIL;
-
-            if (field.Name.Contains("SBD"))
-                return VisioStencils.SBD_STENCIL;
-
+            if (field.Name.Contains("SID")) return VisioStencils.SID_STENCIL;
+            if (field.Name.Contains("SBD")) return VisioStencils.SBD_STENCIL;
             throw new ArgumentException();
         }
 
-        public static void SetHyperlink(Visio.Shape shape, string property, string value)
-        {
-            if (shape.CellExistsU["Hyperlink." + property, 0] == 0)
-                shape.AddNamedRow((short)visSectionHyperlink, property, (short)visTagDefault);
-            //shape.Hyperlinks.ItemU["Hyperlink." + property].Address = "\"" + value + "\""; // shape.Hyperlinks.ItemU does not exist idk
-        }
+        // -------------------------------------------------------------------------
+        // ShapeSheet property setters
+        // -------------------------------------------------------------------------
+
         /// <summary>
         /// Wraps a value as a Visio ShapeSheet string literal, escaping embedded
-        /// double quotes by doubling them (<c>"</c> becomes <c>""</c>). Without this,
-        /// any value containing a quote (e.g. a label returned by <c>GetEnglishLabel</c>)
-        /// produces an invalid formula and the property silently fails to be set.
+        /// double quotes by doubling them (<c>"</c> → <c>""</c>).
         /// </summary>
-        /// <param name="value">the raw value to embed; <c>null</c> becomes an empty string</param>
-        /// <returns>the value as a quoted, escaped Visio formula literal</returns>
         public static string QuoteLiteral(object value)
         {
             return "\"" + (value?.ToString() ?? string.Empty).Replace("\"", "\"\"") + "\"";
         }
 
-        public static void SetProperty(Visio.Shape shape, string property, string value)
+        /// <summary>
+        /// Sets <c>Prop.<paramref name="property"/></c> to a quoted string literal.
+        /// Embedded double-quotes are escaped automatically.
+        /// </summary>
+        public static void SetProp(Visio.Shape shape, string property, string value)
         {
-            if (shape.CellExistsU["Prop." + property, 0] == 0) shape.AddNamedRow((short)visSectionProp, property, (short)visTagDefault);
-
-            shape.CellsU["Prop." + property].Formula = QuoteLiteral(value);
+            if (shape.CellExistsU["Prop." + property, 0] == 0)
+                shape.AddNamedRow((short)visSectionProp, property, (short)visTagDefault);
+            shape.CellsU["Prop." + property].FormulaU = QuoteLiteral(value);
         }
-        public static void SetBool(Visio.Shape shape, string property, bool value)
+
+        /// <summary>Sets <c>Prop.<paramref name="property"/></c> to <c>TRUE</c> or <c>FALSE</c>.</summary>
+        public static void SetPropBool(Visio.Shape shape, string property, bool value)
         {
-            if (shape.CellExistsU["Prop." + property, 0] == 0) shape.AddNamedRow((short)visSectionProp, property, (short)visTagDefault);
-
-            shape.CellsU["Prop." + property].Formula = value ? "=TRUE" : "=FALSE";
+            if (shape.CellExistsU["Prop." + property, 0] == 0)
+                shape.AddNamedRow((short)visSectionProp, property, (short)visTagDefault);
+            shape.CellsU["Prop." + property].FormulaU = value ? "TRUE" : "FALSE";
         }
-        public static void SetSize(Visio.Shape shape, string cell, double value)
+
+        /// <summary>
+        /// Sets <c>Prop.<paramref name="property"/></c> to a raw Visio formula.
+        /// The formula is assigned verbatim — no escaping and no <c>=</c> prefix added.
+        /// </summary>
+        public static void SetPropFormula(Visio.Shape shape, string property, string formula)
         {
-            if (shape.CellExistsU[cell, 0] == 0) shape.AddNamedRow((short)visSectionNone, cell, (short)visTagDefault);
-
-            shape.CellsU[cell].Formula = value.ToString(CultureInfo.InvariantCulture);
+            if (shape.CellExistsU["Prop." + property, 0] == 0)
+                shape.AddNamedRow((short)visSectionProp, property, (short)visTagDefault);
+            shape.CellsU["Prop." + property].FormulaU = formula;
         }
-        public static double GetSize(Visio.Shape shape, string cell)
+
+        /// <summary>Sets <c>User.<paramref name="user"/></c> to a quoted string literal.</summary>
+        public static void SetUser(Visio.Shape shape, string user, string value)
+        {
+            if (shape.CellExistsU["User." + user, 0] == 0)
+                shape.AddNamedRow((short)visSectionUser, user, (short)visTagDefault);
+            shape.CellsU["User." + user].FormulaU = QuoteLiteral(value);
+        }
+
+        /// <summary>
+        /// Sets <c>Hyperlink.<paramref name="property"/>.Address</c> to a quoted string literal.
+        /// Creates the hyperlink row if it does not exist.
+        /// </summary>
+        public static void SetHyperlink(Visio.Shape shape, string property, string value)
+        {
+            if (shape.CellExistsU["Hyperlink." + property + ".Address", 0] == 0)
+                shape.AddNamedRow((short)visSectionHyperlink, property, (short)visTagDefault);
+            shape.CellsU["Hyperlink." + property + ".Address"].FormulaU = QuoteLiteral(value);
+        }
+
+        // -------------------------------------------------------------------------
+        // Geometry / page cell helpers
+        // -------------------------------------------------------------------------
+
+        /// <summary>Sets a geometry or page cell (e.g. PinX, Width, PageWidth) to a numeric value.</summary>
+        public static void SetCell(Visio.Shape shape, string cell, double value)
+        {
+            shape.CellsU[cell].FormulaU = value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>Sets a geometry or page cell to a value expressed in millimetres.</summary>
+        public static void SetCellMM(Visio.Shape shape, string cell, double value)
+        {
+            shape.CellsU[cell].FormulaU = value.ToString(CultureInfo.InvariantCulture) + " mm";
+        }
+
+        /// <summary>Returns the numeric result of a geometry or page cell.</summary>
+        public static double GetCell(Visio.Shape shape, string cell)
         {
             return shape.CellsU[cell].Result[""];
         }
 
-        public static void SetPropertyU(Visio.Shape shape, string property, object value)
-        {
-            SetCell(shape, visSectionProp, property, CellFormulaMode.U, CellValueType.Normal, value);
-        }
-        public static void SetPropertyULiteral(Visio.Shape shape, string property, object value)
-        {
-            SetCell(shape, visSectionProp, property, CellFormulaMode.U, CellValueType.Literal, value);
-        }
-        public static void SetPropertyFormulaU(Visio.Shape shape, string property, object value)
-        {
-            SetCell(shape, visSectionProp, property, CellFormulaMode.U, CellValueType.Formula, value);
-        }
-        public static void SetUser(Visio.Shape shape, string user, object value)
-        {
-            SetCell(shape, visSectionUser, user, CellFormulaMode.Normal, CellValueType.Literal, value);
-        }
-        public static void SetSizeMM(Visio.Shape shape, string cell, object value)
-        {
-            SetCell(shape, null, cell, CellFormulaMode.U, CellValueType.Size, value);
-        }
-        private enum CellFormulaMode
-        {
-            Normal,
-            U,
-            Force,
-            ForceU
-        }
-        private enum CellValueType
-        {
-            Literal,
-            Formula,
-            Size,
-            Normal
-        }
-        private static void SetCell(Visio.Shape shape, Visio.VisSectionIndices? section, string rowName, CellFormulaMode formulaMode, CellValueType valueType, object value)
-        {
-            string sectionName = "";
-            switch (section)
-            {
-                case visSectionProp: sectionName = "Prop."; break;
-                case visSectionUser: sectionName = "User."; break;
-            }
-
-            // Ensure row exists
-            if (shape.CellExistsU[sectionName + rowName, 0] == 0)
-            {
-                shape.AddNamedRow((short)section, rowName, (short)visTagDefault);
-            }
-
-            // Get the cell
-            Visio.Cell cell = shape.CellsU[sectionName + rowName];
-
-            // Convert value properly
-            if (value is IFormattable formattable) value = formattable.ToString(null, CultureInfo.InvariantCulture);
-
-            // Build the value string
-            string valueString = "";
-            switch (valueType)
-            {
-                case CellValueType.Formula: valueString = "=" + value; break;
-                case CellValueType.Size: valueString = value + " mm"; break;
-                case CellValueType.Literal: valueString = QuoteLiteral(value); break;
-                case CellValueType.Normal: valueString = "" + value; break;
-            }
-
-            // Apply according to formula mode
-            switch (formulaMode)
-            {
-                case CellFormulaMode.Normal: cell.Formula = valueString; break;
-                case CellFormulaMode.U: cell.FormulaU = valueString; break;
-                case CellFormulaMode.Force: cell.FormulaForce = valueString; break;
-                case CellFormulaMode.ForceU: cell.FormulaForceU = valueString; break;
-            }
-        }
+        // -------------------------------------------------------------------------
+        // Page creation
+        // -------------------------------------------------------------------------
 
         /// <summary>
         /// Returns a page name not yet used by any other page in the document. Visio rejects
-        /// duplicate page names ("... wird bereits verwendet"); if the desired name is taken,
-        /// a numeric suffix is appended.
+        /// duplicate page names; if the desired name is taken, a numeric suffix is appended.
         /// </summary>
         private static string GetUniquePageName(Visio.Page newPage, string desiredName)
         {
@@ -257,30 +192,20 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// creates a new diagram page in visio
-        /// and turns it into a sid page by setting all given parameters.
+        /// Creates a new SID diagram page and sets all standard PASS properties on it.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="nameU"></param>
-        /// <param name="modelURI"></param>
-        /// <param name="extends"></param>
-        /// <param name="implements"></param>
-        /// <param name="priority"></param>
-        /// <returns>created visio page</returns>
         public static Visio.Page CreateSIDPage(string name, string nameU, string modelURI, string extends, string implements, string priority)
         {
             Visio.Application addin = Globals.ThisAddIn.Application;
             if (addin.Documents.Count < 1)
-            {
                 addin.Documents.Add("");
-            }
+
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
 
-            // Visio rejects duplicate page names -- derive a unique variant before assigning.
-            // NameU must mirror Name: the caller passes a placeholder (" ") for nameU, and a
-            // whitespace NameU makes Visio discard the name and fall back to its default
-            // ("Zeichenblatt-2"). Reusing the page's own unique name keeps NameU valid and
-            // also fixes the SBD->SID hyperlink, which targets the SID page's NameU.
+            // Visio rejects duplicate page names — derive a unique variant before assigning.
+            // NameU must mirror Name: a whitespace NameU is invalid and makes Visio fall back
+            // to its default ("Zeichenblatt-N"). Reusing the unique Name fixes this and also
+            // keeps the SBD→SID hyperlink (which targets NameU) correct.
             page.Name = GetUniquePageName(page, name);
             page.NameU = page.Name;
 
@@ -291,24 +216,18 @@ namespace ALPS_Visio_AddIn_rewrite
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageType, 0);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU = QuoteLiteral(Constants.Properties.SIDPage);
 
-                //add and set "Model Name"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageModelURI, 0);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.PageModelURI].FormulaU = QuoteLiteral(modelURI);
 
-                //add and set "layer"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageLayer, 0);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU = QuoteLiteral(nameU);
 
-
-                //add and set "extends"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.Transition.Extends, 0);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Extends].FormulaU = QuoteLiteral(extends);
 
-                //add and set "implements"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.Transition.Implements, 0);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Implements].FormulaU = QuoteLiteral(implements);
 
-                //add and set "execution priority"
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PriorityOrderNumber, 0);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.PriorityOrderNumber].FormulaU = QuoteLiteral(priority);
 
@@ -321,22 +240,21 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// precondition: document and matching sid page already exist.
+        /// Creates a new SBD diagram page linked to the given SID page and subject shape.
+        /// Precondition: the SID page and document must already exist.
         /// </summary>
-        /// <param name="sidPage"></param>
-        /// <param name="name"></param>
-        /// <param name="subjectShape">the subject the page belongs to</param>
         public static Visio.Page CreateSBDPage(Visio.Page sidPage, string name, string nameU, Visio.Shape subjectShape)
         {
             Debug.Print("creating new SBD page");
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
             page.Name = GetUniquePageName(page, name);
             page.NameU = GetUniquePageName(page, nameU);
-            //hyperlinks
+
             page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionHyperlink, Constants.Properties.LinkedSIDPage, 0);
             page.PageSheet.Hyperlinks.ItemU[Constants.Properties.LinkedSIDPage].SubAddress = sidPage.NameU;
+
             page.PageSheet.AddSection((short)Visio.VisSectionIndices.visSectionProp);
-            //page layer props
+
             page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageLayer, 0);
             page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU =
                 QuoteLiteral(sidPage.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].ResultStr[""]);
@@ -345,16 +263,18 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageType, 0);
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.SBDLinkedSubjectID, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU =
-                    QuoteLiteral(Constants.Properties.SBDPage);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU = QuoteLiteral(Constants.Properties.SBDPage);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.SBDLinkedSubjectID].FormulaU = subjectShape.ID.ToString();
             }
 
-            //remove comment when it is assured that shapes are only valid s-bpm elements.
-            subjectShape.Hyperlinks.ItemU[Constants.Properties.LinkedSBD].SubAddress = "" + page.NameU + "";
+            subjectShape.Hyperlinks.ItemU[Constants.Properties.LinkedSBD].SubAddress = "" + page.NameU;
 
             return page;
         }
+
+        // -------------------------------------------------------------------------
+        // Model element helpers
+        // -------------------------------------------------------------------------
 
         public static List<ISimple2DVisualizationPoint> GetBounds(PASSProcessModelElement element)
         {
