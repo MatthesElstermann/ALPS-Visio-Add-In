@@ -86,6 +86,19 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // set implements
             if (transition.getImplementedInterfaces().Count > 0)
                 VH.SetProp(shape, Constants.Properties.Transition.Implements, string.Join(";", transition.getImplementedInterfaces().Keys));
+
+            // set the transition type dropdown (Standard/Trigger/Precedence/Finalized/Advice)
+            int typeIndex;
+            switch (transition.getTransitionType())
+            {
+                case ITransition.TransitionType.Trigger: typeIndex = 1; break;
+                case ITransition.TransitionType.Precedence: typeIndex = 2; break;
+                case ITransition.TransitionType.Finalized: typeIndex = 3; break;
+                case ITransition.TransitionType.Advice: typeIndex = 4; break;
+                default: typeIndex = 0; break; // Standard
+            }
+            VH.SetPropFormula(shape, Constants.Properties.ModelComponentType,
+                "=INDEX(" + typeIndex + ",Prop." + Constants.Properties.ModelComponentType + ".Format)");
         }
     }
 }
