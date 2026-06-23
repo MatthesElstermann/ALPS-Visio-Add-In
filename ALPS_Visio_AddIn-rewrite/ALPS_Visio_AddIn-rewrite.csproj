@@ -256,7 +256,6 @@
   -->
   <ItemGroup>
     <Compile Include="OWLImporter.cs" />
-    <Compile Include="_old\ALPSConstants.cs" />
     <Compile Include="ALPSRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
