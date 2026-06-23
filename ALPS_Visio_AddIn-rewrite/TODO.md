@@ -56,12 +56,12 @@ Jetzt da du dich hoffentlich in angemessenerer Zeit einarbeiten konntest, kommen
 ein Label von `GetEnglishLabel` in `PASSProcessModelElementExport` Anführungszeichen (`"`) enthält.
 
 ### Aufgaben
-- Aktuell crasht das AddIn, wenn ein Name (z.B. einer Seite) bereits existiert. (Siehe TODO in `VisioHelper.cs`, Zeile 242.)
-Zum Testen muss auf den Prompt des VBA-Makros mit **Nein** geantwortet werden.
-- Das Anordnen **ohne** Koordinaten ist aktuell nicht implementiert. Die Vorbedingung existiert:
-`IVisioExportableWithShape#PrepareDimensions` gibt `false` zurück, wenn keine Koordinaten existieren. Ein Ansatz für einen
-Algorithmus findet sich in den Branches `main` und `development`; im Branch `rewrite` wurde dieser zwecks Übersicht zunächst
-nicht übernommen.
+- ✅ **Erledigt:** Der Crash bei bereits existierendem (Seiten-)Namen ist behoben (`VisioHelper.GetUniquePageName`).
+- ✅ **Erledigt:** Das Anordnen **ohne** Koordinaten ist implementiert. `IVisioImportableWithShape#PrepareDimensions`
+gibt `false` zurück, wenn keine Koordinaten existieren; dann ordnet ein Fallback-Layout die Shapes an
+(`VisioSubjectBehavior.ApplyTreeLayout` für SBD-Zustände als Baum, `VisioModelLayer.ApplyHorizontalLayout` für
+SID-Subjekte als Reihe). Der Algorithmus ist an die Branches `main`/`development` angelehnt, aber ohne deren
+`IGraphNode`/`DirectedGraphNode`-Hilfsklassen neu umgesetzt.
 - Dokumentation ist teilweise unvollständig oder fehlt komplett. Ein einheitliches Schema wäre von Vorteil - ich habe
 bisher die JavaDoc Konventionen übernommen. Inline-Kommentare sollten reduziert werden und nur für die aktive Entwicklung
 (z.B. Notiz von Aufgaben) benutzt werden. Nur in Ausnahmefällen dürfen einzelne Zeilen mit einem Kommentar erklärt werden;
