@@ -9,7 +9,10 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioMacroExtension : MacroExtension, IVisioImportableWithShape
     {
-        private const string shapeType = Constants.SIDMasters.MacroExtension;
+        // Uses the generic ActorExtension master: a dedicated "MakroExtension" master
+        // does not exist in the SID stencil (the legacy add-in used ActorExtension for all
+        // extension types). Dropping a non-existent master throws a COMException.
+        private const string shapeType = Constants.SIDMasters.ActorExtension;
 
         private readonly IShapeImport import;
         public VisioMacroExtension(IModelLayer layer) : base(layer) { import = new SubjectImport(this); }
