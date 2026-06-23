@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY abstract-pass-ont "http://www.imi.kit.edu/abstract-pass-ont#" >
+    <!ENTITY standard-pass-ont "http://www.i2pm.net/standard-pass-ont#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<!--
+    Test-Datei: ALPS-SID-Elemente
+    =============================
+    Zweck:  Testen, dass die ALPS-spezifischen SID-Elemente wieder gezeichnet werden
+            (Änderung 23). Deckt alle sechs reaktivierten Element-Typen plus die
+            CommunicationRestriction ab:
+              - SubjectGroup           (enthält Subjekte)
+              - SystemInterfaceSubject (System-Schnittstelle, eigene SubjectGroup-Art)
+              - SubjectExtension       (extends ein Subjekt)
+              - GuardExtension         (extends ein Subjekt)
+              - MacroExtension         (extends ein Subjekt)
+              - CommunicationChannel   (SID-Verbinder)
+              - CommunicationRestriction
+
+    Bewusst OHNE Koordinaten — so greift zusätzlich das Auto-Layout. Die ALPS-Subjekt-
+    Typen sind alle subClassOf Subject und werden daher vom ISubject-Pfad gezeichnet;
+    CommunicationChannel/Restriction laufen über den Catch-all-Pass im VisioModelLayer.
+-->
+
+<rdf:RDF
+    xmlns:abstract-pass-ont="http://www.imi.kit.edu/abstract-pass-ont#"
+    xmlns:standard-pass-ont="http://www.i2pm.net/standard-pass-ont#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns="http://alps-visio-test.example/alps-elements-test#">
+
+    <owl:Ontology rdf:about="http://alps-visio-test.example/alps-elements-test">
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont"/>
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont/0.8.0"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont/1.1.0"/>
+    </owl:Ontology>
+
+    <!-- =====================================================================
+         PASSProcessModel
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#ALPS_Elements_Model">
+        <rdf:type rdf:resource="&standard-pass-ont;PASSProcessModel"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">ALPS_Elements_Model</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">[Test]_ALPS_Elements</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_SID"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         ModelLayer (SID) — enthält alle SID-Elemente
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Layer_SID">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_SID</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_SID</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Customer"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Service"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Group_Backend"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#SystemInterface_External"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Subject_Customer"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Guard_Service"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Macro_Service"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Channel_Customer_Service"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Restriction_Service"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#MsgSpec_Request"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#MsgExchange_Request"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#MsgExchangeList_Request"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Customer"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Service"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Subjekte (FullySpecifiedSubject)
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Subject_Customer">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Subject_Customer</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Customer</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:containsBehavior rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Customer"/>
+        <standard-pass-ont:containsBaseBehavior rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Customer"/>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Subject_Service">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Subject_Service</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Service</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:containsBehavior rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Service"/>
+        <standard-pass-ont:containsBaseBehavior rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Service"/>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         ALPS: SubjectGroup (enthält Service)
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Group_Backend">
+        <rdf:type rdf:resource="&abstract-pass-ont;SubjectGroup"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Group_Backend</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Backend Group</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Service"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         ALPS: SystemInterfaceSubject
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#SystemInterface_External">
+        <rdf:type rdf:resource="&abstract-pass-ont;SystemInterfaceSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">SystemInterface_External</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">External System</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         ALPS: Extensions (extends ein Subjekt)
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Ext_Subject_Customer">
+        <rdf:type rdf:resource="&abstract-pass-ont;SubjectExtension"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Ext_Subject_Customer</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Customer Extension</standard-pass-ont:hasModelComponentLabel>
+        <abstract-pass-ont:extends rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Customer"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Ext_Guard_Service">
+        <rdf:type rdf:resource="&abstract-pass-ont;GuardExtension"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Ext_Guard_Service</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Service Guard</standard-pass-ont:hasModelComponentLabel>
+        <abstract-pass-ont:extends rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Service"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Ext_Macro_Service">
+        <rdf:type rdf:resource="&abstract-pass-ont;MacroExtension"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Ext_Macro_Service</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Service Macro</standard-pass-ont:hasModelComponentLabel>
+        <abstract-pass-ont:extends rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Service"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         ALPS: CommunicationChannel + CommunicationRestriction
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Channel_Customer_Service">
+        <rdf:type rdf:resource="&abstract-pass-ont;CommunicationChannel"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Channel_Customer_Service</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Customer ↔ Service Channel</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Restriction_Service">
+        <rdf:type rdf:resource="&abstract-pass-ont;CommunicationRestriction"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Restriction_Service</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Service Restriction</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Nachricht Customer -> Service (damit die SID einen Standard-Connector hat)
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#MsgSpec_Request">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageSpecification"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgSpec_Request</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Request</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#MsgExchangeList_Request">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageExchangeList"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgExchangeList_Request</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Request Connector</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#MsgExchange_Request"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#MsgExchange_Request">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageExchange"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgExchange_Request</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Request: Customer → Service</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSender rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Customer"/>
+        <standard-pass-ont:hasReceiver rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Service"/>
+        <standard-pass-ont:hasMessageType rdf:resource="http://alps-visio-test.example/alps-elements-test#MsgSpec_Request"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Minimale SBDs (je ein DoState, damit die Subjekte vollständig sind)
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#SBD_Customer">
+        <rdf:type rdf:resource="&standard-pass-ont;SubjectBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">SBD_Customer</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">SBD: Customer</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasInitialState rdf:resource="http://alps-visio-test.example/alps-elements-test#C_DoState"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#C_DoState"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#C_DoState">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior"/>
+        <rdf:type rdf:resource="&standard-pass-ont;EndState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">C_DoState</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Work</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:isInitialStateOf rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Customer"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#SBD_Service">
+        <rdf:type rdf:resource="&standard-pass-ont;SubjectBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">SBD_Service</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">SBD: Service</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasInitialState rdf:resource="http://alps-visio-test.example/alps-elements-test#S_DoState"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#S_DoState"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#S_DoState">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior"/>
+        <rdf:type rdf:resource="&standard-pass-ont;EndState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">S_DoState</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Serve</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:isInitialStateOf rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Service"/>
+    </owl:NamedIndividual>
+
+</rdf:RDF>
