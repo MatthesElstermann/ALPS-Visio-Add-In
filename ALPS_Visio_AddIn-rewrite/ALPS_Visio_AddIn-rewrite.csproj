@@ -281,6 +281,12 @@
     <Compile Include="OWLShapes\InteractionDescribing\VisioMessageExchangeList.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioMessageSpecification.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioStandAloneMacroSubject.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioCommunicationChannel.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioGuardExtension.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioMacroExtension.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioSubjectExtension.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioSubjectGroup.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioSystemInterfaceSubject.cs" />
     <Compile Include="OWLShapes\VisioMacroBehavior.cs" />
     <Compile Include="OWLShapes\VisioModelLayer.cs" />
     <Compile Include="OWLShapes\IVisioImportable.cs" />

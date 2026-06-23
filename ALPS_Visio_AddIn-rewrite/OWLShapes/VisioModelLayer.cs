@@ -29,9 +29,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             bool anyHadCoordinates = false;
             var importedSubjects = new List<ISubject>();
             var messageExchangeLists = new List<IVisioImportable>();
+            var otherDrawables = new List<IVisioImportable>();
 
-            // First pass: import subjects (message lists are deferred — they glue connectors
-            // to the subject shapes and must run after the subjects have their final position).
+            // First pass: import subjects (message lists and remaining SID-level drawables are
+            // deferred — they glue connectors to the subject shapes and must run after the
+            // subjects have their final position).
             foreach (IPASSProcessModelElement modelElement in this.getElements().Values)
             {
                 if (!(modelElement is IVisioImportable importable)) continue;
@@ -48,6 +50,15 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 {
                     messageExchangeLists.Add(importable);
                 }
+                // Remaining SID-level drawables (e.g. communication channels/restrictions).
+                // States, transitions, behaviours, message exchanges and message specifications
+                // are drawn by their own containers, so they are skipped here.
+                else if (!(modelElement is IMessageExchange) && !(modelElement is IMessageSpecification)
+                    && !(modelElement is ISubjectBehavior) && !(modelElement is IState)
+                    && !(modelElement is ITransition))
+                {
+                    otherDrawables.Add(importable);
+                }
             }
 
             // Position the subjects before drawing the message connectors. Otherwise the
@@ -57,9 +68,13 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             if (!anyHadCoordinates && importedSubjects.Count > 0)
                 ApplyHorizontalLayout(importedSubjects, page);
 
-            // Second pass: now that subjects are placed, draw the message exchange lists.
+            // Second pass: now that subjects are placed, draw the message exchange lists
+            // and the remaining SID-level drawables (their connectors glue to the subjects).
             foreach (IVisioImportable messageExchangeList in messageExchangeLists)
                 messageExchangeList.ImportToVisio(page);
+
+            foreach (IVisioImportable drawable in otherDrawables)
+                drawable.ImportToVisio(page);
         }
 
         /// <summary>
