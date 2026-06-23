@@ -2,6 +2,7 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
+using AppStrings = ALPS_Visio_AddIn_rewrite.Resources.strings;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
@@ -26,11 +27,11 @@ namespace ALPS_Visio_AddIn_rewrite
             oldName = changed.getNameU();
 
             textBoxChooseName.Text = oldName;
-            btnDialogCancel.Content = Resources.strings.Cancel;
-            btnDialogOK.Content = Resources.strings.OK;
+            btnDialogCancel.Content = AppStrings.Cancel;
+            btnDialogOK.Content = AppStrings.OK;
 
-            labelRename.Content = Resources.strings.ChangeLayerNameRename;
-            Title = Resources.strings.ChangeLayerNameTitle;
+            labelRename.Content = AppStrings.ChangeLayerNameRename;
+            Title = AppStrings.ChangeLayerNameTitle;
 
             textBoxChooseName.KeyUp += new KeyEventHandler(TextBox_KeyUp);
 

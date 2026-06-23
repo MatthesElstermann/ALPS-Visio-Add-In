@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using AppStrings = ALPS_Visio_AddIn_rewrite.Resources.strings;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
@@ -28,7 +29,7 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             InitializeComponent();
 
-            btnRefresh.Content = Resources.strings.Refresh;
+            btnRefresh.Content = AppStrings.Refresh;
 
             this.addIn = addIn;
             this.modelController = modelController;

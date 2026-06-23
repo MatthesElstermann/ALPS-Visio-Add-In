@@ -1,5 +1,6 @@
 using Microsoft.Office.Interop.Visio;
 using System.Windows;
+using AppStrings = ALPS_Visio_AddIn_rewrite.Resources.strings;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
@@ -32,13 +33,13 @@ namespace ALPS_Visio_AddIn_rewrite
 
             // Initialize the GUI dynamically with text (Chooses the right language)
 
-            this.Title = Resources.strings.WindowSnapConfirmationTitle;
-            btnDialogYes.Content = Resources.strings.Yes;
-            btnDialogNo.Content = Resources.strings.No;
+            this.Title = AppStrings.WindowSnapConfirmationTitle;
+            btnDialogYes.Content = AppStrings.Yes;
+            btnDialogNo.Content = AppStrings.No;
 
             // Fills the two labels with the name of the shapes
-            labelShapeSnapName.Content = string.Format(Resources.strings.WindowSnapConfirmationShouldShapeSnap, "\"" + snappingShape.Name + "\"");
-            labelShapeSnapToName.Content = string.Format(Resources.strings.WindowSnapConfirmationShouldSnapTo, "\"" + referenceBackgroundShape.Name + "\"");
+            labelShapeSnapName.Content = string.Format(AppStrings.WindowSnapConfirmationShouldShapeSnap, "\"" + snappingShape.Name + "\"");
+            labelShapeSnapToName.Content = string.Format(AppStrings.WindowSnapConfirmationShouldSnapTo, "\"" + referenceBackgroundShape.Name + "\"");
 
         }
 

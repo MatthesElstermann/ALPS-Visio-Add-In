@@ -1,5 +1,6 @@
 
 using System.Windows;
+using AppStrings = ALPS_Visio_AddIn_rewrite.Resources.strings;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
@@ -26,7 +27,7 @@ namespace ALPS_Visio_AddIn_rewrite
 
             if (this.sbdPage.getExtends() != null)
             {
-                chooseSep.Content = string.Format(Resources.strings.WindowChangePropertiesChooseSepExtended, "\"" + this.sbdPage.getExtends().getNameU() + "\""); ;
+                chooseSep.Content = string.Format(AppStrings.WindowChangePropertiesChooseSepExtended, "\"" + this.sbdPage.getExtends().getNameU() + "\""); ;
             }
             else
             {
@@ -36,15 +37,15 @@ namespace ALPS_Visio_AddIn_rewrite
                 btnNormalSeparation.Visibility = Visibility.Collapsed;
                 btnNoSeparation.Visibility = Visibility.Collapsed;
             }
-            Title = string.Format(Resources.strings.WindowChangePropertiesTitle, sbdPage.getNameU());
-            btnDialogOK.Content = Resources.strings.OK;
-            btnFullSeparation.Content = Resources.strings.SeparationFullSep;
-            btnNormalSeparation.Content = Resources.strings.SeparationStandardSep;
-            btnNoSeparation.Content = Resources.strings.SeparationNoSep;
+            Title = string.Format(AppStrings.WindowChangePropertiesTitle, sbdPage.getNameU());
+            btnDialogOK.Content = AppStrings.OK;
+            btnFullSeparation.Content = AppStrings.SeparationFullSep;
+            btnNormalSeparation.Content = AppStrings.SeparationStandardSep;
+            btnNoSeparation.Content = AppStrings.SeparationNoSep;
 
-            btnFullSeparation.ToolTip = Resources.strings.SeparationFullSepTooltip;
-            btnNormalSeparation.ToolTip = Resources.strings.SeparationStandardSepTooltip;
-            btnNoSeparation.ToolTip = Resources.strings.SeparationNoSepTooltip;
+            btnFullSeparation.ToolTip = AppStrings.SeparationFullSepTooltip;
+            btnNormalSeparation.ToolTip = AppStrings.SeparationStandardSepTooltip;
+            btnNoSeparation.ToolTip = AppStrings.SeparationNoSepTooltip;
 
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using AppStrings = ALPS_Visio_AddIn_rewrite.Resources.strings;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
@@ -14,7 +15,7 @@ namespace ALPS_Visio_AddIn_rewrite
     public partial class WindowChangeProperties : Window
     {
 
-        private static readonly string chooseExt = Resources.strings.WindowChangePropertiesChoose;
+        private static readonly string chooseExt = AppStrings.WindowChangePropertiesChoose;
         private const string NONE_CHOSEN = " - ";
         private ThisAddIn addIn;
         private readonly ModelController modelController;
@@ -76,21 +77,21 @@ namespace ALPS_Visio_AddIn_rewrite
             textBoxPriority.Text = currentPriority.ToString();
             textBoxPriority.MouseWheel += textBoxMouseWheel;
 
-            Title = string.Format(Resources.strings.WindowChangePropertiesTitle, sidPage.getNameU());
-            btnDialogOK.Content = Resources.strings.OK;
-            btnDialogCancel.Content = Resources.strings.Cancel;
-            btnFullSeparation.Content = Resources.strings.SeparationFullSep;
-            btnNormalSeparation.Content = Resources.strings.SeparationStandardSep;
-            btnNoSeparation.Content = Resources.strings.SeparationNoSep;
-            labelChooseSep.Content = Resources.strings.WindowChangePropertiesChooseSep;
+            Title = string.Format(AppStrings.WindowChangePropertiesTitle, sidPage.getNameU());
+            btnDialogOK.Content = AppStrings.OK;
+            btnDialogCancel.Content = AppStrings.Cancel;
+            btnFullSeparation.Content = AppStrings.SeparationFullSep;
+            btnNormalSeparation.Content = AppStrings.SeparationStandardSep;
+            btnNoSeparation.Content = AppStrings.SeparationNoSep;
+            labelChooseSep.Content = AppStrings.WindowChangePropertiesChooseSep;
 
-            btnFullSeparation.ToolTip = Resources.strings.SeparationFullSepTooltip;
-            btnNormalSeparation.ToolTip = Resources.strings.SeparationStandardSepTooltip;
-            btnNoSeparation.ToolTip = Resources.strings.SeparationNoSepTooltip;
-            labelChooseSep.ToolTip = Resources.strings.SeparationChooseSepTooltip;
+            btnFullSeparation.ToolTip = AppStrings.SeparationFullSepTooltip;
+            btnNormalSeparation.ToolTip = AppStrings.SeparationStandardSepTooltip;
+            btnNoSeparation.ToolTip = AppStrings.SeparationNoSepTooltip;
+            labelChooseSep.ToolTip = AppStrings.SeparationChooseSepTooltip;
 
-            labelExtends.Content = Resources.strings.WindowChangePropertiesExtends;
-            labelPriority.Content = Resources.strings.WindowChangePropertiesPriority;
+            labelExtends.Content = AppStrings.WindowChangePropertiesExtends;
+            labelPriority.Content = AppStrings.WindowChangePropertiesPriority;
         }
 
 
