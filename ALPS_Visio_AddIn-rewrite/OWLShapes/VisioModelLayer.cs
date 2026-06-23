@@ -14,6 +14,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         public VisioModelLayer(IPASSProcessModel model, string labelForID = null, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(model, labelForID, comment, additionalLabel, additionalAttribute) { }
         protected VisioModelLayer() { }
 
+        // SID auto-layout constants — values in mm
+        private const double SIDSubjectWidthMM = 32.0;
+        private const double SIDSubjectSpacingMM = 20.0;
+        private const double SIDMarginMM = 25.0;
+
         public void ExportToVisio(Visio.Page page)
         {
             SetPageDimensions(page);
@@ -21,22 +26,63 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // hasPriorityNumber
             VH.SetProp(page.PageSheet, Constants.Properties.PriorityOrderNumber, this.priorityNumber.ToString());
 
+            bool anyHadCoordinates = false;
+            var exportedSubjects = new List<ISubject>();
+
             foreach (IPASSProcessModelElement modelElement in this.getElements().Values.OrderBy(el => el is IMessageExchangeList))
             {
                 if (!(modelElement is IVisioExportable exportable)) continue;
 
-                if (exportable is IVisioExportableWithShape shapeExportable) shapeExportable.PrepareDimensions(); // TODO: if not: auto arrange
+                if (exportable is IVisioExportableWithShape shapeExportable)
+                    if (shapeExportable.PrepareDimensions()) anyHadCoordinates = true;
 
-                if (exportable is ISubject || exportable is IMessageExchangeList) exportable.ExportToVisio(page);
+                if (modelElement is ISubject subject)
+                {
+                    exportable.ExportToVisio(page);
+                    exportedSubjects.Add(subject);
+                }
+                else if (modelElement is IMessageExchangeList)
+                {
+                    exportable.ExportToVisio(page);
+                }
+            }
+
+            if (!anyHadCoordinates && exportedSubjects.Count > 0)
+                ApplyHorizontalLayout(exportedSubjects, page);
+        }
+
+        /// <summary>
+        /// Arranges SID subjects in a horizontal row when the OWL file has no coordinates.
+        /// Subjects are evenly spaced left-to-right, centered vertically on the page.
+        /// </summary>
+        private void ApplyHorizontalLayout(IList<ISubject> subjects, Visio.Page page)
+        {
+            double pageHeightMM = page.PageSheet.CellsU["PageHeight"].Result["mm"];
+            double y = pageHeightMM / 2.0;
+            double x = SIDMarginMM + SIDSubjectWidthMM / 2.0;
+
+            foreach (ISubject subject in subjects)
+            {
+                if (!(subject is IVisioExportableWithShape exportable)) continue;
+                Visio.Shape shape = exportable.GetShape();
+                if (shape != null)
+                {
+                    VH.SetCellMM(shape, Constants.ShapeCells.PinX, x);
+                    VH.SetCellMM(shape, Constants.ShapeCells.PinY, y);
+                }
+                x += SIDSubjectWidthMM + SIDSubjectSpacingMM;
             }
         }
 
         /// <summary>
-        /// Calculate dimensions for this model and apply to given page.
-        /// 
-        /// Note: This is inconsistent, it would be great to add some size to the standard.
+        /// Calculates SID page dimensions from subject coordinate data in the OWL model.
+        /// Returns <c>true</c> when at least one subject had valid size data and the page
+        /// was resized; <c>false</c> when no coordinate data exists and defaults are kept.
         /// </summary>
-        private void SetPageDimensions(Visio.Page page)
+        /// <remarks>
+        /// This is an approximation — the standard does not mandate page-size information.
+        /// </remarks>
+        private bool SetPageDimensions(Visio.Page page)
         {
             double pageRatio = 1;
             double sumWidth = 0;
@@ -45,7 +91,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             {
                 if (modelElement is ISystemInterfaceSubject) continue;
 
-                if ((modelElement is IFullySpecifiedSubject || modelElement is IInterfaceSubject))
+                if (modelElement is IFullySpecifiedSubject || modelElement is IInterfaceSubject)
                 {
                     pageRatio = modelElement.get2DPageRatio();
                     double width = modelElement.getRelative2DWidth();
@@ -53,16 +99,21 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                     if (width > 0) subjectCount++;
                 }
             }
-            double averageWidth = sumWidth / subjectCount;
 
-            // the average subject is 32 mm wide
-            double newPageWidth = 32 / averageWidth + 1;
-            double newPageHeight = newPageWidth / pageRatio;
+            if (subjectCount == 0) return false;
+
+            double averageWidth = sumWidth / subjectCount;
+            if (averageWidth <= 0) return false;
+
+            // The average subject is ~32 mm wide
+            double newPageWidth = 32.0 / averageWidth + 1.0;
+            double newPageHeight = pageRatio > 0 ? newPageWidth / pageRatio : newPageWidth;
 
             // FEAT: round to nearest A4 page
 
             VH.SetCellMM(page.PageSheet, "PageWidth", newPageWidth);
             VH.SetCellMM(page.PageSheet, "PageHeight", newPageHeight);
+            return true;
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()
