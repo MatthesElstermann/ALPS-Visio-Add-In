@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using VisioAddIn.Snapping;
+using ALPS_Visio_AddIn_rewrite;
 
 namespace VisioAddIn
 {

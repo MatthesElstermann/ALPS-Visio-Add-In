@@ -294,17 +294,17 @@
     </Compile>
     <Compile Include="ShapeFinder.cs" />
     <Compile Include="VisioHelper.cs" />
-    <Compile Include="_old\Snapping\DiagramPage.cs" />
-    <Compile Include="_old\Snapping\DiagramPageController.cs" />
-    <Compile Include="_old\Snapping\ModelController.cs" />
-    <Compile Include="_old\Snapping\SBDPage.cs" />
-    <Compile Include="_old\Snapping\SBDPageController.cs" />
-    <Compile Include="_old\Snapping\SBDSnapHandler.cs" />
-    <Compile Include="_old\Snapping\SIDPage.cs" />
-    <Compile Include="_old\Snapping\SIDPageController.cs" />
-    <Compile Include="_old\Snapping\SIDSnapHandler.cs" />
-    <Compile Include="_old\Snapping\SnapHandler.cs" />
-    <Compile Include="_old\Snapping\VisioProcessModel.cs" />
+    <Compile Include="PageManagement\DiagramPage.cs" />
+    <Compile Include="PageManagement\SIDPage.cs" />
+    <Compile Include="PageManagement\SBDPage.cs" />
+    <Compile Include="PageManagement\VisioProcessModel.cs" />
+    <Compile Include="PageManagement\DiagramPageController.cs" />
+    <Compile Include="PageManagement\ModelController.cs" />
+    <Compile Include="PageManagement\SBDPageController.cs" />
+    <Compile Include="PageManagement\SIDPageController.cs" />
+    <Compile Include="PageManagement\SBDSnapHandler.cs" />
+    <Compile Include="PageManagement\SIDSnapHandler.cs" />
+    <Compile Include="PageManagement\SnapHandler.cs" />
     <Compile Include="_old\UI\AnchorBarsUsage.cs" />
     <Compile Include="_old\UI\DirectoryTreeViewItem.cs" />
     <Compile Include="_old\UI\IDialogCallback.cs" />
@@ -326,10 +326,10 @@
     <Compile Include="_old\UI\WindowSnapMaintenance.xaml.cs">
       <DependentUpon>WindowSnapMaintenance.xaml</DependentUpon>
     </Compile>
-    <Compile Include="_old\util\ShapeCorners.cs" />
-    <Compile Include="_old\util\ShapeEdges.cs" />
-    <Compile Include="_old\util\ShapeGeometry.cs" />
-    <Compile Include="_old\util\Vector2D.cs" />
+    <Compile Include="PageManagement\ShapeCorners.cs" />
+    <Compile Include="PageManagement\ShapeEdges.cs" />
+    <Compile Include="PageManagement\ShapeGeometry.cs" />
+    <Compile Include="PageManagement\Vector2D.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

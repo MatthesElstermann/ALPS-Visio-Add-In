@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using VisioAddIn.Snapping;
+using ALPS_Visio_AddIn_rewrite;
 
 namespace VisioAddIn
 {

@@ -1,6 +1,6 @@
 ﻿
 using System.Windows;
-using VisioAddIn.Snapping;
+using ALPS_Visio_AddIn_rewrite;
 
 namespace VisioAddIn
 {
