@@ -257,7 +257,6 @@
   <ItemGroup>
     <Compile Include="OWLImporter.cs" />
     <Compile Include="_old\ALPSConstants.cs" />
-    <Compile Include="_old\ALPSGlobalFunctions.cs" />
     <Compile Include="ALPSRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -309,12 +308,6 @@
     <Compile Include="_old\UI\AnchorBarsUsage.cs" />
     <Compile Include="_old\UI\DirectoryTreeViewItem.cs" />
     <Compile Include="_old\UI\IDialogCallback.cs" />
-    <Compile Include="_old\UI\TemporaryModelExplorer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="_old\UI\TemporaryModelExplorer.Designer.cs">
-      <DependentUpon>TemporaryModelExplorer.cs</DependentUpon>
-    </Compile>
     <Compile Include="_old\UI\WindowChangeLayerName.xaml.cs">
       <DependentUpon>WindowChangeLayerName.xaml</DependentUpon>
     </Compile>
@@ -356,9 +349,6 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>strings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="_old\UI\TemporaryModelExplorer.resx">
-      <DependentUpon>TemporaryModelExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="ALPS_Visio_AddIn-rewrite_1_TemporaryKey.pfx" />
     <None Include="ALPS_Visio_AddIn-rewrite_TemporaryKey.pfx" />

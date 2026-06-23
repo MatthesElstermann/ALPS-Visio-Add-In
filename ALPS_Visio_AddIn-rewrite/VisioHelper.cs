@@ -66,19 +66,20 @@ namespace ALPS_Visio_AddIn_rewrite
             return page.Drop(sidMaster, 0, 0);
         }
 
+        private static readonly HashSet<string> _sidShapeTypes = new HashSet<string>
+        {
+            Constants.SIDMasters.StandardActor,
+            Constants.SIDMasters.InterfaceActor,
+            Constants.SIDMasters.CommunicationRestriction,
+            Constants.SIDMasters.StandardMessageConnector,
+            Constants.SIDMasters.Message,
+            Constants.SIDMasters.StandAloneMacro,
+        };
+
         public static VisioStencils GetStencil(string shapeType)
         {
-            var field = typeof(VisioAddIn.ALPSConstants).GetFields(
-                System.Reflection.BindingFlags.Public |
-                System.Reflection.BindingFlags.Static |
-                System.Reflection.BindingFlags.FlattenHierarchy)
-                .FirstOrDefault(f => f.IsLiteral && !f.IsInitOnly &&
-                                     (f.Name.Contains("SID") || f.Name.Contains("SBD")) &&
-                                     f.GetRawConstantValue().ToString() == shapeType);
-
-            if (field.Name.Contains("SID")) return VisioStencils.SID_STENCIL;
-            if (field.Name.Contains("SBD")) return VisioStencils.SBD_STENCIL;
-            throw new ArgumentException();
+            if (_sidShapeTypes.Contains(shapeType)) return VisioStencils.SID_STENCIL;
+            return VisioStencils.SBD_STENCIL;
         }
 
         // -------------------------------------------------------------------------

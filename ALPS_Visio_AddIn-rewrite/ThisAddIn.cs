@@ -125,8 +125,6 @@ namespace ALPS_Visio_AddIn_rewrite
             AnchorBarsUsage ancBar = new AnchorBarsUsage(this, modelManager);
             layerExplorer = ancBar.CreateAnchorBar(Application);
 
-            // TemporaryModelExplorerController controller = new TemporaryModelExplorerController(this, ModelManager);
-            // Directory = controller.getDirectory();
             layerExplorer.displayTreeView(modelManager.getTreeView());
         }
         private void reset()
