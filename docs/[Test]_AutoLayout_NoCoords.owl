@@ -1,0 +1,460 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY abstract-pass-ont "http://www.imi.kit.edu/abstract-pass-ont#" >
+    <!ENTITY standard-pass-ont "http://www.i2pm.net/standard-pass-ont#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<!--
+    Test-Datei: Auto-Layout ohne Koordinaten
+    =========================================
+    Zweck:  Testen von Bug-3-Fix (Auto-Layout): Alle Shapes landen ohne diese Datei
+            bei (0,0). Mit dem Fix sollen SBD-Zustände im Baum-Layout und SID-Subjects
+            in einer horizontalen Reihe angeordnet werden.
+
+    Enthält absichtlich KEINE abstract-pass-ont:hasRelative2D_* Attribute, sodass
+    PrepareDimensions() == false und der Fallback-Layout-Algorithmus greift.
+
+    Modell: Urlaubsantrag (vereinfacht)
+    - 2 Subjects: Employee, Manager
+    - Employee-SBD: linearer Fluss + Branch (Genehmigung / Ablehnung) + Rückkopplungsschleife
+    - Manager-SBD: Empfang → Review → Branch (genehmigen / ablehnen)
+-->
+
+<rdf:RDF
+    xmlns:abstract-pass-ont="http://www.imi.kit.edu/abstract-pass-ont#"
+    xmlns:standard-pass-ont="http://www.i2pm.net/standard-pass-ont#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:ns="http://alps-visio-test.example/autolayout-test#"
+    xmlns="http://alps-visio-test.example/autolayout-test#">
+
+    <owl:Ontology rdf:about="http://alps-visio-test.example/autolayout-test">
+        <owl:versionIRI rdf:resource="http://alps-visio-test.example/autolayout-test/2026-06-23"/>
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont"/>
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont/0.8.0"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont/1.1.0"/>
+    </owl:Ontology>
+
+    <!-- =====================================================================
+         PASSProcessModel
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#AutoLayout_Test_Model">
+        <rdf:type rdf:resource="&standard-pass-ont;PASSProcessModel"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">AutoLayout_Test_Model</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">[Test]_AutoLayout_NoCoords</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#Layer_SID"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Employee"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Manager"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_VacationRequest"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Approval"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Denial"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Request"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Approval"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Denial"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchangeList_Request"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchangeList_Decision"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Employee"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Manager"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         ModelLayer (SID)
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#Layer_SID">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_SID</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_SID</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Employee"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Manager"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_VacationRequest"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Approval"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Denial"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Request"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Approval"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Denial"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchangeList_Request"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchangeList_Decision"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Employee"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Manager"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Subjects
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#Subject_Employee">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Subject_Employee</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Employee</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:containsBehavior rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Employee"/>
+        <standard-pass-ont:containsBaseBehavior rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Employee"/>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#Subject_Manager">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Subject_Manager</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Manager</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:containsBehavior rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Manager"/>
+        <standard-pass-ont:containsBaseBehavior rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Manager"/>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Message specifications
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#MsgSpec_VacationRequest">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageSpecification"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgSpec_VacationRequest</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Vacation Request</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#MsgSpec_Approval">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageSpecification"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgSpec_Approval</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Approval</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#MsgSpec_Denial">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageSpecification"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgSpec_Denial</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Denial</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Message exchanges
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#MsgExchangeList_Request">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageExchangeList"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgExchangeList_Request</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Request Connector</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Request"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#MsgExchange_Request">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageExchange"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgExchange_Request</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Vacation Request: Employee → Manager</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSender rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Employee"/>
+        <standard-pass-ont:hasReceiver rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Manager"/>
+        <standard-pass-ont:hasMessageType rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_VacationRequest"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#MsgExchangeList_Decision">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageExchangeList"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgExchangeList_Decision</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Decision Connector</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Approval"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Denial"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#MsgExchange_Approval">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageExchange"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgExchange_Approval</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Approval: Manager → Employee</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSender rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Manager"/>
+        <standard-pass-ont:hasReceiver rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Employee"/>
+        <standard-pass-ont:hasMessageType rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Approval"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#MsgExchange_Denial">
+        <rdf:type rdf:resource="&standard-pass-ont;MessageExchange"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">MsgExchange_Denial</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Denial: Manager → Employee</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSender rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Manager"/>
+        <standard-pass-ont:hasReceiver rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Employee"/>
+        <standard-pass-ont:hasMessageType rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Denial"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Employee SBD
+         Flow: DoState_Fill → SendState_Send → ReceiveState_Wait
+                                                    ├─(Approval)─ DoState_End
+                                                    └─(Denial)──  DoState_Reconsider → [loop back to DoState_Fill]
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#SBD_Employee">
+        <rdf:type rdf:resource="&standard-pass-ont;SubjectBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">SBD_Employee</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">SBD: Employee</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasInitialState rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_Fill"/>
+        <standard-pass-ont:hasEndState rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_End"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_Fill"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoTrans_Done"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_SendState_Send"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_SendTrans_Sent"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_SendTrans_Sent_Cond"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_ReceiveState_Wait"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Approval"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Approval_Cond"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Denial"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Denial_Cond"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_End"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_Reconsider"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoTrans_TryAgain"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_DoState_Fill">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_DoState_Fill</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Fill out vacation request</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:isInitialStateOf rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Employee"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_DoTrans_Done">
+        <rdf:type rdf:resource="&standard-pass-ont;DoTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_DoTrans_Done</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">done</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_Fill"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#E_SendState_Send"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_SendState_Send">
+        <rdf:type rdf:resource="&standard-pass-ont;SendState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_SendState_Send</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Send request</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_SendTrans_Sent">
+        <rdf:type rdf:resource="&standard-pass-ont;SendTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_SendTrans_Sent</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">To: Manager&#10;Msg: Vacation Request</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#E_SendState_Send"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#E_ReceiveState_Wait"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasTransitionCondition rdf:resource="http://alps-visio-test.example/autolayout-test#E_SendTrans_Sent_Cond"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_SendTrans_Sent_Cond">
+        <rdf:type rdf:resource="&standard-pass-ont;SendTransitionCondition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_SendTrans_Sent_Cond</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">E_SendTrans_Sent_Cond</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Request"/>
+        <standard-pass-ont:requiresMessageSentTo rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Manager"/>
+        <standard-pass-ont:requiresSendingOfMessage rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_VacationRequest"/>
+        <standard-pass-ont:hasSendType rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTypeStandard"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_ReceiveState_Wait">
+        <rdf:type rdf:resource="&standard-pass-ont;ReceiveState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_ReceiveState_Wait</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Wait for decision</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <!-- Branch 1: Approval → End -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Approval">
+        <rdf:type rdf:resource="&standard-pass-ont;ReceiveTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_RecvTrans_Approval</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">From: Manager&#10;Msg: Approval</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#E_ReceiveState_Wait"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_End"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasTransitionCondition rdf:resource="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Approval_Cond"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Approval_Cond">
+        <rdf:type rdf:resource="&standard-pass-ont;ReceiveTransitionCondition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_RecvTrans_Approval_Cond</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">E_RecvTrans_Approval_Cond</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:requiresMessageSentFrom rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Manager"/>
+        <standard-pass-ont:requiresReceptionOfMessage rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Approval"/>
+        <standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Approval"/>
+        <standard-pass-ont:hasReceiveType rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTypeStandard"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_DoState_End">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;EndState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_DoState_End</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">End</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <!-- Branch 2: Denial → Reconsider → loop back -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Denial">
+        <rdf:type rdf:resource="&standard-pass-ont;ReceiveTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_RecvTrans_Denial</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">From: Manager&#10;Msg: Denial</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#E_ReceiveState_Wait"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_Reconsider"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">2</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasTransitionCondition rdf:resource="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Denial_Cond"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_RecvTrans_Denial_Cond">
+        <rdf:type rdf:resource="&standard-pass-ont;ReceiveTransitionCondition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_RecvTrans_Denial_Cond</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">E_RecvTrans_Denial_Cond</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:requiresMessageSentFrom rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Manager"/>
+        <standard-pass-ont:requiresReceptionOfMessage rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Denial"/>
+        <standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Denial"/>
+        <standard-pass-ont:hasReceiveType rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTypeStandard"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_DoState_Reconsider">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_DoState_Reconsider</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Reconsider vacation date</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <!-- Loop: Reconsider → Fill (cycle — visited-Set muss greifen) -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#E_DoTrans_TryAgain">
+        <rdf:type rdf:resource="&standard-pass-ont;DoTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">E_DoTrans_TryAgain</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">try again</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_Reconsider"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#E_DoState_Fill"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Manager SBD
+         Flow: ReceiveState_Receive → DoState_Review
+                                         ├─(approve) SendState_Approve → End
+                                         └─(deny)    SendState_Deny    → End
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#SBD_Manager">
+        <rdf:type rdf:resource="&standard-pass-ont;SubjectBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">SBD_Manager</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">SBD: Manager</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasInitialState rdf:resource="http://alps-visio-test.example/autolayout-test#M_ReceiveState_Receive"/>
+        <standard-pass-ont:hasEndState rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoState_End"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_ReceiveState_Receive"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_RecvTrans_Request"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_RecvTrans_Request_Cond"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoState_Review"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoTrans_Approve"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoTrans_Deny"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendState_Approve"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendTrans_Approve"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendTrans_Approve_Cond"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendState_Deny"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendTrans_Deny"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendTrans_Deny_Cond"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoState_End"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_ReceiveState_Receive">
+        <rdf:type rdf:resource="&standard-pass-ont;ReceiveState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_ReceiveState_Receive</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Receive vacation request</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:isInitialStateOf rdf:resource="http://alps-visio-test.example/autolayout-test#SBD_Manager"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_RecvTrans_Request">
+        <rdf:type rdf:resource="&standard-pass-ont;ReceiveTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_RecvTrans_Request</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">From: Employee&#10;Msg: Vacation Request</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#M_ReceiveState_Receive"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoState_Review"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasTransitionCondition rdf:resource="http://alps-visio-test.example/autolayout-test#M_RecvTrans_Request_Cond"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_RecvTrans_Request_Cond">
+        <rdf:type rdf:resource="&standard-pass-ont;ReceiveTransitionCondition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_RecvTrans_Request_Cond</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">M_RecvTrans_Request_Cond</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:requiresMessageSentFrom rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Employee"/>
+        <standard-pass-ont:requiresReceptionOfMessage rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_VacationRequest"/>
+        <standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Request"/>
+        <standard-pass-ont:hasReceiveType rdf:resource="http://www.i2pm.net/standard-pass-ont#ReceiveTypeStandard"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_DoState_Review">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_DoState_Review</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Review vacation request</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <!-- Branch: approve -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_DoTrans_Approve">
+        <rdf:type rdf:resource="&standard-pass-ont;DoTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_DoTrans_Approve</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">approve</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoState_Review"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendState_Approve"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_SendState_Approve">
+        <rdf:type rdf:resource="&standard-pass-ont;SendState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_SendState_Approve</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Send approval</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_SendTrans_Approve">
+        <rdf:type rdf:resource="&standard-pass-ont;SendTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_SendTrans_Approve</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">To: Employee&#10;Msg: Approval</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendState_Approve"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoState_End"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasTransitionCondition rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendTrans_Approve_Cond"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_SendTrans_Approve_Cond">
+        <rdf:type rdf:resource="&standard-pass-ont;SendTransitionCondition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_SendTrans_Approve_Cond</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">M_SendTrans_Approve_Cond</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Approval"/>
+        <standard-pass-ont:requiresMessageSentTo rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Employee"/>
+        <standard-pass-ont:requiresSendingOfMessage rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Approval"/>
+        <standard-pass-ont:hasSendType rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTypeStandard"/>
+    </owl:NamedIndividual>
+
+    <!-- Branch: deny -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_DoTrans_Deny">
+        <rdf:type rdf:resource="&standard-pass-ont;DoTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_DoTrans_Deny</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">deny</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoState_Review"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendState_Deny"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">2</standard-pass-ont:hasPriorityNumber>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_SendState_Deny">
+        <rdf:type rdf:resource="&standard-pass-ont;SendState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_SendState_Deny</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Send denial</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_SendTrans_Deny">
+        <rdf:type rdf:resource="&standard-pass-ont;SendTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_SendTrans_Deny</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">To: Employee&#10;Msg: Denial</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendState_Deny"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/autolayout-test#M_DoState_End"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasTransitionCondition rdf:resource="http://alps-visio-test.example/autolayout-test#M_SendTrans_Deny_Cond"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_SendTrans_Deny_Cond">
+        <rdf:type rdf:resource="&standard-pass-ont;SendTransitionCondition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_SendTrans_Deny_Cond</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">M_SendTrans_Deny_Cond</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:requiresPerformedMessageExchange rdf:resource="http://alps-visio-test.example/autolayout-test#MsgExchange_Denial"/>
+        <standard-pass-ont:requiresMessageSentTo rdf:resource="http://alps-visio-test.example/autolayout-test#Subject_Employee"/>
+        <standard-pass-ont:requiresSendingOfMessage rdf:resource="http://alps-visio-test.example/autolayout-test#MsgSpec_Denial"/>
+        <standard-pass-ont:hasSendType rdf:resource="http://www.i2pm.net/standard-pass-ont#SendTypeStandard"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/autolayout-test#M_DoState_End">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;EndState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">M_DoState_End</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">End</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+</rdf:RDF>
