@@ -22,7 +22,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
         public bool PrepareDimensions()
         {
-            if (this is IHasSimple2DVisualizationBox bounds)
+            if (this is IHasSimple2DVisualizationBox bounds && bounds.getRelative2DWidth() > 0)
             {
                 Simple2DVisualizationPoint point = new Simple2DVisualizationPoint();
                 point.setRelative2DPosX(bounds.getRelative2DPosX());
