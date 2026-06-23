@@ -6,11 +6,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
     /// <summary>
     /// Visio class generalization
     /// </summary>
-    public interface IVisioExportable // TODO: rename Import
+    public interface IVisioImportable
     {
         /// <summary>
-        /// Export this object onto given page.
+        /// Import this object onto given page.
         /// </summary>
-        void ExportToVisio(Visio.Page page);
+        void ImportToVisio(Visio.Page page);
     }
 }

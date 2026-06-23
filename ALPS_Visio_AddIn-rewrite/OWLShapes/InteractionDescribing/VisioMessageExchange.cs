@@ -6,22 +6,22 @@ using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioMessageExchange : MessageExchange, IVisioExportableWithShape
+    public class VisioMessageExchange : MessageExchange, IVisioImportableWithShape
     {
         private const string shapeType = Constants.SIDMasters.StandardMessageConnector;
 
-        private readonly IShapeExport export;
-        public VisioMessageExchange(IModelLayer layer) : base(layer) { export = new PASSProcessModelElementExport(this); }
-        protected VisioMessageExchange() { export = new PASSProcessModelElementExport(this); }
-        public void ExportToVisio(Visio.Page page)
+        private readonly IShapeImport import;
+        public VisioMessageExchange(IModelLayer layer) : base(layer) { import = new PASSProcessModelElementImport(this); }
+        protected VisioMessageExchange() { import = new PASSProcessModelElementImport(this); }
+        public void ImportToVisio(Visio.Page page)
         {
-            export.Export(shapeType, page, VH.GetBounds(this));
+            import.Import(shapeType, page, VH.GetBounds(this));
 
             // set path (auto arrange)
-            if (this.getSender() is IVisioExportableWithShape exportableSender)
-                this.GetShape().CellsU["BeginX"].GlueToPos(exportableSender.GetShape(), 1, 0.5);
-            if (this.getReceiver() is IVisioExportableWithShape exportableReceiver)
-                this.GetShape().CellsU["EndY"].GlueToPos(exportableReceiver.GetShape(), 0, 0.5);
+            if (this.getSender() is IVisioImportableWithShape importableSender)
+                this.GetShape().CellsU["BeginX"].GlueToPos(importableSender.GetShape(), 1, 0.5);
+            if (this.getReceiver() is IVisioImportableWithShape importableReceiver)
+                this.GetShape().CellsU["EndY"].GlueToPos(importableReceiver.GetShape(), 0, 0.5);
 
             // TODO: AbstractMessageExchange
             // TODO: FinalizedMessageExchange -> alps.net.api
@@ -39,7 +39,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
         public Visio.Shape GetShape()
         {
-            return export.GetShape();
+            return import.GetShape();
         }
     }
 }

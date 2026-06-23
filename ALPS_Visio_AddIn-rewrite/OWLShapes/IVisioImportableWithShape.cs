@@ -5,7 +5,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
     /// <summary>
     /// Shaped Visio class generalization
     /// </summary>
-    public interface IVisioExportableWithShape : IVisioExportable
+    public interface IVisioImportableWithShape : IVisioImportable
     {
         /// <summary>
         /// Read dimensions for this object.
@@ -18,7 +18,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         bool PrepareDimensions();
 
         /// <summary>
-        /// Passthrough for <c>IShapeExport#GetShape</c>
+        /// Passthrough for <c>IShapeImport#GetShape</c>
         /// </summary>
         /// <returns>object shape on page</returns>
         Visio.Shape GetShape();

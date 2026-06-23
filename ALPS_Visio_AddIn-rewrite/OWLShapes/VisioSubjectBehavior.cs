@@ -9,7 +9,7 @@ using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioSubjectBehavior : SubjectBehavior, IVisioExportable
+    public class VisioSubjectBehavior : SubjectBehavior, IVisioImportable
     {
         // Layout constants in drawing units (assumed mm for ALPS/PASS metric documents)
         private const double LayoutMarginX = 25.0;
@@ -20,7 +20,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         public VisioSubjectBehavior(IModelLayer layer, string labelForID = null, ISubject subject = null, ISet<IBehaviorDescribingComponent> behaviorDescribingComponents = null, IState initialStateOfBehavior = null, int priorityNumber = 0, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(layer, labelForID, subject, behaviorDescribingComponents, initialStateOfBehavior, priorityNumber, comment, additionalLabel, additionalAttribute) { }
         protected VisioSubjectBehavior() { }
 
-        public void ExportToVisio(Visio.Page currentPage)
+        public void ImportToVisio(Visio.Page currentPage)
         {
             // TODO: set page dimensions
             // TODO: hasInitialState
@@ -28,29 +28,29 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // TODO: GuardBehavior
 
             bool anyHadCoordinates = false;
-            var exportedStates = new List<IState>();
+            var importedStates = new List<IState>();
 
-            // Export states first so transition connectors can glue to existing shapes
+            // Import states first so transition connectors can glue to existing shapes
             foreach (IBehaviorDescribingComponent component in this.getBehaviorDescribingComponents().Values.OrderBy(c => c is ITransition))
             {
-                if (!(component is IVisioExportable exportable)) continue;
+                if (!(component is IVisioImportable importable)) continue;
 
-                if (exportable is IVisioExportableWithShape shapeExportable)
-                    if (shapeExportable.PrepareDimensions()) anyHadCoordinates = true;
+                if (importable is IVisioImportableWithShape shapeImportable)
+                    if (shapeImportable.PrepareDimensions()) anyHadCoordinates = true;
 
                 if (component is IState state)
                 {
-                    exportable.ExportToVisio(currentPage);
-                    exportedStates.Add(state);
+                    importable.ImportToVisio(currentPage);
+                    importedStates.Add(state);
                 }
                 else if (component is ITransition)
                 {
-                    exportable.ExportToVisio(currentPage);
+                    importable.ImportToVisio(currentPage);
                 }
             }
 
-            if (!anyHadCoordinates && exportedStates.Count > 0)
-                ApplyTreeLayout(exportedStates, currentPage);
+            if (!anyHadCoordinates && importedStates.Count > 0)
+                ApplyTreeLayout(importedStates, currentPage);
         }
 
         /// <summary>
@@ -82,9 +82,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             if (visited.Contains(id)) return y;
             visited.Add(id);
 
-            if (state is IVisioExportableWithShape exportable)
+            if (state is IVisioImportableWithShape importable)
             {
-                Visio.Shape shape = exportable.GetShape();
+                Visio.Shape shape = importable.GetShape();
                 if (shape != null)
                 {
                     VH.SetCellMM(shape, Constants.ShapeCells.PinX, x);

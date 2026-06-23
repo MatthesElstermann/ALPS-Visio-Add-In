@@ -7,17 +7,17 @@ using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioInterfaceSubject : InterfaceSubject, IVisioExportableWithShape
+    public class VisioInterfaceSubject : InterfaceSubject, IVisioImportableWithShape
     {
         private const string shapeType = Constants.SIDMasters.InterfaceActor;
 
-        private readonly IShapeExport export;
-        public VisioInterfaceSubject(IModelLayer layer) : base(layer) { export = new SubjectExport(this); }
-        protected VisioInterfaceSubject() { export = new SubjectExport(this); }
+        private readonly IShapeImport import;
+        public VisioInterfaceSubject(IModelLayer layer) : base(layer) { import = new SubjectImport(this); }
+        protected VisioInterfaceSubject() { import = new SubjectImport(this); }
 
-        public void ExportToVisio(Visio.Page page)
+        public void ImportToVisio(Visio.Page page)
         {
-            export.Export(shapeType, page, VH.GetBounds(this));
+            import.Import(shapeType, page, VH.GetBounds(this));
         }
 
         public bool PrepareDimensions()
@@ -46,7 +46,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
         public Visio.Shape GetShape()
         {
-            return export.GetShape();
+            return import.GetShape();
         }
     }
 }

@@ -6,21 +6,21 @@ using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class StateExport : PASSProcessModelElementExport
+    public class StateImport : PASSProcessModelElementImport
     {
 		private readonly IState state;
 
         /// <summary>
-        /// Shape export for state
+        /// Shape import for state
         /// </summary>
-        public StateExport(IState state) : base(state)
+        public StateImport(IState state) : base(state)
         {
             this.state = state;
         }
 
-        public override void Export(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
+        public override void Import(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
         {
-            base.Export(shapeType, page, bounds);
+            base.Import(shapeType, page, bounds);
 
             // EndState
             VH.SetPropBool(shape, Constants.Properties.State.End, state.isStateType(IState.StateType.EndState));

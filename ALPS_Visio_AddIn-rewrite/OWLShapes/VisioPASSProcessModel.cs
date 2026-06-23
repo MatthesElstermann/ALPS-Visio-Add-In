@@ -9,12 +9,12 @@ using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioPASSProcessModel : PASSProcessModel, IVisioExportable
+    public class VisioPASSProcessModel : PASSProcessModel, IVisioImportable
     {
         public VisioPASSProcessModel(string baseURI, string labelForID = null, ISet<IMessageExchange> messageExchanges = null, ISet<ISubject> relationsToModelComponent = null, ISet<ISubject> startSubject = null, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(baseURI, labelForID, messageExchanges, relationsToModelComponent, startSubject, comment, additionalLabel, additionalAttribute) { }
         protected VisioPASSProcessModel() { }
 
-        public void ExportToVisio(Visio.Page page)
+        public void ImportToVisio(Visio.Page page)
         {
             // TODO: this.layered -> ALPS model
 
@@ -23,7 +23,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 Visio.Page SIDPage = VH.CreateSIDPage(modelLayer.getModelComponentID(), " ", modelLayer.getUriModelComponentID(), " ", " ", " "); // TODO: SID page creation
 
                 // TODO: ExtensionLayer, GuardLayer, MacroLayer
-                if (modelLayer is IVisioExportable exportable) exportable.ExportToVisio(SIDPage);
+                if (modelLayer is IVisioImportable importable) importable.ImportToVisio(SIDPage);
             }
         }
         

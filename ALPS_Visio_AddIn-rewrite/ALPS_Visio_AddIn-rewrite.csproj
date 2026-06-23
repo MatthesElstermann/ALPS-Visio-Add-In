@@ -271,10 +271,10 @@
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioSendTransition.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioTimeTransition.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioUserCancelTransition.cs" />
-    <Compile Include="OWLShapes\ExportFunctionality\IShapeExport.cs" />
-    <Compile Include="OWLShapes\ExportFunctionality\PASSProcessModelElementExport.cs" />
-    <Compile Include="OWLShapes\ExportFunctionality\StateExport.cs" />
-    <Compile Include="OWLShapes\ExportFunctionality\TransitionExport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\IShapeImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\PASSProcessModelElementImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\StateImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\TransitionImport.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioFullySpecifiedSubject.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioInterfaceSubject.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioMessageExchange.cs" />
@@ -283,8 +283,8 @@
     <Compile Include="OWLShapes\InteractionDescribing\VisioStandAloneMacroSubject.cs" />
     <Compile Include="OWLShapes\VisioMacroBehavior.cs" />
     <Compile Include="OWLShapes\VisioModelLayer.cs" />
-    <Compile Include="OWLShapes\IVisioExportable.cs" />
-    <Compile Include="OWLShapes\IVisioExportableWithShape.cs" />
+    <Compile Include="OWLShapes\IVisioImportable.cs" />
+    <Compile Include="OWLShapes\IVisioImportableWithShape.cs" />
     <Compile Include="OWLShapes\VisioClassFactory.cs" />
     <Compile Include="OWLShapes\VisioPASSProcessModel.cs" />
     <Compile Include="OWLShapes\VisioSubjectBehavior.cs" />
@@ -351,7 +351,7 @@
     </EmbeddedResource>
     <None Include="ALPS_Visio_AddIn-rewrite_1_TemporaryKey.pfx" />
     <None Include="ALPS_Visio_AddIn-rewrite_TemporaryKey.pfx" />
-    <Compile Include="OWLShapes\ExportFunctionality\SubjectExport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\SubjectImport.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioCommunicationRestriction.cs" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

@@ -7,19 +7,19 @@ using System.Diagnostics;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioMessageSpecification : MessageSpecification, IVisioExportableWithShape
+    public class VisioMessageSpecification : MessageSpecification, IVisioImportableWithShape
     {
         private const string shapeType = Constants.SIDMasters.Message;
 
-        private readonly IShapeExport export;
-        public VisioMessageSpecification(IModelLayer layer) : base(layer) { export = new PASSProcessModelElementExport(this); }
-        protected VisioMessageSpecification() { export = new PASSProcessModelElementExport(this); }
+        private readonly IShapeImport import;
+        public VisioMessageSpecification(IModelLayer layer) : base(layer) { import = new PASSProcessModelElementImport(this); }
+        protected VisioMessageSpecification() { import = new PASSProcessModelElementImport(this); }
 
-        public void ExportToVisio(Visio.Page page)
+        public void ImportToVisio(Visio.Page page)
         {
             if (this.GetShape() != null) return;
 
-            export.Export(shapeType, page, VH.GetBounds(this));
+            import.Import(shapeType, page, VH.GetBounds(this));
 
             // TODO: containsPayloadDescription
         }
@@ -36,7 +36,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
         public Visio.Shape GetShape()
         {
-            return export.GetShape();
+            return import.GetShape();
         }
     }
 }

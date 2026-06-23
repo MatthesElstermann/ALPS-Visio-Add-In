@@ -9,7 +9,7 @@ using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioModelLayer : ModelLayer, IVisioExportable
+    public class VisioModelLayer : ModelLayer, IVisioImportable
     {
         public VisioModelLayer(IPASSProcessModel model, string labelForID = null, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(model, labelForID, comment, additionalLabel, additionalAttribute) { }
         protected VisioModelLayer() { }
@@ -19,7 +19,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         private const double SIDSubjectSpacingMM = 20.0;
         private const double SIDMarginMM = 25.0;
 
-        public void ExportToVisio(Visio.Page page)
+        public void ImportToVisio(Visio.Page page)
         {
             SetPageDimensions(page);
 
@@ -27,26 +27,26 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             VH.SetProp(page.PageSheet, Constants.Properties.PriorityOrderNumber, this.priorityNumber.ToString());
 
             bool anyHadCoordinates = false;
-            var exportedSubjects = new List<ISubject>();
-            var messageExchangeLists = new List<IVisioExportable>();
+            var importedSubjects = new List<ISubject>();
+            var messageExchangeLists = new List<IVisioImportable>();
 
-            // First pass: export subjects (message lists are deferred — they glue connectors
+            // First pass: import subjects (message lists are deferred — they glue connectors
             // to the subject shapes and must run after the subjects have their final position).
             foreach (IPASSProcessModelElement modelElement in this.getElements().Values)
             {
-                if (!(modelElement is IVisioExportable exportable)) continue;
+                if (!(modelElement is IVisioImportable importable)) continue;
 
-                if (exportable is IVisioExportableWithShape shapeExportable)
-                    if (shapeExportable.PrepareDimensions()) anyHadCoordinates = true;
+                if (importable is IVisioImportableWithShape shapeImportable)
+                    if (shapeImportable.PrepareDimensions()) anyHadCoordinates = true;
 
                 if (modelElement is ISubject subject)
                 {
-                    exportable.ExportToVisio(page);
-                    exportedSubjects.Add(subject);
+                    importable.ImportToVisio(page);
+                    importedSubjects.Add(subject);
                 }
                 else if (modelElement is IMessageExchangeList)
                 {
-                    messageExchangeLists.Add(exportable);
+                    messageExchangeLists.Add(importable);
                 }
             }
 
@@ -54,12 +54,12 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // message box is centered on the connector while the subjects still sit at their
             // drop position; moving them afterwards drags the (glued) connector along but
             // leaves the box behind at (0,0).
-            if (!anyHadCoordinates && exportedSubjects.Count > 0)
-                ApplyHorizontalLayout(exportedSubjects, page);
+            if (!anyHadCoordinates && importedSubjects.Count > 0)
+                ApplyHorizontalLayout(importedSubjects, page);
 
             // Second pass: now that subjects are placed, draw the message exchange lists.
-            foreach (IVisioExportable messageExchangeList in messageExchangeLists)
-                messageExchangeList.ExportToVisio(page);
+            foreach (IVisioImportable messageExchangeList in messageExchangeLists)
+                messageExchangeList.ImportToVisio(page);
         }
 
         /// <summary>
@@ -74,8 +74,8 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             foreach (ISubject subject in subjects)
             {
-                if (!(subject is IVisioExportableWithShape exportable)) continue;
-                Visio.Shape shape = exportable.GetShape();
+                if (!(subject is IVisioImportableWithShape importable)) continue;
+                Visio.Shape shape = importable.GetShape();
                 if (shape != null)
                 {
                     VH.SetCellMM(shape, Constants.ShapeCells.PinX, x);

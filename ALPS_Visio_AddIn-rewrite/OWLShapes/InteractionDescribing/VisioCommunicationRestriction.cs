@@ -5,22 +5,22 @@ using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-	public class VisioCommunicationRestriction : CommunicationRestriction, IVisioExportableWithShape
+	public class VisioCommunicationRestriction : CommunicationRestriction, IVisioImportableWithShape
 	{
 		private const string shapeType = Constants.SIDMasters.CommunicationRestriction;
 
-		private readonly IShapeExport export;
-		public VisioCommunicationRestriction(IModelLayer layer) : base(layer) { export = new PASSProcessModelElementExport(this); }
-		protected VisioCommunicationRestriction() { export = new PASSProcessModelElementExport(this); }
+		private readonly IShapeImport import;
+		public VisioCommunicationRestriction(IModelLayer layer) : base(layer) { import = new PASSProcessModelElementImport(this); }
+		protected VisioCommunicationRestriction() { import = new PASSProcessModelElementImport(this); }
 
-        public void ExportToVisio(Visio.Page page)
+        public void ImportToVisio(Visio.Page page)
         {
-            export.Export(shapeType, page, VH.GetBounds(this));
+            import.Import(shapeType, page, VH.GetBounds(this));
 
             // TODO
 
-            //if (getCorrespondentA() != null && getCorrespondentA() is IVisioExportableWithShape exportableSender) GetShape().CellsU["BeginX"].GlueToPos(exportableSender.GetShape(), 1, 0.5);
-            //if (getCorrespondentB() != null && getCorrespondentB() is IVisioExportableWithShape exportableReceiver) GetShape().CellsU["EndY"].GlueToPos(exportableReceiver.GetShape(), 0, 0.5);
+            //if (getCorrespondentA() != null && getCorrespondentA() is IVisioImportableWithShape importableSender) GetShape().CellsU["BeginX"].GlueToPos(importableSender.GetShape(), 1, 0.5);
+            //if (getCorrespondentB() != null && getCorrespondentB() is IVisioImportableWithShape importableReceiver) GetShape().CellsU["EndY"].GlueToPos(importableReceiver.GetShape(), 0, 0.5);
         }
 
         public bool PrepareDimensions() // TODO: prepare dimensions
@@ -35,7 +35,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
         public Visio.Shape GetShape()
         {
-            return export.GetShape();
+            return import.GetShape();
         }
     }
 }

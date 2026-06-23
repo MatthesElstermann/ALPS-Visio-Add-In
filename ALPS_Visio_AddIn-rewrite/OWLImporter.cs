@@ -60,7 +60,7 @@ namespace ALPS_Visio_AddIn_rewrite
 
             // FEAT: import all models -- currently only the first model is imported.
             // Make a missing model visible instead of silently doing nothing.
-            if (passProcessModels.Count == 0 || !(passProcessModels[0] is IVisioExportable exportable))
+            if (passProcessModels.Count == 0 || !(passProcessModels[0] is IVisioImportable importable))
             {
                 System.Windows.Forms.MessageBox.Show(
                     "Keine importierbaren PASS-/ALPS-Modelle in der Datei gefunden:\n" + fileName +
@@ -79,7 +79,7 @@ namespace ALPS_Visio_AddIn_rewrite
             // open stencils to reduce load time
             VH.openStencil(VH.VisioStencils.SID_STENCIL);
 
-            exportable.ExportToVisio(null); // FEAT: import into current page
+            importable.ImportToVisio(null); // FEAT: import into current page
 
             // VBA listeners are intentionally NOT re-enabled here. The stencil's run-mode
             // welcome routine renames the imported SID page when its popup is closed (which

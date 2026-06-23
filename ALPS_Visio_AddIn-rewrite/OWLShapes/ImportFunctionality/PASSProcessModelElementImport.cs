@@ -11,23 +11,23 @@ using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class PASSProcessModelElementExport : IShapeExport
+    public class PASSProcessModelElementImport : IShapeImport
     {
         private readonly IPASSProcessModelElement element;
 
         /// <summary>
-        /// Base shape export for elements
+        /// Base shape import for elements
         /// </summary>
-        public PASSProcessModelElementExport(IPASSProcessModelElement element)
+        public PASSProcessModelElementImport(IPASSProcessModelElement element)
         {
             this.element = element;
         }
 
         /// <summary>
-        /// Exported object shape on page.
+        /// Imported object shape on page.
         /// </summary>
         protected Visio.Shape shape;
-        public virtual void Export(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
+        public virtual void Import(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
         {
             this.shape = VH.Place(shapeType, page);
 

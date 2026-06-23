@@ -8,20 +8,20 @@ using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class VisioMessageExchangeList : MessageExchangeList, IVisioExportable
+    public class VisioMessageExchangeList : MessageExchangeList, IVisioImportable
     {
         public VisioMessageExchangeList(IModelLayer layer) : base(layer) { }
         protected VisioMessageExchangeList() { }
 
-        public void ExportToVisio(Visio.Page page)
+        public void ImportToVisio(Visio.Page page)
         {
-            if (this.getMessageExchanges().Values.FirstOrDefault() is IVisioExportableWithShape messageExchangeWithConnector)
+            if (this.getMessageExchanges().Values.FirstOrDefault() is IVisioImportableWithShape messageExchangeWithConnector)
             {
                 // store previous shapes
                 List<Visio.Shape> previousShapes = new List<Visio.Shape>();
                 foreach (Visio.Shape shape in page.Shapes) previousShapes.Add(shape);
 
-                messageExchangeWithConnector.ExportToVisio(page);
+                messageExchangeWithConnector.ImportToVisio(page);
 
                 // find message box
                 Visio.Shape messageBox = null;
@@ -44,12 +44,12 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 // aggregate list
                 foreach (IMessageExchange messageExchange in this.getMessageExchanges().Values)
                 {
-                    if (messageExchange.getMessageType() is IVisioExportableWithShape exportable)
+                    if (messageExchange.getMessageType() is IVisioImportableWithShape importable)
                     {
-                        exportable.ExportToVisio(page);
+                        importable.ImportToVisio(page);
 
-                        messageBox.ContainerProperties.InsertListMember(exportable.GetShape(), 0);
-                        exportable.GetShape().BringToFront();
+                        messageBox.ContainerProperties.InsertListMember(importable.GetShape(), 0);
+                        importable.GetShape().BringToFront();
                     }
                 }
             }

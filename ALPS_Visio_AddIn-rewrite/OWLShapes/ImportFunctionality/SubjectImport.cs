@@ -9,21 +9,21 @@ using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-	public class SubjectExport : PASSProcessModelElementExport
+	public class SubjectImport : PASSProcessModelElementImport
 	{
 		private readonly ISubject subject;
 
 		/// <summary>
-		/// Shape export for subject
+		/// Shape import for subject
 		/// </summary>
-		public SubjectExport(ISubject subject) : base(subject)
+		public SubjectImport(ISubject subject) : base(subject)
 		{
 			this.subject = subject;
 		}
 
-		public override void Export(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
+		public override void Import(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
         {
-			base.Export(shapeType, page, bounds);
+			base.Import(shapeType, page, bounds);
 
             // TODO: hasSubjectExecutionMapping
             // VH.SetProperty(shape, Constants.Properties.ExecutionMapping, subject.getSubjectExecutionMapping().getExecutionMappingDefinition())
@@ -48,19 +48,19 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 // TODO: containsBehavior
                 // fullySpecifiedSubject.getBehaviors()
                 // TODO: containsBaseBehavior
-                if (fullySpecifiedSubject.getSubjectBaseBehavior() is IVisioExportable exportable)
+                if (fullySpecifiedSubject.getSubjectBaseBehavior() is IVisioImportable importable)
                 {
                     Visio.Page SBDPage = VH.CreateSBDPage(page, ("SBD: " + fullySpecifiedSubject.getModelComponentID()), ("" + fullySpecifiedSubject.getModelComponentID()), this.GetShape());
-                    exportable.ExportToVisio(SBDPage);
+                    importable.ImportToVisio(SBDPage);
                 }
             }
 
             if (subject is IStandaloneMacroSubject standaloneMacroSubject)
             {
-                if (standaloneMacroSubject.getBehavior() is IVisioExportable exportable)
+                if (standaloneMacroSubject.getBehavior() is IVisioImportable importable)
                 {
                     Visio.Page SBDPage = VH.CreateSBDPage(page, ("SBD: " + standaloneMacroSubject.getModelComponentID()), ("" + standaloneMacroSubject.getModelComponentID()), this.GetShape());
-                    exportable.ExportToVisio(SBDPage);
+                    importable.ImportToVisio(SBDPage);
                 }
             }
 

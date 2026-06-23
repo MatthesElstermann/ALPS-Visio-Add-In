@@ -14,8 +14,8 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         {
             foreach (KeyValuePair<IParseablePASSProcessModelElement, string> pair in possibleElements)
             {
-                // Visio classes implement IVisioExportable
-                if (pair.Key is IVisioExportable) return pair;
+                // Visio classes implement IVisioImportable
+                if (pair.Key is IVisioImportable) return pair;
             }
 
             return base.decideForElement(possibleElements);

@@ -6,21 +6,21 @@ using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
 
 namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
-    public class TransitionExport : PASSProcessModelElementExport
+    public class TransitionImport : PASSProcessModelElementImport
     {
 		private readonly ITransition transition;
 
         /// <summary>
-        /// Shape export for transition
+        /// Shape import for transition
         /// </summary>
-        public TransitionExport(ITransition transition) : base(transition)
+        public TransitionImport(ITransition transition) : base(transition)
         {
             this.transition = transition;
         }
 
-        public override void Export(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
+        public override void Import(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
         {
-            base.Export(shapeType, page, bounds);
+            base.Import(shapeType, page, bounds);
 
             // TODO: hasSourceState only State @ originState
             // TODO: hasTargetState only State @ targetState
@@ -75,10 +75,10 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // Upper Bound if Multi Send: multiSendUpperBound
 
             // set path (auto arrange)
-            if (transition.getSourceState() is IVisioExportableWithShape exportableSender)
-                this.GetShape().CellsU["BeginX"].GlueToPos(exportableSender.GetShape(), 1, 0.5);
-            if (transition.getTargetState() is IVisioExportableWithShape exportableReceiver)
-                this.GetShape().CellsU["EndY"].GlueToPos(exportableReceiver.GetShape(), 0, 0.5);
+            if (transition.getSourceState() is IVisioImportableWithShape importableSender)
+                this.GetShape().CellsU["BeginX"].GlueToPos(importableSender.GetShape(), 1, 0.5);
+            if (transition.getTargetState() is IVisioImportableWithShape importableReceiver)
+                this.GetShape().CellsU["EndY"].GlueToPos(importableReceiver.GetShape(), 0, 0.5);
 
             // set box movement
             VH.SetProp(shape, Constants.Properties.Transition.BoxCanBeMovedFreely, "FALSE");
