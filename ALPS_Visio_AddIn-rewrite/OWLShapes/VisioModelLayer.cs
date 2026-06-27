@@ -14,9 +14,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         public VisioModelLayer(IPASSProcessModel model, string labelForID = null, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(model, labelForID, comment, additionalLabel, additionalAttribute) { }
         protected VisioModelLayer() { }
 
-        // SID auto-layout constants — values in mm
+        // SID auto-layout constants — values in mm. The spacing is the gap between subjects;
+        // it must be wide enough for the message connector's box (message list) to sit
+        // between two subjects without covering their labels.
         private const double SIDSubjectWidthMM = 32.0;
-        private const double SIDSubjectSpacingMM = 20.0;
+        private const double SIDSubjectSpacingMM = 55.0;
         private const double SIDMarginMM = 25.0;
 
         public void ImportToVisio(Visio.Page page)
