@@ -97,19 +97,16 @@ namespace ALPS_Visio_AddIn_rewrite
             bpmnButton.Click += new RibbonControlEventHandler(this.NotImplemented);
             owlGroup.Items.Add(bpmnButton);
 
-            // Split button: the top half runs the default arrange immediately, the lower
-            // arrow opens the dropdown with both directions.
+            // Split button: clicking the button portion runs the default arrange immediately,
+            // the lower arrow opens the dropdown with both directions. On a RibbonSplitButton
+            // the button properties (Label/Image/Click) sit directly on the control itself.
             RibbonSplitButton arrangeSplitButton = this.Factory.CreateRibbonSplitButton();
             arrangeSplitButton.Name = "arrangeSplitButton";
             arrangeSplitButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-
-            // Top half — default action (Left-Right).
-            arrangeSplitButton.Button.Name = "arrangeDefaultButton";
-            arrangeSplitButton.Button.Label = "Auto Arrange";
-            arrangeSplitButton.Button.SuperTip = "Re-arranges the active SID or SBD page from its shapes, flowing left to right. Use the arrow to pick the direction.";
-            arrangeSplitButton.Button.OfficeImageId = "Refresh";
-            arrangeSplitButton.Button.ShowImage = true;
-            arrangeSplitButton.Button.Click += new RibbonControlEventHandler(this.ArrangeLeftRight);
+            arrangeSplitButton.Label = "Auto Arrange";
+            arrangeSplitButton.SuperTip = "Re-arranges the active SID or SBD page from its shapes, flowing left to right. Use the arrow to pick the direction.";
+            arrangeSplitButton.OfficeImageId = "Refresh";
+            arrangeSplitButton.Click += new RibbonControlEventHandler(this.ArrangeLeftRight);
 
             // Lower arrow — dropdown with both directions.
             RibbonButton arrangeTopDownItem = this.Factory.CreateRibbonButton();
