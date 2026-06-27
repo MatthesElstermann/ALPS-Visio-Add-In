@@ -17,8 +17,41 @@ namespace ALPS_Visio_AddIn_rewrite
             alpsTab.Label = "ALPS/PASS ADDIN";
             this.Tabs.Add(alpsTab);
 
+            // Group order and labels mirror the original add-in (upstream/main).
+
+            // --- Group 1: Standard Functions ---
+            RibbonGroup standardGroup = this.Factory.CreateRibbonGroup();
+            standardGroup.Label = "Standard Functions";
+            alpsTab.Groups.Add(standardGroup);
+
+            RibbonButton openStencilsButton = this.Factory.CreateRibbonButton();
+            openStencilsButton.Name = "openStencilsButton";
+            openStencilsButton.Label = "Open ALPS/PASS Stencils";
+            openStencilsButton.SuperTip = "Tries to open the (necessary) ALPS Visio stencils if they are available on the system.";
+            openStencilsButton.Image = Properties.Resources.document_open_7;
+            openStencilsButton.ShowImage = true;
+            openStencilsButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            openStencilsButton.Click += new RibbonControlEventHandler(this.OpenStencils);
+            standardGroup.Items.Add(openStencilsButton);
+
+            // --- Group 2: ALPS Layer Editing ---
+            RibbonGroup layerGroup = this.Factory.CreateRibbonGroup();
+            layerGroup.Label = "ALPS Layer Editing";
+            alpsTab.Groups.Add(layerGroup);
+
+            RibbonButton layerExplorerButton = this.Factory.CreateRibbonButton();
+            layerExplorerButton.Name = "layerExplorerButton";
+            layerExplorerButton.Label = "Show layer Explorer";
+            layerExplorerButton.SuperTip = "Open a the layer explorer, a tool for advanced multi-layered ALPS (Abstract Layered PASS editing)";
+            layerExplorerButton.OfficeImageId = "LayersMenu";
+            layerExplorerButton.ShowImage = true;
+            layerExplorerButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            layerExplorerButton.Click += new RibbonControlEventHandler(this.ShowLayerExplorer);
+            layerGroup.Items.Add(layerExplorerButton);
+
+            // --- Group 3: OWL PASS Tools ---
             RibbonGroup owlGroup = this.Factory.CreateRibbonGroup();
-            owlGroup.Label = "ALPS Tools";
+            owlGroup.Label = "OWL PASS Tools";
             alpsTab.Groups.Add(owlGroup);
 
             RibbonButton owlImporterButton = this.Factory.CreateRibbonButton();
@@ -31,25 +64,38 @@ namespace ALPS_Visio_AddIn_rewrite
             owlImporterButton.Click += new RibbonControlEventHandler(this.LoadOWLFile);
             owlGroup.Items.Add(owlImporterButton);
 
-            RibbonButton openStencilsButton = this.Factory.CreateRibbonButton();
-            openStencilsButton.Name = "openStencilsButton";
-            openStencilsButton.Label = "Open ALPS/PASS Stencils";
-            openStencilsButton.SuperTip = "Tries to open the (necessary) ALPS Visio stencils if they are available on the system.";
-            openStencilsButton.Image = Properties.Resources.document_open_7;
-            openStencilsButton.ShowImage = true;
-            openStencilsButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            openStencilsButton.Click += new RibbonControlEventHandler(this.OpenStencils);
-            owlGroup.Items.Add(openStencilsButton);
+            // Carried over from the original add-in; not implemented yet (stub).
+            RibbonButton verificationButton = this.Factory.CreateRibbonButton();
+            verificationButton.Name = "verificationButton";
+            verificationButton.Label = "ALPS Verification";
+            verificationButton.SuperTip = "Open the verification tool to check if a given model adheres to a given specification (abstract) model.";
+            verificationButton.OfficeImageId = "AdpDiagramArrangeTables";
+            verificationButton.ShowImage = true;
+            verificationButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            verificationButton.Click += new RibbonControlEventHandler(this.AlpsVerification);
+            owlGroup.Items.Add(verificationButton);
 
-            RibbonButton layerExplorerButton = this.Factory.CreateRibbonButton();
-            layerExplorerButton.Name = "layerExplorerButton";
-            layerExplorerButton.Label = "Show layer Explorer";
-            layerExplorerButton.SuperTip = "Open a the layer explorer, a tool for advanced multi-layered ALPS (Abstract Layered PASS editing)";
-            layerExplorerButton.Image = Properties.Resources.pageSetup;
-            layerExplorerButton.ShowImage = true;
-            layerExplorerButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            layerExplorerButton.Click += new RibbonControlEventHandler(this.ShowLayerExplorer);
-            owlGroup.Items.Add(layerExplorerButton);
+            // Carried over from the original add-in; not implemented yet (stub).
+            RibbonButton naturalLanguageButton = this.Factory.CreateRibbonButton();
+            naturalLanguageButton.Name = "naturalLanguageButton";
+            naturalLanguageButton.Label = "PASS NL Checker";
+            naturalLanguageButton.SuperTip = "Check a PASS model against a natural-language description.";
+            naturalLanguageButton.Image = Properties.Resources.pageSetup;
+            naturalLanguageButton.ShowImage = true;
+            naturalLanguageButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            naturalLanguageButton.Click += new RibbonControlEventHandler(this.NotImplemented);
+            owlGroup.Items.Add(naturalLanguageButton);
+
+            // Carried over from the original add-in; not implemented yet (stub).
+            RibbonButton bpmnButton = this.Factory.CreateRibbonButton();
+            bpmnButton.Name = "bpmnButton";
+            bpmnButton.Label = "PASS BPMN Converter";
+            bpmnButton.SuperTip = "Convert between PASS and BPMN process models.";
+            bpmnButton.Image = Properties.Resources.pageSetup;
+            bpmnButton.ShowImage = true;
+            bpmnButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            bpmnButton.Click += new RibbonControlEventHandler(this.NotImplemented);
+            owlGroup.Items.Add(bpmnButton);
 
             RibbonMenu arrangeMenu = this.Factory.CreateRibbonMenu();
             arrangeMenu.Name = "arrangeMenu";
@@ -74,10 +120,6 @@ namespace ALPS_Visio_AddIn_rewrite
             arrangeMenu.Items.Add(arrangeLeftRightItem);
 
             owlGroup.Items.Add(arrangeMenu);
-
-            // FEAT: ALPS verification tool
-            // FEAT: PASS natural language checker
-            // FEAT: PASS BPMN converter
         }
 
         /// <summary>
@@ -107,6 +149,23 @@ namespace ALPS_Visio_AddIn_rewrite
         private void ShowLayerExplorer(object sender, RibbonControlEventArgs e)
         {
             Globals.ThisAddIn.showDirectoryClicked();
+        }
+
+        /// <summary>
+        /// ALPS verification tool — placeholder, not implemented yet.
+        /// </summary>
+        private void AlpsVerification(object sender, RibbonControlEventArgs e)
+        {
+            NotImplemented(sender, e);
+        }
+
+        /// <summary>
+        /// Shared placeholder for ribbon buttons whose feature is not implemented yet.
+        /// </summary>
+        private void NotImplemented(object sender, RibbonControlEventArgs e)
+        {
+            MessageBox.Show("Diese Funktion ist noch nicht implementiert.", "ALPS/PASS Add-In",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
