@@ -12,10 +12,14 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
     public class VisioSubjectBehavior : SubjectBehavior, IVisioImportable
     {
         // Layout constants in mm. StepX leaves room for the (wide) transition label boxes
-        // between columns; StepY separates stacked branch states.
+        // between columns; StepY separates stacked branch states. ShapeWidth/Height are
+        // rough estimates used only to size the page so nothing spills past its edge.
         private const double LayoutMarginX = 25.0;
-        private const double LayoutStepX = 80.0;
-        private const double LayoutStepY = 45.0;
+        private const double LayoutMarginY = 25.0;
+        private const double LayoutStepX = 100.0;
+        private const double LayoutStepY = 50.0;
+        private const double LayoutShapeWidth = 45.0;
+        private const double LayoutShapeHeight = 30.0;
 
         public VisioSubjectBehavior(IModelLayer layer, string labelForID = null, ISubject subject = null, ISet<IBehaviorDescribingComponent> behaviorDescribingComponents = null, IState initialStateOfBehavior = null, int priorityNumber = 0, string comment = null, string additionalLabel = null, IList<IIncompleteTriple> additionalAttribute = null) : base(layer, labelForID, subject, behaviorDescribingComponents, initialStateOfBehavior, priorityNumber, comment, additionalLabel, additionalAttribute) { }
         protected VisioSubjectBehavior() { }
@@ -63,10 +67,6 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         /// </summary>
         private void ApplyLayeredLayout(IList<IState> states, Visio.Page page)
         {
-            // Result["mm"] gives the value in mm regardless of the document's unit setting
-            double pageHeightMM = page.PageSheet.CellsU[Constants.ShapeCells.PageHeight].Result["mm"];
-            double midY = pageHeightMM / 2.0;
-
             // 1. Column = longest path from a root state (-1 = not yet reached).
             var column = new Dictionary<string, int>();
             foreach (IState s in states) column[s.getModelComponentID()] = -1;
@@ -85,10 +85,26 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             foreach (IState s in states)
                 if (column[s.getModelComponentID()] < 0) column[s.getModelComponentID()] = 0;
 
-            // 2. Place each column, stacking its states centered on the page middle.
-            foreach (var columnGroup in states.GroupBy(s => column[s.getModelComponentID()]).OrderBy(g => g.Key))
+            var columnGroups = states.GroupBy(s => column[s.getModelComponentID()])
+                                     .OrderBy(g => g.Key).ToList();
+
+            // 2. Grow the page to fit the layout (so nothing spills into the off-page area).
+            //    Result["mm"] gives the value in mm regardless of the document's unit setting.
+            int maxColumn = column.Values.Max();
+            int maxRows = columnGroups.Max(g => g.Count());
+            double pageWidth = maxColumn * LayoutStepX + LayoutShapeWidth + 2 * LayoutMarginX;
+            double pageHeight = (maxRows - 1) * LayoutStepY + LayoutShapeHeight + 2 * LayoutMarginY;
+            pageWidth = System.Math.Max(pageWidth, page.PageSheet.CellsU[Constants.ShapeCells.PageWidth].Result["mm"]);
+            pageHeight = System.Math.Max(pageHeight, page.PageSheet.CellsU[Constants.ShapeCells.PageHeight].Result["mm"]);
+            VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageWidth, pageWidth);
+            VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
+
+            // 3. Place each column, stacking its states centered on the page middle.
+            double midY = pageHeight / 2.0;
+            double x0 = LayoutMarginX + LayoutShapeWidth / 2.0;
+            foreach (var columnGroup in columnGroups)
             {
-                double x = LayoutMarginX + columnGroup.Key * LayoutStepX;
+                double x = x0 + columnGroup.Key * LayoutStepX;
                 var columnStates = columnGroup.ToList();
                 double startY = midY + (columnStates.Count - 1) * LayoutStepY / 2.0;
 

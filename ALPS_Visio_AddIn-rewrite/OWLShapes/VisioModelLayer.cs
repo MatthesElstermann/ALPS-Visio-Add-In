@@ -85,6 +85,12 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         /// </summary>
         private void ApplyHorizontalLayout(IList<ISubject> subjects, Visio.Page page)
         {
+            // Grow the page so the row of subjects (and the message boxes between them) fits.
+            double rowWidth = (subjects.Count - 1) * (SIDSubjectWidthMM + SIDSubjectSpacingMM);
+            double pageWidth = rowWidth + SIDSubjectWidthMM + 2 * SIDMarginMM;
+            pageWidth = System.Math.Max(pageWidth, page.PageSheet.CellsU["PageWidth"].Result["mm"]);
+            VH.SetCellMM(page.PageSheet, "PageWidth", pageWidth);
+
             double pageHeightMM = page.PageSheet.CellsU["PageHeight"].Result["mm"];
             double y = pageHeightMM / 2.0;
             double x = SIDMarginMM + SIDSubjectWidthMM / 2.0;
