@@ -126,19 +126,6 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// called after a snappingShape is added.
-        /// if it's an actor extension, the diagram should be empty after adding
-        /// bc the new snappingShape isn't extending anything.
-        /// </summary>
-        internal void clearNewPage(Shape shape)
-        {
-            if (isShapeSnappable(shape))
-            {
-                SBDPage sbdPage = foregroundPage.getSbdPage(shape.NameU);
-            }
-        }
-
-        /// <summary>
         /// called from SnapConfirmation — eventually snaps a snappingShape and the page associated with it.
         /// </summary>
         public override void performSnap(Shape snappingShape, Shape backgroundReferenceShape)
@@ -175,8 +162,6 @@ namespace ALPS_Visio_AddIn_rewrite
             SBDPageController snapToShapePageC = modelController.getSbdPageController(snapToShapePage);
 
             SBDPage oldExtends = shapePage.getExtends();
-            string shapeType = snappingShape.CellsU["Prop.modelComponentType.Value"].Formula;
-            shapeType = shapeType.Replace("\"", "");
 
             if (!snappingShape.HasCategory("MacroExtension"))
             {

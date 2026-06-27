@@ -28,8 +28,6 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         protected override bool isShapeSnappable(IVShape shape)
         {
-            Debug.Print("testing shape: " + shape.NameU + " - is snappable: " + shape.HasCategory("StateExtension") +
-                 " on: " + this.foregroundPage.getNameU() + " with background: " + this.referencedBackgroundPage.getNameU());
             return shape.HasCategory("StateExtension");
         }
 
@@ -64,8 +62,8 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             if (!isShapeSnappable(snappingShape)) return;
             backgroundReferenceShapeName = backgroundReferenceShapeName.Trim('\\', '"');
-            if ((!snappedShapes.ContainsKey(snappingShape) || snappedShapes[snappingShape].Name.Equals(backgroundReferenceShapeName)) &&
-                snappedShapes.ContainsKey(snappingShape)) return;
+            // already snapped to the requested shape — nothing to do
+            if (snappedShapes.ContainsKey(snappingShape) && snappedShapes[snappingShape].Name.Equals(backgroundReferenceShapeName)) return;
             if (string.IsNullOrWhiteSpace(backgroundReferenceShapeName))
             {
                 if (snappedShapes.ContainsKey(snappingShape))
