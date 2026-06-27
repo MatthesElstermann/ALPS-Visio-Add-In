@@ -51,15 +51,25 @@ namespace ALPS_Visio_AddIn_rewrite
             layerExplorerButton.Click += new RibbonControlEventHandler(this.ShowLayerExplorer);
             owlGroup.Items.Add(layerExplorerButton);
 
-            RibbonButton autoArrangeButton = this.Factory.CreateRibbonButton();
-            autoArrangeButton.Name = "autoArrangeButton";
-            autoArrangeButton.Label = "Auto Arrange";
-            autoArrangeButton.SuperTip = "Re-arranges the active SID or SBD page from its shapes: subjects line up in a row, states fall into a left-to-right layered layout.";
-            autoArrangeButton.Image = Properties.Resources.pageSetup;
-            autoArrangeButton.ShowImage = true;
-            autoArrangeButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            autoArrangeButton.Click += new RibbonControlEventHandler(this.AutoArrange);
-            owlGroup.Items.Add(autoArrangeButton);
+            RibbonButton arrangeTopDownButton = this.Factory.CreateRibbonButton();
+            arrangeTopDownButton.Name = "arrangeTopDownButton";
+            arrangeTopDownButton.Label = "Arrange Top-Down";
+            arrangeTopDownButton.SuperTip = "Re-arranges the active SID or SBD page from its shapes, flowing top to bottom: states fall into layers downward, subjects line up in a column.";
+            arrangeTopDownButton.Image = Properties.Resources.pageSetup;
+            arrangeTopDownButton.ShowImage = true;
+            arrangeTopDownButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            arrangeTopDownButton.Click += new RibbonControlEventHandler(this.ArrangeTopDown);
+            owlGroup.Items.Add(arrangeTopDownButton);
+
+            RibbonButton arrangeLeftRightButton = this.Factory.CreateRibbonButton();
+            arrangeLeftRightButton.Name = "arrangeLeftRightButton";
+            arrangeLeftRightButton.Label = "Arrange Left-Right";
+            arrangeLeftRightButton.SuperTip = "Re-arranges the active SID or SBD page from its shapes, flowing left to right: states fall into layers rightward, subjects line up in a row.";
+            arrangeLeftRightButton.Image = Properties.Resources.pageSetup;
+            arrangeLeftRightButton.ShowImage = true;
+            arrangeLeftRightButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            arrangeLeftRightButton.Click += new RibbonControlEventHandler(this.ArrangeLeftRight);
+            owlGroup.Items.Add(arrangeLeftRightButton);
 
             // FEAT: ALPS verification tool
             // FEAT: PASS natural language checker
@@ -96,11 +106,19 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Re-arrange the active page from its shapes.
+        /// Re-arrange the active page from its shapes, flowing top to bottom.
         /// </summary>
-        private void AutoArrange(object sender, RibbonControlEventArgs e)
+        private void ArrangeTopDown(object sender, RibbonControlEventArgs e)
         {
-            AutoArranger.ArrangeActivePage(Globals.ThisAddIn.Application);
+            AutoArranger.ArrangeActivePage(Globals.ThisAddIn.Application, AutoArranger.LayoutDirection.TopToBottom);
+        }
+
+        /// <summary>
+        /// Re-arrange the active page from its shapes, flowing left to right.
+        /// </summary>
+        private void ArrangeLeftRight(object sender, RibbonControlEventArgs e)
+        {
+            AutoArranger.ArrangeActivePage(Globals.ThisAddIn.Application, AutoArranger.LayoutDirection.LeftToRight);
         }
     }
 }

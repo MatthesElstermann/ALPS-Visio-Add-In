@@ -8,18 +8,32 @@ namespace ALPS_Visio_AddIn_rewrite
 {
     /// <summary>
     /// Re-arranges an already drawn SID or SBD page from the shapes alone — no parsed model
-    /// required. The node graph is rebuilt from the connectors' glue, then the same layered
-    /// layout used at import time is applied: states fall into columns by longest path from a
-    /// root and each column is centered vertically; subjects line up in a row. Lets the user
-    /// tidy a diagram they moved around by hand, or one opened from a saved file.
+    /// required. The node graph is rebuilt from the connectors' glue, then a layered layout is
+    /// applied: states fall into layers by longest path from a root, each layer's states are
+    /// spread perpendicular to the flow; subjects line up in a single line. Works in two
+    /// directions so the user can pick the flow that fits the diagram.
     /// </summary>
     public static class AutoArranger
     {
-        // Layout constants in mm — kept in sync with the import-time layout for a consistent look.
-        private const double StepX = 100.0, StepY = 50.0;
+        /// <summary>Direction the layout flows from layer to layer.</summary>
+        public enum LayoutDirection
+        {
+            /// <summary>Layers go left → right; states within a layer stack vertically.</summary>
+            LeftToRight,
+            /// <summary>Layers go top → bottom; states within a layer spread horizontally.</summary>
+            TopToBottom
+        }
+
+        // Spacing between shape centers, by axis (mm). Horizontal is wider because the shapes
+        // and the transition-label boxes are wider than tall. Used for whichever role (layer
+        // step or sibling step) maps onto that axis in the chosen direction.
+        private const double StepX = 100.0, StepY = 55.0;
         private const double MarginX = 25.0, MarginY = 25.0;
         private const double ShapeWidth = 45.0, ShapeHeight = 30.0;
+
+        // SID subject row/column metrics (mm).
         private const double SubjectWidth = 32.0, SubjectSpacing = 55.0;
+        private const double SubjectHeight = 50.0, SubjectVSpacing = 30.0;
 
         // Visio shape categories that mark the layout nodes (from the ALPS/PASS stencils).
         private const string StateCategory = "alpsSBDstate";
@@ -27,10 +41,10 @@ namespace ALPS_Visio_AddIn_rewrite
             { "StandardActor", "InterfaceActor", "StandAloneMakro", "SubjectGroup", "SystemInterfaceSubject" };
 
         /// <summary>
-        /// Arranges the application's active page if it is a SID or SBD page.
-        /// The whole operation is one undo scope, so a single Ctrl+Z reverts it.
+        /// Arranges the application's active page if it is a SID or SBD page, flowing in the
+        /// given direction. The whole operation is one undo scope, so a single Ctrl+Z reverts it.
         /// </summary>
-        public static void ArrangeActivePage(Visio.Application app)
+        public static void ArrangeActivePage(Visio.Application app, LayoutDirection direction)
         {
             Visio.Page page = app?.ActivePage;
             if (page == null) return;
@@ -42,12 +56,12 @@ namespace ALPS_Visio_AddIn_rewrite
                 string pageType = ReadPageTypeFormula(page);
                 if (pageType.Contains(Constants.Properties.SBDPage))
                 {
-                    ArrangeStates(page);
+                    ArrangeStates(page, direction);
                     committed = true;
                 }
                 else if (pageType.Contains(Constants.Properties.SIDPage))
                 {
-                    ArrangeSubjects(page);
+                    ArrangeSubjects(page, direction);
                     committed = true;
                 }
                 else
@@ -65,7 +79,7 @@ namespace ALPS_Visio_AddIn_rewrite
         /// <summary>
         /// SBD: rebuild the state graph from the connectors and apply the layered layout.
         /// </summary>
-        private static void ArrangeStates(Visio.Page page)
+        private static void ArrangeStates(Visio.Page page, LayoutDirection direction)
         {
             IDictionary<string, Visio.Shape> nodes = CollectNodes(page, s => s.HasCategory(StateCategory));
             if (nodes.Count == 0) return;
@@ -78,19 +92,20 @@ namespace ALPS_Visio_AddIn_rewrite
             var roots = nodes.Keys.Where(id => IsStartState(nodes[id]) || !hasIncoming.Contains(id)).ToList();
             if (roots.Count == 0) roots.Add(nodes.Keys.First());
 
-            var column = nodes.Keys.ToDictionary(id => id, id => -1);
+            var layer = nodes.Keys.ToDictionary(id => id, id => -1);
             var onPath = new HashSet<string>();
-            foreach (string root in roots) AssignColumns(root, 0, column, adjacency, onPath);
+            foreach (string root in roots) AssignLayers(root, 0, layer, adjacency, onPath);
             foreach (string id in nodes.Keys.ToList())
-                if (column[id] < 0) column[id] = 0;
+                if (layer[id] < 0) layer[id] = 0;
 
-            PlaceColumns(page, nodes, column);
+            PlaceLayers(page, nodes, layer, direction);
         }
 
         /// <summary>
-        /// SID: place the subject shapes in a horizontal row, centered vertically.
+        /// SID: place the subject shapes in a single line — a row (LeftToRight) or a column
+        /// (TopToBottom) — centered on the page.
         /// </summary>
-        private static void ArrangeSubjects(Visio.Page page)
+        private static void ArrangeSubjects(Visio.Page page, LayoutDirection direction)
         {
             var subjects = new List<Visio.Shape>();
             foreach (Visio.Shape shape in page.Shapes)
@@ -98,49 +113,92 @@ namespace ALPS_Visio_AddIn_rewrite
                     subjects.Add(shape);
             if (subjects.Count == 0) return;
 
-            double rowWidth = (subjects.Count - 1) * (SubjectWidth + SubjectSpacing);
-            double pageWidth = Math.Max(rowWidth + SubjectWidth + 2 * MarginX, PageDimension(page, true));
-            VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageWidth, pageWidth);
-
-            double midY = PageDimension(page, false) / 2.0;
-            double x = MarginX + SubjectWidth / 2.0;
-            foreach (Visio.Shape shape in subjects)
+            if (direction == LayoutDirection.LeftToRight)
             {
-                VH.SetCellMM(shape, Constants.ShapeCells.PinX, x);
-                VH.SetCellMM(shape, Constants.ShapeCells.PinY, midY);
-                x += SubjectWidth + SubjectSpacing;
+                double rowWidth = (subjects.Count - 1) * (SubjectWidth + SubjectSpacing);
+                double pageWidth = Math.Max(rowWidth + SubjectWidth + 2 * MarginX, PageDimension(page, true));
+                VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageWidth, pageWidth);
+
+                double midY = PageDimension(page, false) / 2.0;
+                double x = MarginX + SubjectWidth / 2.0;
+                foreach (Visio.Shape shape in subjects)
+                {
+                    VH.SetCellMM(shape, Constants.ShapeCells.PinX, x);
+                    VH.SetCellMM(shape, Constants.ShapeCells.PinY, midY);
+                    x += SubjectWidth + SubjectSpacing;
+                }
+            }
+            else
+            {
+                double colHeight = (subjects.Count - 1) * (SubjectHeight + SubjectVSpacing);
+                double pageHeight = Math.Max(colHeight + SubjectHeight + 2 * MarginY, PageDimension(page, false));
+                VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
+
+                double midX = PageDimension(page, true) / 2.0;
+                double y = pageHeight - MarginY - SubjectHeight / 2.0; // start at the top, go down
+                foreach (Visio.Shape shape in subjects)
+                {
+                    VH.SetCellMM(shape, Constants.ShapeCells.PinX, midX);
+                    VH.SetCellMM(shape, Constants.ShapeCells.PinY, y);
+                    y -= SubjectHeight + SubjectVSpacing;
+                }
             }
         }
 
         /// <summary>
-        /// Grows the page to fit the column layout, then places each column centered on the
-        /// page middle (identical geometry to the import-time SBD layout).
+        /// Grows the page to fit the layered layout and places each layer's nodes spread
+        /// perpendicular to the flow and centered. LeftToRight lays layers along X (siblings
+        /// stacked along Y); TopToBottom lays layers along Y from the top (siblings along X).
         /// </summary>
-        private static void PlaceColumns(Visio.Page page, IDictionary<string, Visio.Shape> nodes, IDictionary<string, int> column)
+        private static void PlaceLayers(Visio.Page page, IDictionary<string, Visio.Shape> nodes,
+            IDictionary<string, int> layer, LayoutDirection direction)
         {
-            var groups = nodes.Keys.GroupBy(id => column[id]).OrderBy(g => g.Key).ToList();
-            int maxColumn = column.Values.Max();
-            int maxRows = groups.Max(g => g.Count());
+            var groups = nodes.Keys.GroupBy(id => layer[id]).OrderBy(g => g.Key).ToList();
+            int maxLayer = layer.Values.Max();
+            int maxSiblings = groups.Max(g => g.Count());
 
-            double pageWidth = Math.Max(maxColumn * StepX + ShapeWidth + 2 * MarginX, PageDimension(page, true));
-            double pageHeight = Math.Max((maxRows - 1) * StepY + ShapeHeight + 2 * MarginY, PageDimension(page, false));
-            VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageWidth, pageWidth);
-            VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
-
-            double midY = pageHeight / 2.0;
-            double x0 = MarginX + ShapeWidth / 2.0;
-            foreach (var group in groups)
+            if (direction == LayoutDirection.LeftToRight)
             {
-                double x = x0 + group.Key * StepX;
-                var columnIds = group.ToList();
-                double startY = midY + (columnIds.Count - 1) * StepY / 2.0;
-                for (int i = 0; i < columnIds.Count; i++)
+                double pageWidth = Math.Max(maxLayer * StepX + ShapeWidth + 2 * MarginX, PageDimension(page, true));
+                double pageHeight = Math.Max((maxSiblings - 1) * StepY + ShapeHeight + 2 * MarginY, PageDimension(page, false));
+                VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageWidth, pageWidth);
+                VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
+
+                double midY = pageHeight / 2.0;
+                double x0 = MarginX + ShapeWidth / 2.0;
+                foreach (var group in groups)
                 {
-                    Visio.Shape shape = nodes[columnIds[i]];
-                    VH.SetCellMM(shape, Constants.ShapeCells.PinX, x);
-                    VH.SetCellMM(shape, Constants.ShapeCells.PinY, startY - i * StepY);
+                    double x = x0 + group.Key * StepX;
+                    var ids = group.ToList();
+                    double startY = midY + (ids.Count - 1) * StepY / 2.0;
+                    for (int i = 0; i < ids.Count; i++)
+                        SetPin(nodes[ids[i]], x, startY - i * StepY);
                 }
             }
+            else
+            {
+                double pageWidth = Math.Max((maxSiblings - 1) * StepX + ShapeWidth + 2 * MarginX, PageDimension(page, true));
+                double pageHeight = Math.Max(maxLayer * StepY + ShapeHeight + 2 * MarginY, PageDimension(page, false));
+                VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageWidth, pageWidth);
+                VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
+
+                double midX = pageWidth / 2.0;
+                double y0 = pageHeight - MarginY - ShapeHeight / 2.0; // top layer, go down
+                foreach (var group in groups)
+                {
+                    double y = y0 - group.Key * StepY;
+                    var ids = group.ToList();
+                    double startX = midX - (ids.Count - 1) * StepX / 2.0;
+                    for (int i = 0; i < ids.Count; i++)
+                        SetPin(nodes[ids[i]], startX + i * StepX, y);
+                }
+            }
+        }
+
+        private static void SetPin(Visio.Shape shape, double x, double y)
+        {
+            VH.SetCellMM(shape, Constants.ShapeCells.PinX, x);
+            VH.SetCellMM(shape, Constants.ShapeCells.PinY, y);
         }
 
         /// <summary>
@@ -184,19 +242,19 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Longest-path column assignment via DFS; cycles are broken by the on-path set and a
+        /// Longest-path layer assignment via DFS; cycles are broken by the on-path set and a
         /// node is only revisited when a strictly longer path reaches it.
         /// </summary>
-        private static void AssignColumns(string id, int col, IDictionary<string, int> column,
+        private static void AssignLayers(string id, int level, IDictionary<string, int> layer,
             IDictionary<string, List<string>> adjacency, HashSet<string> onPath)
         {
             if (onPath.Contains(id)) return;
-            if (col <= column[id]) return;
-            column[id] = col;
+            if (level <= layer[id]) return;
+            layer[id] = level;
 
             onPath.Add(id);
             foreach (string target in adjacency[id])
-                AssignColumns(target, col + 1, column, adjacency, onPath);
+                AssignLayers(target, level + 1, layer, adjacency, onPath);
             onPath.Remove(id);
         }
 
