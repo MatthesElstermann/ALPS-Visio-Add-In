@@ -133,6 +133,9 @@
   <data name="pageSetup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\document-page-setup.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="go_arrow" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\go_arrow.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="standard_PASS_ont_v_1_1_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\standard_PASS_ont_v_1.1.0.owl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

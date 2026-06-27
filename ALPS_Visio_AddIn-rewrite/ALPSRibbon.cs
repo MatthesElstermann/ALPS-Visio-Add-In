@@ -80,7 +80,7 @@ namespace ALPS_Visio_AddIn_rewrite
             naturalLanguageButton.Name = "naturalLanguageButton";
             naturalLanguageButton.Label = "PASS NL Checker";
             naturalLanguageButton.SuperTip = "Check a PASS model against a natural-language description.";
-            naturalLanguageButton.Image = Properties.Resources.pageSetup;
+            naturalLanguageButton.OfficeImageId = "Spelling";
             naturalLanguageButton.ShowImage = true;
             naturalLanguageButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
             naturalLanguageButton.Click += new RibbonControlEventHandler(this.NotImplemented);
@@ -91,7 +91,7 @@ namespace ALPS_Visio_AddIn_rewrite
             bpmnButton.Name = "bpmnButton";
             bpmnButton.Label = "PASS BPMN Converter";
             bpmnButton.SuperTip = "Convert between PASS and BPMN process models.";
-            bpmnButton.Image = Properties.Resources.pageSetup;
+            bpmnButton.OfficeImageId = "FileSaveAsOtherFormats";
             bpmnButton.ShowImage = true;
             bpmnButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
             bpmnButton.Click += new RibbonControlEventHandler(this.NotImplemented);
@@ -101,7 +101,7 @@ namespace ALPS_Visio_AddIn_rewrite
             arrangeMenu.Name = "arrangeMenu";
             arrangeMenu.Label = "Auto Arrange";
             arrangeMenu.SuperTip = "Re-arranges the active SID or SBD page from its shapes. Pick the direction the layout flows.";
-            arrangeMenu.Image = Properties.Resources.pageSetup;
+            arrangeMenu.Image = Properties.Resources.go_arrow;
             arrangeMenu.ShowImage = true;
             arrangeMenu.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
 
