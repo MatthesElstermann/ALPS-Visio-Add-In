@@ -255,6 +255,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="AutoArranger.cs" />
     <Compile Include="OWLImporter.cs" />
     <Compile Include="ALPSRibbon.cs">
       <SubType>Component</SubType>

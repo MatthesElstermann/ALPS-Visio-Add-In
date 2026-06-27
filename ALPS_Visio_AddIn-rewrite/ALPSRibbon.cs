@@ -51,6 +51,16 @@ namespace ALPS_Visio_AddIn_rewrite
             layerExplorerButton.Click += new RibbonControlEventHandler(this.ShowLayerExplorer);
             owlGroup.Items.Add(layerExplorerButton);
 
+            RibbonButton autoArrangeButton = this.Factory.CreateRibbonButton();
+            autoArrangeButton.Name = "autoArrangeButton";
+            autoArrangeButton.Label = "Auto Arrange";
+            autoArrangeButton.SuperTip = "Re-arranges the active SID or SBD page from its shapes: subjects line up in a row, states fall into a left-to-right layered layout.";
+            autoArrangeButton.Image = Properties.Resources.pageSetup;
+            autoArrangeButton.ShowImage = true;
+            autoArrangeButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            autoArrangeButton.Click += new RibbonControlEventHandler(this.AutoArrange);
+            owlGroup.Items.Add(autoArrangeButton);
+
             // FEAT: ALPS verification tool
             // FEAT: PASS natural language checker
             // FEAT: PASS BPMN converter
@@ -83,6 +93,14 @@ namespace ALPS_Visio_AddIn_rewrite
         private void ShowLayerExplorer(object sender, RibbonControlEventArgs e)
         {
             Globals.ThisAddIn.showDirectoryClicked();
+        }
+
+        /// <summary>
+        /// Re-arrange the active page from its shapes.
+        /// </summary>
+        private void AutoArrange(object sender, RibbonControlEventArgs e)
+        {
+            AutoArranger.ArrangeActivePage(Globals.ThisAddIn.Application);
         }
     }
 }
