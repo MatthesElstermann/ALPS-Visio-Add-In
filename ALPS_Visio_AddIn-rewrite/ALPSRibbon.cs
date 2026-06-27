@@ -97,29 +97,36 @@ namespace ALPS_Visio_AddIn_rewrite
             bpmnButton.Click += new RibbonControlEventHandler(this.NotImplemented);
             owlGroup.Items.Add(bpmnButton);
 
-            RibbonMenu arrangeMenu = this.Factory.CreateRibbonMenu();
-            arrangeMenu.Name = "arrangeMenu";
-            arrangeMenu.Label = "Auto Arrange";
-            arrangeMenu.SuperTip = "Re-arranges the active SID or SBD page from its shapes. Pick the direction the layout flows.";
-            arrangeMenu.Image = Properties.Resources.go_arrow;
-            arrangeMenu.ShowImage = true;
-            arrangeMenu.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            // Split button: the top half runs the default arrange immediately, the lower
+            // arrow opens the dropdown with both directions.
+            RibbonSplitButton arrangeSplitButton = this.Factory.CreateRibbonSplitButton();
+            arrangeSplitButton.Name = "arrangeSplitButton";
+            arrangeSplitButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
 
+            // Top half — default action (Left-Right).
+            arrangeSplitButton.Button.Name = "arrangeDefaultButton";
+            arrangeSplitButton.Button.Label = "Auto Arrange";
+            arrangeSplitButton.Button.SuperTip = "Re-arranges the active SID or SBD page from its shapes, flowing left to right. Use the arrow to pick the direction.";
+            arrangeSplitButton.Button.Image = Properties.Resources.go_arrow;
+            arrangeSplitButton.Button.ShowImage = true;
+            arrangeSplitButton.Button.Click += new RibbonControlEventHandler(this.ArrangeLeftRight);
+
+            // Lower arrow — dropdown with both directions.
             RibbonButton arrangeTopDownItem = this.Factory.CreateRibbonButton();
             arrangeTopDownItem.Name = "arrangeTopDownItem";
             arrangeTopDownItem.Label = "Top-Down";
             arrangeTopDownItem.SuperTip = "States fall into layers downward; subjects line up in a column.";
             arrangeTopDownItem.Click += new RibbonControlEventHandler(this.ArrangeTopDown);
-            arrangeMenu.Items.Add(arrangeTopDownItem);
+            arrangeSplitButton.Items.Add(arrangeTopDownItem);
 
             RibbonButton arrangeLeftRightItem = this.Factory.CreateRibbonButton();
             arrangeLeftRightItem.Name = "arrangeLeftRightItem";
             arrangeLeftRightItem.Label = "Left-Right";
             arrangeLeftRightItem.SuperTip = "States fall into layers rightward; subjects line up in a row.";
             arrangeLeftRightItem.Click += new RibbonControlEventHandler(this.ArrangeLeftRight);
-            arrangeMenu.Items.Add(arrangeLeftRightItem);
+            arrangeSplitButton.Items.Add(arrangeLeftRightItem);
 
-            owlGroup.Items.Add(arrangeMenu);
+            owlGroup.Items.Add(arrangeSplitButton);
         }
 
         /// <summary>
