@@ -51,25 +51,29 @@ namespace ALPS_Visio_AddIn_rewrite
             layerExplorerButton.Click += new RibbonControlEventHandler(this.ShowLayerExplorer);
             owlGroup.Items.Add(layerExplorerButton);
 
-            RibbonButton arrangeTopDownButton = this.Factory.CreateRibbonButton();
-            arrangeTopDownButton.Name = "arrangeTopDownButton";
-            arrangeTopDownButton.Label = "Arrange Top-Down";
-            arrangeTopDownButton.SuperTip = "Re-arranges the active SID or SBD page from its shapes, flowing top to bottom: states fall into layers downward, subjects line up in a column.";
-            arrangeTopDownButton.Image = Properties.Resources.pageSetup;
-            arrangeTopDownButton.ShowImage = true;
-            arrangeTopDownButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            arrangeTopDownButton.Click += new RibbonControlEventHandler(this.ArrangeTopDown);
-            owlGroup.Items.Add(arrangeTopDownButton);
+            RibbonMenu arrangeMenu = this.Factory.CreateRibbonMenu();
+            arrangeMenu.Name = "arrangeMenu";
+            arrangeMenu.Label = "Auto Arrange";
+            arrangeMenu.SuperTip = "Re-arranges the active SID or SBD page from its shapes. Pick the direction the layout flows.";
+            arrangeMenu.Image = Properties.Resources.pageSetup;
+            arrangeMenu.ShowImage = true;
+            arrangeMenu.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
 
-            RibbonButton arrangeLeftRightButton = this.Factory.CreateRibbonButton();
-            arrangeLeftRightButton.Name = "arrangeLeftRightButton";
-            arrangeLeftRightButton.Label = "Arrange Left-Right";
-            arrangeLeftRightButton.SuperTip = "Re-arranges the active SID or SBD page from its shapes, flowing left to right: states fall into layers rightward, subjects line up in a row.";
-            arrangeLeftRightButton.Image = Properties.Resources.pageSetup;
-            arrangeLeftRightButton.ShowImage = true;
-            arrangeLeftRightButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            arrangeLeftRightButton.Click += new RibbonControlEventHandler(this.ArrangeLeftRight);
-            owlGroup.Items.Add(arrangeLeftRightButton);
+            RibbonButton arrangeTopDownItem = this.Factory.CreateRibbonButton();
+            arrangeTopDownItem.Name = "arrangeTopDownItem";
+            arrangeTopDownItem.Label = "Top-Down";
+            arrangeTopDownItem.SuperTip = "States fall into layers downward; subjects line up in a column.";
+            arrangeTopDownItem.Click += new RibbonControlEventHandler(this.ArrangeTopDown);
+            arrangeMenu.Items.Add(arrangeTopDownItem);
+
+            RibbonButton arrangeLeftRightItem = this.Factory.CreateRibbonButton();
+            arrangeLeftRightItem.Name = "arrangeLeftRightItem";
+            arrangeLeftRightItem.Label = "Left-Right";
+            arrangeLeftRightItem.SuperTip = "States fall into layers rightward; subjects line up in a row.";
+            arrangeLeftRightItem.Click += new RibbonControlEventHandler(this.ArrangeLeftRight);
+            arrangeMenu.Items.Add(arrangeLeftRightItem);
+
+            owlGroup.Items.Add(arrangeMenu);
 
             // FEAT: ALPS verification tool
             // FEAT: PASS natural language checker
