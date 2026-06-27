@@ -107,7 +107,7 @@ namespace ALPS_Visio_AddIn_rewrite
             arrangeSplitButton.Button.Name = "arrangeDefaultButton";
             arrangeSplitButton.Button.Label = "Auto Arrange";
             arrangeSplitButton.Button.SuperTip = "Re-arranges the active SID or SBD page from its shapes, flowing left to right. Use the arrow to pick the direction.";
-            arrangeSplitButton.Button.Image = Properties.Resources.go_arrow;
+            arrangeSplitButton.Button.OfficeImageId = "Refresh";
             arrangeSplitButton.Button.ShowImage = true;
             arrangeSplitButton.Button.Click += new RibbonControlEventHandler(this.ArrangeLeftRight);
 
