@@ -39,8 +39,10 @@ namespace ALPS_Visio_AddIn_rewrite
         public void checkForSnapping(Shape snappingShape)
         {
             // TEMP debug trace to locate why a snap dialog does or does not appear.
+            string cats = snappingShape.CellExistsU["User.msvShapeCategories", 0] != 0
+                ? snappingShape.CellsU["User.msvShapeCategories"].ResultStr[""] : "(none)";
             bool snappable = isShapeSnappable(snappingShape);
-            System.Diagnostics.Debug.WriteLine($"[Snap] checkForSnapping '{snappingShape.NameU}': snappable={snappable}");
+            System.Diagnostics.Debug.WriteLine($"[Snap] '{snappingShape.NameU}' master='{snappingShape.Master?.NameU}' cats=[{cats}] snappable={snappable}");
             if (!snappable) return;
 
             List<Shape> snappableActorShapes = getSnappableShapesOnBackgroundPage().ToList();
