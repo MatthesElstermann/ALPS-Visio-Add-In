@@ -38,9 +38,13 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         public void checkForSnapping(Shape snappingShape)
         {
-            if (!isShapeSnappable(snappingShape)) return;
+            // TEMP debug trace to locate why a snap dialog does or does not appear.
+            bool snappable = isShapeSnappable(snappingShape);
+            System.Diagnostics.Debug.WriteLine($"[Snap] checkForSnapping '{snappingShape.NameU}': snappable={snappable}");
+            if (!snappable) return;
 
-            IEnumerable<Shape> snappableActorShapes = getSnappableShapesOnBackgroundPage();
+            List<Shape> snappableActorShapes = getSnappableShapesOnBackgroundPage().ToList();
+            System.Diagnostics.Debug.WriteLine($"[Snap]   background candidates: {snappableActorShapes.Count}");
 
             if (snappedShapes.ContainsKey(snappingShape) && !isLocatedClosely(snappingShape, snappedShapes[snappingShape]))
             {
@@ -50,8 +54,10 @@ namespace ALPS_Visio_AddIn_rewrite
             foreach (Shape possibleReferenceBackgroundShape in snappableActorShapes)
             {
                 bool snapValid = isLocatedClosely(snappingShape, possibleReferenceBackgroundShape);
+                bool sameX = isLocatedCloselyInXDirection(snappingShape, possibleReferenceBackgroundShape, 0.01);
+                System.Diagnostics.Debug.WriteLine($"[Snap]   candidate '{possibleReferenceBackgroundShape.NameU}': close={snapValid} sameX={sameX}");
 
-                if (!snapValid || isLocatedCloselyInXDirection(snappingShape, possibleReferenceBackgroundShape, 0.01)) continue;
+                if (!snapValid || sameX) continue;
 
                 WindowSnapConfirmation snapConf = new WindowSnapConfirmation(this, snappingShape, possibleReferenceBackgroundShape);
                 snapConf.ShowDialog();
