@@ -55,12 +55,13 @@ namespace ALPS_Visio_AddIn_rewrite
 
             foreach (Shape possibleReferenceBackgroundShape in snappableActorShapes)
             {
-                bool snapValid = isLocatedClosely(snappingShape, possibleReferenceBackgroundShape);
-                bool sameX = isLocatedCloselyInXDirection(snappingShape, possibleReferenceBackgroundShape, 0.01);
-                System.Diagnostics.Debug.WriteLine($"[Snap]   candidate '{possibleReferenceBackgroundShape.NameU}': close={snapValid} sameX={sameX}");
+                if (!isLocatedClosely(snappingShape, possibleReferenceBackgroundShape)) continue;
 
-                if (!snapValid || sameX) continue;
+                // Don't pop the dialog again for a shape that is already snapped to this target.
+                if (snappedShapes.TryGetValue(snappingShape, out Shape current)
+                    && current.Name == possibleReferenceBackgroundShape.Name) continue;
 
+                System.Diagnostics.Debug.WriteLine($"[Snap]   -> dialog for '{possibleReferenceBackgroundShape.NameU}'");
                 WindowSnapConfirmation snapConf = new WindowSnapConfirmation(this, snappingShape, possibleReferenceBackgroundShape);
                 snapConf.ShowDialog();
             }
