@@ -144,6 +144,18 @@ namespace ALPS_Visio_AddIn_rewrite
             shape.CellsU["Hyperlink." + property + ".Address"].FormulaU = QuoteLiteral(value);
         }
 
+        /// <summary>
+        /// Sets <c>Hyperlink.<paramref name="property"/>.SubAddress</c> to a quoted string literal.
+        /// Creates the hyperlink row if it does not exist. Used for the snapping links
+        /// (e.g. <c>extendedSubject</c>), which are read from the SubAddress sub-cell.
+        /// </summary>
+        public static void SetHyperlinkSubAddress(Visio.Shape shape, string property, string value)
+        {
+            if (shape.CellExistsU["Hyperlink." + property + ".SubAddress", 0] == 0)
+                shape.AddNamedRow((short)visSectionHyperlink, property, (short)visTagDefault);
+            shape.CellsU["Hyperlink." + property + ".SubAddress"].FormulaU = QuoteLiteral(value);
+        }
+
         // -------------------------------------------------------------------------
         // Geometry / page cell helpers
         // -------------------------------------------------------------------------

@@ -73,11 +73,25 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 VH.SetHyperlink(shape, Constants.Properties.Subject.LinkedResource, interfaceSubject.getReferencedSubject()?.getModelComponentID());
             }
 
-            // TODO: SubectExtension
+            // SubjectExtension / GuardExtension / MacroExtension: persist the subject<->subject
+            // correspondence so the SBD/GBD background can be derived without a live SID snap
+            // (see SBDPageController.tryDeriveExtends). The extended subject is referenced by its
+            // model component ID; the snap derivation matches base subjects on that ID.
             if (subject is ISubjectExtension subjectExtension)
             {
-                //subjectExtension.getExtendedSubject()
-                //subjectExtension.getExtensionBehaviors()
+                ISubject extended = subjectExtension.getExtendedSubject();
+                if (extended != null)
+                    VH.SetHyperlinkSubAddress(shape, Constants.Properties.ExtendedSubject, extended.getModelComponentID());
+
+                // The extension behaviors (the GBD content) are drawn in part 2 of the import build-out.
+                foreach (ISubjectBehavior extensionBehavior in subjectExtension.getExtensionBehaviors().Values)
+                {
+                    if (!(extensionBehavior is IVisioImportable importable)) continue;
+                    Visio.Page gbdPage = VH.CreateSBDPage(page,
+                        "GBD: " + extensionBehavior.getModelComponentID(),
+                        "" + extensionBehavior.getModelComponentID(), this.GetShape());
+                    importable.ImportToVisio(gbdPage);
+                }
             }
 
             // TODO: SubjectGroup

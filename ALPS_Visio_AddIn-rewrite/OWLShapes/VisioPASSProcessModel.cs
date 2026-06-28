@@ -16,14 +16,32 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
         public void ImportToVisio(Visio.Page page)
         {
-            // TODO: this.layered -> ALPS model
+            var layers = this.getAllElements().Values.OfType<IModelLayer>().ToList();
+            var layerPages = new Dictionary<string, Visio.Page>();
 
-            foreach (IModelLayer modelLayer in this.getAllElements().Values.OfType<IModelLayer>())
+            // First pass: one SID page per layer. The pageLayer cell gets the layer's model ID
+            // (a stable, unique name) instead of the former " " placeholder — a blank pageLayer is
+            // invalid and stopped SBD pages from registering. Then draw the layer onto its page.
+            foreach (IModelLayer modelLayer in layers)
             {
-                Visio.Page SIDPage = VH.CreateSIDPage(modelLayer.getModelComponentID(), " ", modelLayer.getUriModelComponentID(), " ", " ", " "); // TODO: SID page creation
+                string layerId = modelLayer.getModelComponentID();
+                Visio.Page sidPage = VH.CreateSIDPage(layerId, layerId, modelLayer.getUriModelComponentID(), "", "", "1");
+                layerPages[layerId] = sidPage;
 
-                // TODO: ExtensionLayer, GuardLayer, MacroLayer
-                if (modelLayer is IVisioImportable importable) importable.ImportToVisio(SIDPage);
+                if (modelLayer is IVisioImportable importable) importable.ImportToVisio(sidPage);
+            }
+
+            // Second pass: wire the layer-extends relationship between the SID pages, so an
+            // extension / guard / macro layer sits on top of the base layer it extends. Setting the
+            // foreground page's extends cell lets the model controller establish a live extends
+            // relationship — which is what makes the GBD snap work after import (no SID snap needed).
+            foreach (IModelLayer modelLayer in layers)
+            {
+                if (!modelLayer.isExtension()) continue;
+                IModelLayer extendedLayer = modelLayer.getExtendedElement();
+                if (extendedLayer == null) continue;
+                if (!layerPages.TryGetValue(modelLayer.getModelComponentID(), out Visio.Page foregroundPage)) continue;
+                VH.SetProp(foregroundPage.PageSheet, Constants.Properties.Transition.Extends, extendedLayer.getModelComponentID());
             }
         }
         

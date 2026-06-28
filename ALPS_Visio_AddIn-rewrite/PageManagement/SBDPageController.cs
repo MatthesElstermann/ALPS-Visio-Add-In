@@ -209,15 +209,27 @@ namespace ALPS_Visio_AddIn_rewrite
             return sub.Contains("/") ? sub.Substring(sub.LastIndexOf('/') + 1) : sub;
         }
 
-        /// <summary>Resolves the SBD page of the subject named <paramref name="subjectName"/> on the given SID page.</summary>
-        private SBDPage getSbdOfSubjectOn(SIDPage baseSidPage, string subjectName)
+        /// <summary>
+        /// Resolves the SBD page of the base subject identified by <paramref name="subjectKey"/> on the given SID
+        /// page. The key matches either the shape's NameU (manual build / SID snap write the bare subject name)
+        /// or its <c>Prop.modelComponentID</c> (import writes the model ID, since dropped shapes get a generic NameU).
+        /// </summary>
+        private SBDPage getSbdOfSubjectOn(SIDPage baseSidPage, string subjectKey)
         {
             Page basePage = modelController.getSidPageController(baseSidPage)?.getPage();
-            Shape baseSubject = basePage?.Shapes.Cast<Shape>().FirstOrDefault(s => s.NameU.Equals(subjectName));
+            Shape baseSubject = basePage?.Shapes.Cast<Shape>()
+                .FirstOrDefault(s => s.NameU.Equals(subjectKey) || readModelComponentId(s).Equals(subjectKey));
             if (baseSubject == null) return null;
             if (baseSubject.CellExistsU["Hyperlink." + Constants.Properties.LinkedSBD, 0] == 0) return null;
             string sbdName = baseSubject.Hyperlinks.ItemU[Constants.Properties.LinkedSBD].SubAddress;
             return modelController.getSbdPage(sbdName);
+        }
+
+        /// <summary>Reads a shape's <c>Prop.modelComponentID</c> value (empty string if the cell is absent).</summary>
+        private static string readModelComponentId(Shape shape)
+        {
+            return shape.CellExistsU["Prop." + Constants.Properties.ID, 0] != 0
+                ? shape.CellsU["Prop." + Constants.Properties.ID].ResultStr[""] : "";
         }
 
         public override DiagramPageController getController(DiagramPage background)

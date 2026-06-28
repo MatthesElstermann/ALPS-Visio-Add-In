@@ -276,6 +276,7 @@
     <Compile Include="OWLShapes\ImportFunctionality\PASSProcessModelElementImport.cs" />
     <Compile Include="OWLShapes\ImportFunctionality\StateImport.cs" />
     <Compile Include="OWLShapes\ImportFunctionality\TransitionImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\BehaviorImporter.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioFullySpecifiedSubject.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioInterfaceSubject.cs" />
     <Compile Include="OWLShapes\InteractionDescribing\VisioMessageExchange.cs" />
@@ -295,6 +296,8 @@
     <Compile Include="OWLShapes\VisioClassFactory.cs" />
     <Compile Include="OWLShapes\VisioPASSProcessModel.cs" />
     <Compile Include="OWLShapes\VisioSubjectBehavior.cs" />
+    <Compile Include="OWLShapes\VisioExtensionBehavior.cs" />
+    <Compile Include="OWLShapes\VisioGuardBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

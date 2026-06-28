@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY abstract-pass-ont "http://www.imi.kit.edu/abstract-pass-ont#" >
+    <!ENTITY standard-pass-ont "http://www.i2pm.net/standard-pass-ont#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<!--
+    Test-Datei: Mehrschichtiges ALPS-Modell (GBD-Snap nach Import)
+    =============================================================
+    Zweck:  End-to-End-Test fuer den Import-Ausbau (Schritt 2). Im Gegensatz zu
+            [Test]_ALPS_Elements.owl (eine Ebene, verhaltenslose Extensions) hat dieses
+            Modell ZWEI Ebenen:
+
+              - Layer_Base   (Basis): Subject_Worker mit Basis-SBD (SBD_Worker, ein DoState)
+              - Layer_Guard  (Guard): Guard_Worker (GuardExtension) erweitert Subject_Worker
+                                      und hat ein Guard-Behavior (GBD_Worker, ein DoState)
+
+            Der Parser leitet daraus ab: Layer_Guard ist GUARD-Typ und erweitert Layer_Base
+            (ModelLayer.checkLayerTypes + ExtendsFunctionalityCapsule). Zusaetzlich ist die
+            Layer-Beziehung explizit als abstract-pass-ont:extends gesetzt.
+
+    Erwartung nach Import (ohne SID-Snap):
+      - Zwei SID-Seiten, Layer_Guard liegt als Vordergrund auf Layer_Base.
+      - Subject_Worker traegt den extendedSubject-Link nicht, Guard_Worker schon
+        (-> Subject_Worker per modelComponentID).
+      - GBD_Worker wird als eigene Seite gezeichnet (G_DoState).
+      - Zieht man G_DoState an W_DoState heran, leitet SBDPageController.tryDeriveExtends
+        die Hintergrund-SBD (SBD_Worker) ab und der Snap-Dialog erscheint -> ohne SID-Snap.
+
+    Bewusst OHNE Koordinaten — so greift zusaetzlich das Auto-Layout.
+-->
+
+<rdf:RDF
+    xmlns:abstract-pass-ont="http://www.imi.kit.edu/abstract-pass-ont#"
+    xmlns:standard-pass-ont="http://www.i2pm.net/standard-pass-ont#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns="http://alps-visio-test.example/alps-layered-test#">
+
+    <owl:Ontology rdf:about="http://alps-visio-test.example/alps-layered-test">
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont"/>
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont/0.8.0"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont/1.1.0"/>
+    </owl:Ontology>
+
+    <!-- =====================================================================
+         PASSProcessModel — enthaelt beide Ebenen
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#ALPS_Layered_Model">
+        <rdf:type rdf:resource="&standard-pass-ont;PASSProcessModel"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">ALPS_Layered_Model</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">[Test]_ALPS_Layered</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#Layer_Base"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#Layer_Guard"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Basis-Ebene: Subject_Worker + Basis-SBD
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#Layer_Base">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_Base</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_Base</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#Subject_Worker"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#SBD_Worker"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#Subject_Worker">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Subject_Worker</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Worker</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:containsBehavior rdf:resource="http://alps-visio-test.example/alps-layered-test#SBD_Worker"/>
+        <standard-pass-ont:containsBaseBehavior rdf:resource="http://alps-visio-test.example/alps-layered-test#SBD_Worker"/>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#SBD_Worker">
+        <rdf:type rdf:resource="&standard-pass-ont;SubjectBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">SBD_Worker</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">SBD: Worker</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:belongsTo rdf:resource="http://alps-visio-test.example/alps-layered-test#Subject_Worker"/>
+        <standard-pass-ont:hasInitialState rdf:resource="http://alps-visio-test.example/alps-layered-test#W_DoState"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#W_DoState"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#W_DoState">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior"/>
+        <rdf:type rdf:resource="&standard-pass-ont;EndState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">W_DoState</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Work</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:belongsTo rdf:resource="http://alps-visio-test.example/alps-layered-test#SBD_Worker"/>
+        <standard-pass-ont:isInitialStateOf rdf:resource="http://alps-visio-test.example/alps-layered-test#SBD_Worker"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Guard-Ebene: Guard_Worker (extends Subject_Worker) + Guard-Behavior (GBD)
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#Layer_Guard">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_Guard</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_Guard</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">2</standard-pass-ont:hasPriorityNumber>
+        <abstract-pass-ont:extends rdf:resource="http://alps-visio-test.example/alps-layered-test#Layer_Base"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#Guard_Worker"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#GBD_Worker"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#Guard_Worker">
+        <rdf:type rdf:resource="&abstract-pass-ont;GuardExtension"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Guard_Worker</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Worker Guard</standard-pass-ont:hasModelComponentLabel>
+        <abstract-pass-ont:extends rdf:resource="http://alps-visio-test.example/alps-layered-test#Subject_Worker"/>
+        <standard-pass-ont:containsBehavior rdf:resource="http://alps-visio-test.example/alps-layered-test#GBD_Worker"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#GBD_Worker">
+        <rdf:type rdf:resource="&standard-pass-ont;GuardBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">GBD_Worker</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">GBD: Worker Guard</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:belongsTo rdf:resource="http://alps-visio-test.example/alps-layered-test#Guard_Worker"/>
+        <standard-pass-ont:hasInitialState rdf:resource="http://alps-visio-test.example/alps-layered-test#G_DoState"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#G_DoState"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#G_DoState">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior"/>
+        <rdf:type rdf:resource="&standard-pass-ont;EndState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">G_DoState</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Guard Work</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:belongsTo rdf:resource="http://alps-visio-test.example/alps-layered-test#GBD_Worker"/>
+        <standard-pass-ont:isInitialStateOf rdf:resource="http://alps-visio-test.example/alps-layered-test#GBD_Worker"/>
+    </owl:NamedIndividual>
+
+</rdf:RDF>
