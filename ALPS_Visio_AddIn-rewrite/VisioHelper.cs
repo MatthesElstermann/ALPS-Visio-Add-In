@@ -151,9 +151,11 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         public static void SetHyperlinkSubAddress(Visio.Shape shape, string property, string value)
         {
+            // Mirror the proven CreateSBDPage pattern: add the hyperlink row if missing, then set
+            // SubAddress via the object model (raw value, no formula quoting).
             if (shape.CellExistsU["Hyperlink." + property + ".SubAddress", 0] == 0)
-                shape.AddNamedRow((short)visSectionHyperlink, property, (short)visTagDefault);
-            shape.CellsU["Hyperlink." + property + ".SubAddress"].FormulaU = QuoteLiteral(value);
+                shape.AddNamedRow((short)Visio.VisSectionIndices.visSectionHyperlink, property, 0);
+            shape.Hyperlinks.ItemU[property].SubAddress = value;
         }
 
         // -------------------------------------------------------------------------
