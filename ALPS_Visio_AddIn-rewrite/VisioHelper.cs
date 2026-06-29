@@ -74,6 +74,13 @@ namespace ALPS_Visio_AddIn_rewrite
             Constants.SIDMasters.StandardMessageConnector,
             Constants.SIDMasters.Message,
             Constants.SIDMasters.StandAloneMacro,
+            // ALPS SID elements — these are SID masters too; without them GetStencil falls back to
+            // the SBD stencil and Place() throws "Objektname nicht gefunden" (e.g. drawing a guard
+            // extension during import).
+            Constants.SIDMasters.ActorExtension,
+            Constants.SIDMasters.SubjectGroup,
+            Constants.SIDMasters.AbstractCommunicationChannel,
+            Constants.SIDMasters.SystemInterfaceSubject,
         };
 
         public static VisioStencils GetStencil(string shapeType)
