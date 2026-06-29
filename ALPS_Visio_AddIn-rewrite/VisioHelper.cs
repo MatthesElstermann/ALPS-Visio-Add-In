@@ -284,6 +284,12 @@ namespace ALPS_Visio_AddIn_rewrite
                 page.PageSheet.CellsU["Prop." + Constants.Properties.SBDLinkedSubjectID].FormulaU = subjectShape.ID.ToString();
             }
 
+            // Link the subject shape to its new behaviour page. The StandardActor master ships with
+            // a linkedSBD hyperlink row, but the ActorExtension master (subject/guard/macro extensions)
+            // does not — add the row first so creating a GBD for an extension does not throw
+            // "Objektname nicht gefunden".
+            if (subjectShape.CellExistsU["Hyperlink." + Constants.Properties.LinkedSBD + ".SubAddress", 0] == 0)
+                subjectShape.AddNamedRow((short)Visio.VisSectionIndices.visSectionHyperlink, Constants.Properties.LinkedSBD, 0);
             subjectShape.Hyperlinks.ItemU[Constants.Properties.LinkedSBD].SubAddress = "" + page.NameU;
 
             return page;
