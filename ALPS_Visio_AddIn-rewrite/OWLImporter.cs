@@ -39,8 +39,8 @@ namespace ALPS_Visio_AddIn_rewrite
 
         private OWLImporter()
         {
-            CtorLog("1) PASSReaderWriter.getInstance() ...");
-            parser = PASSReaderWriter.getInstance();
+            CtorLog("1) PASSReaderWriter.getInstance() (mit CWD-Workaround) ...");
+            parser = AlpsReaderWriterFactory.GetInstanceSafely();
 
             // enable reflection and set ModelElementFactory to assign parsed objects to Visio classes
             CtorLog("2) ReflectiveEnumerator.addAssemblyToCheckForTypes() ...");

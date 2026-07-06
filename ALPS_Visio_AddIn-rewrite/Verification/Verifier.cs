@@ -22,7 +22,10 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
         /// <summary>Runs the verification of <paramref name="implPath"/> against <paramref name="specPath"/>.</summary>
         public static string Verify(string specPath, string implPath)
         {
-            PASSReaderWriter parser = PASSReaderWriter.getInstance();
+            // Gemeinsamer CWD-Workaround fuer den PASSReaderWriter-Ctor-Bug in alps.net.api 0.9.1.6
+            // (siehe AlpsReaderWriterFactory). Der Singleton wird nur einmal erzeugt -- egal, ob
+            // Import oder Verification ihn zuerst anfordert.
+            PASSReaderWriter parser = AlpsReaderWriterFactory.GetInstanceSafely();
 
             // Load with the plain alps.net.api classes, NOT our VisioClassFactory: the checks compare
             // against type names like "alps.net.api.StandardPASS.FullySpecifiedSubject", which would

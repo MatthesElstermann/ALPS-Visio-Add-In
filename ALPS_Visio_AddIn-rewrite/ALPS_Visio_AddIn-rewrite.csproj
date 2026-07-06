@@ -331,6 +331,7 @@
     <Compile Include="Verification\VerificationResultsForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="AlpsReaderWriterFactory.cs" />
     <Compile Include="OWLImporter.cs" />
     <Compile Include="ALPSRibbon.cs">
       <SubType>Component</SubType>
