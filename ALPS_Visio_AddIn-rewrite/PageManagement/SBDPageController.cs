@@ -181,7 +181,21 @@ namespace ALPS_Visio_AddIn_rewrite
             if (baseSbd == null) return;
 
             derivingExtends = true;
-            try { setExtends(baseSbd); }
+            try
+            {
+                // Mark the base SBD as a background page (Background = -1) BEFORE wiring it as this
+                // page's background — this mirrors the SID-snap path (SidSnapHandler.performSnap,
+                // which calls setExtended on the background before setExtends on the foreground).
+                // Without it, setExtends -> setBackgroundForThis throws
+                // "Ungültiges Zielobjekt für diese Operation" on every cell change, which both fails
+                // the snap and grinds the whole session to a halt under the debugger.
+                modelController.getSbdPageController(baseSbd)?.setExtended(sbdPage);
+                setExtends(baseSbd);
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine($"[Snap] auto-derive extends failed for '{getNameU()}': {e.Message}");
+            }
             finally { derivingExtends = false; }
         }
 
