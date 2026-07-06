@@ -15,14 +15,22 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
     /// </summary>
     public class LabelImprover
     {
-        private readonly string _apiKey;
-        private readonly HttpClient _httpClient;
+        // Ein HttpClient fuer alle Improver-Instanzen: pro Check-Lauf wird ein neuer
+        // LabelImprover erzeugt, ein Instanz-Client wuerde also bei jedem Lauf einen
+        // weiteren Socket-Pool liegen lassen (HttpClient ist auf Wiederverwendung
+        // ausgelegt und wird hier nie disposed). Der Timeout verhindert, dass ein
+        // haengender API-Aufruf den Check-Durchlauf endlos blockiert.
+        private static readonly HttpClient _httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(60)
+        };
 
-        /// <summary>Creates the improver with the given API key and an HTTP client.</summary>
+        private readonly string _apiKey;
+
+        /// <summary>Creates the improver with the given API key.</summary>
         public LabelImprover(string apiKey)
         {
             _apiKey = apiKey;
-            _httpClient = new HttpClient();
         }
 
         /// <summary>The shape types the LLM can produce label suggestions for.</summary>
@@ -104,13 +112,19 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             var json = JsonConvert.SerializeObject(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
             const string url = "https://gpt.uni-muenster.de/v1/chat/completions";
 
             try
             {
-                var response = await _httpClient.PostAsync(url, content);
-                var responseString = await response.Content.ReadAsStringAsync();
+                // Authorization pro Request statt auf DefaultRequestHeaders: der Client ist
+                // geteilt, und der Nutzer kann den API-Key zwischen zwei Laeufen wechseln.
+                string responseString;
+                using (var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = content })
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+                    var response = await _httpClient.SendAsync(request);
+                    responseString = await response.Content.ReadAsStringAsync();
+                }
 
                 var responseObject = JObject.Parse(responseString);
 
