@@ -340,7 +340,7 @@ public class GetCorrespondingElementsALL
 
 
         IList<ITransition> Trans0 = Models[0].getAllElements().Values.OfType<ITransition>().ToList();
-        IList<IState> Trans1 = Models[1].getAllElements().Values.OfType<IState>().ToList();
+        IList<ITransition> Trans1 = Models[1].getAllElements().Values.OfType<ITransition>().ToList();
 
 
         //Console.WriteLine("\nTransition Implementation:");

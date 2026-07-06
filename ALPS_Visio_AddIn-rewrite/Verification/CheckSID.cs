@@ -93,7 +93,9 @@ using alps.net.api.ALPS;
         bool result = true;
         int FullySpecified = 0;
 
-        foreach (Tuple<ICommunicationAct, IImplementingElement<ICommunicationAct>> t in MessageTransitions.Where((a => a.Item1 != null)))
+        // Item2 == null steht fuer "nicht implementiert" (siehe GetMessageTransitions) —
+        // ohne den Filter wirft t.Item2.GetType() darunter eine NullReferenceException.
+        foreach (Tuple<ICommunicationAct, IImplementingElement<ICommunicationAct>> t in MessageTransitions.Where((a => a.Item1 != null && a.Item2 != null)))
         {
             Console.WriteLine(t.Item1.GetType());
             Console.WriteLine(t.Item2.GetType());
