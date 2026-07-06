@@ -46,4 +46,21 @@
     </Reference>
   </ItemGroup>
 
+  <!--
+    Volle Laufzeit-Abhaengigkeitskette bereitstellen. Der ProjectReference reicht nur die Add-In-DLL
+    durch, nicht deren transitive Fremd-Assemblies (Serilog, dotNetRDF, HtmlAgilityPack, ...), die die
+    Verification/der PASSReaderWriter zur Laufzeit braucht. Statt jede DLL einzeln zu referenzieren,
+    kopieren wir die komplette (bereits funktionierende) bin des Hauptprojekts ins Test-Output.
+    Laeuft nach dem Build; der ProjectReference stellt sicher, dass die Add-In-bin da schon existiert.
+  -->
+  <Target Name="CopyMainProjectDependencies" AfterTargets="Build">
+    <ItemGroup>
+      <MainProjectBinaries Include="..\ALPS_Visio_AddIn-rewrite\bin\$(Configuration)\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MainProjectBinaries)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true"
+          OverwriteReadOnlyFiles="true" />
+  </Target>
+
 </Project>
