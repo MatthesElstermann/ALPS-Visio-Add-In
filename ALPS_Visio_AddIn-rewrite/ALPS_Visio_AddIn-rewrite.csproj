@@ -369,6 +369,7 @@
     <Compile Include="OWLShapes\VisioModelLayer.cs" />
     <Compile Include="OWLShapes\IVisioImportable.cs" />
     <Compile Include="OWLShapes\IVisioImportableWithShape.cs" />
+    <Compile Include="OWLShapes\VisualizationBounds.cs" />
     <Compile Include="OWLShapes\VisioClassFactory.cs" />
     <Compile Include="OWLShapes\VisioPASSProcessModel.cs" />
     <Compile Include="OWLShapes\VisioSubjectBehavior.cs" />
