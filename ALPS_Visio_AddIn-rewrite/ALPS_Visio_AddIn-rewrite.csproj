@@ -30,6 +30,9 @@
     <RootNamespace>ALPS_Visio_AddIn_rewrite</RootNamespace>
     <AssemblyName>ALPS_Visio_AddIn-rewrite</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <!-- C# 9: the ported ALPS Verification code uses relational patterns (e.g. "case > 1:").
+         Compiler-only feature — no runtime dependency; existing C# 7.3 code stays compatible. -->
+    <LangVersion>9.0</LangVersion>
     <DefineConstants>VSTO40;UseOfficeInterop</DefineConstants>
     <ResolveComReferenceSilent>true</ResolveComReferenceSilent>
     <TargetFrameworkProfile />
