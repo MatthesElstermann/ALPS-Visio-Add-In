@@ -19,12 +19,34 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         public static readonly OWLImporter Instance = new OWLImporter();
 
-        private readonly IPASSReaderWriter parser = PASSReaderWriter.getInstance();
+        private readonly IPASSReaderWriter parser;
+
+        /// <summary>
+        /// Schreibt eine Zeile direkt in die Diagnose-Logdatei -- mit LOKAL berechnetem Pfad, weil
+        /// dieser Ctor waehrend der statischen Initialisierung laeuft, bevor die statischen Felder
+        /// (DiagLogPath/LastImportLog) initialisiert sind. Wirft eine Init-Zeile eine Exception, zeigt
+        /// die letzte Zeile in der Datei genau, welcher Schritt schuld ist.
+        /// </summary>
+        private static void CtorLog(string message)
+        {
+            try
+            {
+                File.AppendAllText(Path.Combine(Path.GetTempPath(), "alps_import_diag.log"),
+                    System.DateTime.Now.ToString("HH:mm:ss.fff") + "  [Ctor] " + message + System.Environment.NewLine);
+            }
+            catch { }
+        }
 
         private OWLImporter()
         {
+            CtorLog("1) PASSReaderWriter.getInstance() ...");
+            parser = PASSReaderWriter.getInstance();
+
             // enable reflection and set ModelElementFactory to assign parsed objects to Visio classes
+            CtorLog("2) ReflectiveEnumerator.addAssemblyToCheckForTypes() ...");
             ReflectiveEnumerator.addAssemblyToCheckForTypes(Assembly.GetExecutingAssembly());
+
+            CtorLog("3) setModelElementFactory(new VisioClassFactory()) ...");
             parser.setModelElementFactory(new VisioClassFactory());
 
             // Load the ontology (parsing structure) from the embedded resources, written to
@@ -33,11 +55,15 @@ namespace ALPS_Visio_AddIn_rewrite
             // add-in is hosted in Visio the CWD differs, so the ontology was not found and the
             // import silently produced nothing. (Imports are resolved by ontology IRI from the
             // file content, so the file location does not matter.)
-            parser.loadOWLParsingStructure(new List<string>
-            {
-                WriteOntologyToTempFile("standard_PASS_ont_v_1.1.0.owl", Properties.Resources.standard_PASS_ont_v_1_1_0),
-                WriteOntologyToTempFile("ALPS_ont_v_0.8.0.owl", Properties.Resources.ALPS_ont_v_0_8_0)
-            });
+            CtorLog("4a) WriteOntologyToTempFile(standard_PASS) ...");
+            string standardOnt = WriteOntologyToTempFile("standard_PASS_ont_v_1.1.0.owl", Properties.Resources.standard_PASS_ont_v_1_1_0);
+            CtorLog("4b) WriteOntologyToTempFile(ALPS) ...");
+            string alpsOnt = WriteOntologyToTempFile("ALPS_ont_v_0.8.0.owl", Properties.Resources.ALPS_ont_v_0_8_0);
+
+            CtorLog("5) loadOWLParsingStructure() ...");
+            parser.loadOWLParsingStructure(new List<string> { standardOnt, alpsOnt });
+
+            CtorLog("6) OWLImporter-Ctor fertig.");
         }
 
         /// <summary>

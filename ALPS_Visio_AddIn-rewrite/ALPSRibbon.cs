@@ -157,12 +157,12 @@ namespace ALPS_Visio_AddIn_rewrite
             // Regress in v4: der Marker verwies auf OWLImporter.DiagLogPath -> die (vermutlich
             // fehlschlagende) statische Init lief VOR der Box -> gar keine Box mehr.
             string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "alps_import_diag.log");
-            try { System.IO.File.WriteAllText(logPath, "=== IMPORT-DIAGNOSE v5 === " + System.DateTime.Now + System.Environment.NewLine); }
+            try { System.IO.File.WriteAllText(logPath, "=== IMPORT-DIAGNOSE v6 === " + System.DateTime.Now + System.Environment.NewLine); }
             catch { }
             DiagLog(logPath, "Ribbon: Datei gewaehlt = " + dialog.FileName);
 
             MessageBox.Show(
-                "=== IMPORT-DIAGNOSE v5 ===\n\n" +
+                "=== IMPORT-DIAGNOSE v6 ===\n\n" +
                 "Gewaehlte Datei:\n" + dialog.FileName + "\n\n" +
                 "Schritt-Log (Zeile fuer Zeile, ueberlebt Haenger/Absturz):\n" + logPath + "\n\n" +
                 "Falls nach dieser Box keine weitere Meldung kommt: diese Datei im Editor oeffnen\n" +
@@ -247,10 +247,17 @@ namespace ALPS_Visio_AddIn_rewrite
                         sb.AppendLine(indent + "   LoaderException: " + le.GetType().FullName + ": " + le.Message);
                     }
                 }
+
+                // Stacktrace JEDER Ebene ausgeben. Die eigentliche Fehlerstelle steckt im Stacktrace
+                // der INNERSTEN Exception -- eine TypeInitializationException zeigt sonst nur den
+                // ausloesenden Zugriff, nicht die Zeile, die tatsaechlich wirft.
+                if (!string.IsNullOrEmpty(cur.StackTrace))
+                {
+                    sb.AppendLine(indent + "   Stacktrace:");
+                    foreach (string line in cur.StackTrace.Split('\n'))
+                        sb.AppendLine(indent + "     " + line.TrimEnd());
+                }
             }
-            sb.AppendLine();
-            sb.AppendLine("Stacktrace:");
-            sb.AppendLine(ex.StackTrace);
             return sb.ToString();
         }
 
