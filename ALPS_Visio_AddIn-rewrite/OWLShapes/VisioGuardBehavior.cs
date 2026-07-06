@@ -10,13 +10,15 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
     /// <see cref="BehaviorImporter"/>; the page it is drawn onto becomes the GBD.
     /// </summary>
     /// <remarks>
-    /// Only the protected parameterless constructor is provided — the parser instantiates parsed
-    /// elements via <see cref="getParsedInstance"/>, so mirroring the (longer) base constructor is
-    /// unnecessary and would only invite signature drift.
+    /// The constructor must be PUBLIC: alps.net.api's ReflectiveEnumerator.createInstance calls
+    /// <c>type.GetConstructors()[0]</c> (public constructors only) to build the candidate list. With
+    /// only a protected constructor the class is silently dropped and the plain <c>GuardBehavior</c>
+    /// is used, so the GBD is never drawn. A parameterless public constructor is enough and avoids
+    /// mirroring the (longer, drift-prone) base signature.
     /// </remarks>
     public class VisioGuardBehavior : GuardBehavior, IVisioImportable
     {
-        protected VisioGuardBehavior() { }
+        public VisioGuardBehavior() { }
 
         public void ImportToVisio(Visio.Page page)
         {

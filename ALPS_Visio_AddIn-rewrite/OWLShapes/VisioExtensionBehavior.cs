@@ -10,12 +10,14 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
     /// <see cref="BehaviorImporter"/>; the page it is drawn onto becomes the extension's GBD.
     /// </summary>
     /// <remarks>
-    /// Only the protected parameterless constructor is provided — the parser instantiates parsed
-    /// elements via <see cref="getParsedInstance"/>, so mirroring the base constructor is unnecessary.
+    /// The constructor must be PUBLIC: alps.net.api's ReflectiveEnumerator.createInstance calls
+    /// <c>type.GetConstructors()[0]</c> (public constructors only) to build the candidate list. With
+    /// only a protected constructor the class is silently dropped and the plain
+    /// <c>ExtensionBehavior</c> is used, so the extension behaviour is never drawn.
     /// </remarks>
     public class VisioExtensionBehavior : ExtensionBehavior, IVisioImportable
     {
-        protected VisioExtensionBehavior() { }
+        public VisioExtensionBehavior() { }
 
         public void ImportToVisio(Visio.Page page)
         {
