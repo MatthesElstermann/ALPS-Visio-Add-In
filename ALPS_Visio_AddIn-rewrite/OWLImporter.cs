@@ -56,6 +56,11 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         public void Parse(string fileName)
         {
+            // Re-establish the Visio class substitution before every import. Other features (e.g. the
+            // ALPS Verification) share this parser singleton and swap in the plain factory, which would
+            // otherwise leave imports drawing nothing.
+            parser.setModelElementFactory(new VisioClassFactory());
+
             IList<IPASSProcessModel> passProcessModels = parser.loadModels(new List<string> { fileName });
 
             // FEAT: import all models -- currently only the first model is imported.

@@ -320,6 +320,14 @@
     <Compile Include="NLChecker\ValidityCheckResultsForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Verification\CheckSBD.cs" />
+    <Compile Include="Verification\CheckSID.cs" />
+    <Compile Include="Verification\GetCorrespondingElementsALL.cs" />
+    <Compile Include="Verification\LogWriter.cs" />
+    <Compile Include="Verification\Verifier.cs" />
+    <Compile Include="Verification\VerificationResultsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="OWLImporter.cs" />
     <Compile Include="ALPSRibbon.cs">
       <SubType>Component</SubType>

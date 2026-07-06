@@ -168,11 +168,41 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// ALPS verification tool — placeholder, not implemented yet.
+        /// ALPS Verification: picks a Specification (abstract) and an Implementation OWL model and
+        /// checks whether the implementation adheres to the specification's SID rules. Ported 1:1 from
+        /// the KIT master-thesis prototype (andikra/ALPS-Verification-Thesis) — a limited set of SID
+        /// checks with raw textual output.
         /// </summary>
         private void AlpsVerification(object sender, RibbonControlEventArgs e)
         {
-            NotImplemented(sender, e);
+            string specPath = PickOwlFile("Spezifikation wählen (abstraktes Modell)");
+            if (specPath == null) return;
+            string implPath = PickOwlFile("Implementierung wählen (implementierendes Modell)");
+            if (implPath == null) return;
+
+            try
+            {
+                string report = Verification.Verifier.Verify(specPath, implPath);
+                new Verification.VerificationResultsForm(report).ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler bei der ALPS Verification:\n" + ex.Message, "ALPS Verification",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>Opens a file dialog for an OWL/RDF model file; returns the path or null if cancelled.</summary>
+        private static string PickOwlFile(string title)
+        {
+            using (var dialog = new OpenFileDialog
+            {
+                Title = title,
+                Filter = "Ontology Files (*.owl)|*.owl|RDF Files (*.rdf)|*.rdf|All Files (*.*)|*.*"
+            })
+            {
+                return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+            }
         }
 
         /// <summary>
