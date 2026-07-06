@@ -150,48 +150,75 @@ namespace ALPS_Visio_AddIn_rewrite
 
             if (dialog.ShowDialog() != DialogResult.OK) return;
 
-            // DIAGNOSE-MARKER: Diese Box erscheint SOFORT nach der Dateiauswahl, VOR jeglicher
-            // Import-Logik. Sie beweist, welche DLL wirklich laeuft. Erscheint sie NICHT, laeuft
-            // noch ein alter Build (ClickOnce-Deployment nicht aktualisiert). Der Versions-String
-            // wird bei jeder Diagnose-Runde hochgezaehlt, damit "neuer Build?" sichtbar ist.
+            // Log-Pfad LOKAL berechnen -- OHNE OWLImporter zu beruehren. Jeder Zugriff auf ein
+            // statisches Mitglied von OWLImporter (auch nur DiagLogPath) loest dessen statische
+            // Initialisierung aus: das Feld "Instance = new OWLImporter()", dessen Konstruktor die
+            // Ontologien laedt und ueber alle Typen der Assembly reflektiert. Genau das war der
+            // Regress in v4: der Marker verwies auf OWLImporter.DiagLogPath -> die (vermutlich
+            // fehlschlagende) statische Init lief VOR der Box -> gar keine Box mehr.
+            string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "alps_import_diag.log");
+            try { System.IO.File.WriteAllText(logPath, "=== IMPORT-DIAGNOSE v5 === " + System.DateTime.Now + System.Environment.NewLine); }
+            catch { }
+            DiagLog(logPath, "Ribbon: Datei gewaehlt = " + dialog.FileName);
+
             MessageBox.Show(
-                "=== IMPORT-DIAGNOSE v4 ===\n\n" +
+                "=== IMPORT-DIAGNOSE v5 ===\n\n" +
                 "Gewaehlte Datei:\n" + dialog.FileName + "\n\n" +
-                "WICHTIG: Der Import schreibt ein Schritt-Log SOFORT (Zeile fuer Zeile) nach:\n" +
-                OWLImporter.DiagLogPath + "\n\n" +
-                "Falls nach dieser Box KEINE weitere Meldung mehr kommt (Haenger/Absturz), oeffne\n" +
-                "diese Datei mit dem Editor und kopiere den Inhalt hierher -- die LETZTE Zeile\n" +
-                "zeigt, welcher Schritt haengen bleibt.\n\n" +
+                "Schritt-Log (Zeile fuer Zeile, ueberlebt Haenger/Absturz):\n" + logPath + "\n\n" +
+                "Falls nach dieser Box keine weitere Meldung kommt: diese Datei im Editor oeffnen\n" +
+                "und Inhalt hierher kopieren -- die letzte Zeile zeigt, wo es haengt.\n\n" +
                 "Geladene Add-In-DLL:\n" + System.Reflection.Assembly.GetExecutingAssembly().Location,
                 "OWL-Import — Diagnose (Start)",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
 
-            // Ribbon-Handler schlucken unbehandelte Exceptions still (VSTO faengt sie ab), sodass
-            // ein fehlgeschlagener Import wie "es passiert nichts" aussieht. Die Fehlerkette wird
-            // deshalb explizit sichtbar gemacht -- inkl. InnerException (kritisch z. B. bei
-            // TypeInitializationException aus dem OWLImporter-Singleton oder COMExceptions beim Zeichnen).
-            // DIAGNOSE: Am Ende IMMER eine Box zeigen -- so laesst sich "es passiert gar nichts"
-            // eindeutig einordnen: keine Box = alte DLL (Deployment veraltet); Erfolgs-Box aber
-            // nichts gezeichnet = stiller No-Op; Fehler-Box = echte Exception (mit Kette).
+            // WICHTIG: Der ERSTE Zugriff auf OWLImporter.Instance loest die statische Initialisierung
+            // aus (Konstruktor: Ontologie-Laden via loadOWLParsingStructure + Reflexion ueber alle Typen
+            // der Assembly). Das ist der wahrscheinliche Fehlerpunkt -- z. B. eine im ClickOnce-Paket
+            // fehlende Abhaengigkeit (Microsoft.ML.* etc.) -> ReflectionTypeLoadException, oder ein
+            // Fehler in loadOWLParsingStructure. Er wird separat geloggt.
+            //
+            // Im catch darf KEIN OWLImporter-Mitglied mehr angefasst werden: schlaegt die statische
+            // Init fehl, wirft jeder erneute Zugriff die TypeInitializationException erneut -- mitten
+            // im catch -> verschluckt (genau das verhinderte in v3 die Fehler-Box).
             try
             {
-                OWLImporter.Instance.Parse(dialog.FileName);
+                DiagLog(logPath, "vor OWLImporter.Instance (statische Init: Ontologie-Laden + Typ-Reflexion) ...");
+                OWLImporter importer = OWLImporter.Instance;
+                DiagLog(logPath, "OWLImporter.Instance OK -- rufe Parse ...");
+                importer.Parse(dialog.FileName);
+                DiagLog(logPath, "Parse zurueckgekehrt (ohne Exception).");
                 MessageBox.Show(
-                    "Import abgeschlossen (ohne Exception).\n\nAblauf:\n" + OWLImporter.LastImportLog,
+                    "Import abgeschlossen (ohne Exception).\n\nLog-Datei:\n" + logPath,
                     "OWL-Import — Diagnose",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
+                string description = DescribeException(ex);
+                DiagLog(logPath, "EXCEPTION:\n" + description);
                 MessageBox.Show(
-                    "Der OWL-Import ist fehlgeschlagen:\n\n" + DescribeException(ex) +
-                    "\n\nAblauf bis zum Fehler:\n" + OWLImporter.LastImportLog,
+                    "Der OWL-Import ist fehlgeschlagen:\n\n" + description +
+                    "\n\n(Vollstaendig auch in der Log-Datei:\n" + logPath + ")",
                     "OWL-Import fehlgeschlagen",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+        }
+
+        /// <summary>
+        /// Schreibt eine Diagnosezeile SOFORT in die Logdatei -- bewusst unabhaengig von OWLImporter,
+        /// damit auch ein Fehler/Haenger in dessen statischer Initialisierung noch protokolliert wird.
+        /// </summary>
+        private static void DiagLog(string path, string message)
+        {
+            try
+            {
+                System.IO.File.AppendAllText(path,
+                    System.DateTime.Now.ToString("HH:mm:ss.fff") + "  [Ribbon] " + message + System.Environment.NewLine);
+            }
+            catch { }
         }
 
         /// <summary>
@@ -204,9 +231,22 @@ namespace ALPS_Visio_AddIn_rewrite
             int depth = 0;
             for (Exception cur = ex; cur != null; cur = cur.InnerException, depth++)
             {
-                sb.Append(new string(' ', depth * 2));
+                string indent = new string(' ', depth * 2);
+                sb.Append(indent);
                 sb.Append(depth == 0 ? "" : "-> ");
                 sb.AppendLine(cur.GetType().FullName + ": " + cur.Message);
+
+                // Bei fehlenden/nicht ladbaren Abhaengigkeiten (typisch fuer ein unvollstaendiges
+                // ClickOnce-Paket) steckt die eigentliche Ursache in den LoaderExceptions -- sie nennen
+                // die konkret fehlende Assembly (z. B. Microsoft.ML, Newtonsoft.Json, ...).
+                if (cur is System.Reflection.ReflectionTypeLoadException rtle && rtle.LoaderExceptions != null)
+                {
+                    foreach (Exception le in rtle.LoaderExceptions)
+                    {
+                        if (le == null) continue;
+                        sb.AppendLine(indent + "   LoaderException: " + le.GetType().FullName + ": " + le.Message);
+                    }
+                }
             }
             sb.AppendLine();
             sb.AppendLine("Stacktrace:");

@@ -84,8 +84,8 @@ namespace ALPS_Visio_AddIn_rewrite
         public void Parse(string fileName)
         {
             LastImportLog.Clear();
-            try { File.WriteAllText(DiagLogPath, "=== IMPORT-DIAGNOSE v4 === " + System.DateTime.Now + System.Environment.NewLine); }
-            catch { }
+            // Datei NICHT zuruecksetzen -- der Ribbon-Handler hat sie bereits mit einer v5-Kopfzeile
+            // angelegt und die Schritte vor der statischen Init hineingeschrieben. Hier nur anhaengen.
             LogStep("Parse: Start, Datei = " + fileName);
 
             // Re-establish the Visio class substitution before every import. Other features (e.g. the
