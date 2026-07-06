@@ -148,7 +148,53 @@ namespace ALPS_Visio_AddIn_rewrite
                 Filter = "Ontology Files (.owl)|*.owl|RDF Files (*.rdf)|*.rdf"
             };
 
-            if (dialog.ShowDialog() == DialogResult.OK) OWLImporter.Instance.Parse(dialog.FileName);
+            if (dialog.ShowDialog() != DialogResult.OK) return;
+
+            // Ribbon-Handler schlucken unbehandelte Exceptions still (VSTO faengt sie ab), sodass
+            // ein fehlgeschlagener Import wie "es passiert nichts" aussieht. Die Fehlerkette wird
+            // deshalb explizit sichtbar gemacht -- inkl. InnerException (kritisch z. B. bei
+            // TypeInitializationException aus dem OWLImporter-Singleton oder COMExceptions beim Zeichnen).
+            // DIAGNOSE: Am Ende IMMER eine Box zeigen -- so laesst sich "es passiert gar nichts"
+            // eindeutig einordnen: keine Box = alte DLL (Deployment veraltet); Erfolgs-Box aber
+            // nichts gezeichnet = stiller No-Op; Fehler-Box = echte Exception (mit Kette).
+            try
+            {
+                OWLImporter.Instance.Parse(dialog.FileName);
+                MessageBox.Show(
+                    "Import abgeschlossen (ohne Exception).\n\nAblauf:\n" + OWLImporter.LastImportLog,
+                    "OWL-Import — Diagnose",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Der OWL-Import ist fehlgeschlagen:\n\n" + DescribeException(ex) +
+                    "\n\nAblauf bis zum Fehler:\n" + OWLImporter.LastImportLog,
+                    "OWL-Import fehlgeschlagen",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Baut eine lesbare Beschreibung einer Exception samt vollstaendiger InnerException-Kette
+        /// und Stacktrace, damit die eigentliche Ursache (oft eine InnerException) sichtbar wird.
+        /// </summary>
+        private static string DescribeException(Exception ex)
+        {
+            var sb = new System.Text.StringBuilder();
+            int depth = 0;
+            for (Exception cur = ex; cur != null; cur = cur.InnerException, depth++)
+            {
+                sb.Append(new string(' ', depth * 2));
+                sb.Append(depth == 0 ? "" : "-> ");
+                sb.AppendLine(cur.GetType().FullName + ": " + cur.Message);
+            }
+            sb.AppendLine();
+            sb.AppendLine("Stacktrace:");
+            sb.AppendLine(ex.StackTrace);
+            return sb.ToString();
         }
 
         /// <summary>

@@ -52,21 +52,41 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
+        /// Diagnose-Log des letzten Imports. Wird von <see cref="Parse"/> Schritt fuer Schritt
+        /// gefuellt und vom Ribbon-Handler angezeigt, damit ein stiller Import (keine Exception,
+        /// aber auch nichts sichtbar) nachvollziehbar wird.
+        /// </summary>
+        public static readonly System.Text.StringBuilder LastImportLog = new System.Text.StringBuilder();
+
+        private static void LogStep(string message)
+        {
+            LastImportLog.AppendLine(message);
+            System.Diagnostics.Debug.WriteLine("[Import] " + message);
+        }
+
+        /// <summary>
         /// Parse and import OWL file.
         /// </summary>
         public void Parse(string fileName)
         {
+            LastImportLog.Clear();
+            LogStep("Parse: Start, Datei = " + fileName);
+
             // Re-establish the Visio class substitution before every import. Other features (e.g. the
             // ALPS Verification) share this parser singleton and swap in the plain factory, which would
             // otherwise leave imports drawing nothing.
             parser.setModelElementFactory(new VisioClassFactory());
+            LogStep("VisioClassFactory gesetzt.");
 
             IList<IPASSProcessModel> passProcessModels = parser.loadModels(new List<string> { fileName });
+            LogStep("loadModels: " + passProcessModels.Count + " Modell(e) geladen.");
 
             // FEAT: import all models -- currently only the first model is imported.
             // Make a missing model visible instead of silently doing nothing.
             if (passProcessModels.Count == 0 || !(passProcessModels[0] is IVisioImportable importable))
             {
+                string firstType = passProcessModels.Count == 0 ? "(keine)" : passProcessModels[0].GetType().FullName;
+                LogStep("Kein importierbares Modell. Erstes Modell: " + firstType);
                 System.Windows.Forms.MessageBox.Show(
                     "Keine importierbaren PASS-/ALPS-Modelle in der Datei gefunden:\n" + fileName +
                     "\n\nHinweis: Ontologie-Dateien (Schema) enthalten keine Modelle und können " +
@@ -75,16 +95,22 @@ namespace ALPS_Visio_AddIn_rewrite
                 return;
             }
 
+            LogStep("Modell[0] ist importierbar: " + importable.GetType().FullName);
+
             // Disable the stencil's VBA listeners BEFORE opening the stencil, so the flag cell
             // already exists (= 0) when the stencil's VBA initializes. Otherwise the stencil
             // runs its "Willkommen"-routine, which on close renames the freshly created SID
             // page back to the Visio default ("Zeichenblatt-2").
             VH.setVBAListenersRunning(false);
+            LogStep("VBA-Listener deaktiviert.");
 
             // open stencils to reduce load time
             VH.openStencil(VH.VisioStencils.SID_STENCIL);
+            LogStep("SID-Stencil geoeffnet.");
 
+            LogStep("ImportToVisio: Start.");
             importable.ImportToVisio(null); // FEAT: import into current page
+            LogStep("ImportToVisio: Fertig.");
 
             // VBA listeners are intentionally NOT re-enabled here. The stencil's run-mode
             // welcome routine renames the imported SID page when its popup is closed (which
