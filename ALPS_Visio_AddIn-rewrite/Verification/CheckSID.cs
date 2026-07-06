@@ -6,10 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using alps.net.api.StandardPASS;
-using System.Linq;
 using alps.net.api.parsing;
 using VDS.RDF;
-using System.Collections.Generic;
 using alps.net.api.ALPS;
 
 
@@ -59,7 +57,6 @@ using alps.net.api.ALPS;
     public bool CheckSubject(IList<Tuple<ISubject,ISubject>> Subjects)
     {
         Console.WriteLine("\nCheck SID Subject Implementation:");
-        int z = 0;
         bool result = true;
         int FullySpecified = 0;
 
@@ -93,7 +90,6 @@ using alps.net.api.ALPS;
     public bool CheckMessageconnectors(IList<Tuple<ICommunicationAct, IImplementingElement<ICommunicationAct>>> MessageTransitions)
     {
         //Console.WriteLine("\nCheck SID Transition Implementation:");
-        int z = 0;
         bool result = true;
         int FullySpecified = 0;
 

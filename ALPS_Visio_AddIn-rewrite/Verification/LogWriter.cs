@@ -27,7 +27,7 @@ using System.Reflection;
                     Log(logMessage, w);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
         }
@@ -43,7 +43,7 @@ using System.Reflection;
                 txtWriter.WriteLine("  :{0}", logMessage);
                 txtWriter.WriteLine("-------------------------------");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
         }
