@@ -47,6 +47,11 @@ namespace ALPS_Visio_AddIn_rewrite.Tests
                 "Erwarteter Abschnitt fehlt -- wurden beide Modelle geladen?");
             Assert.That(report, Does.Contain("Communication Restrictions"),
                 "Der SID-Restriktions-Check scheint nicht gelaufen zu sein.");
+            // Das Gesamtergebnis muss am Report-Ende stehen und ein eindeutiges Verdict nennen.
+            Assert.That(report, Does.Contain("GESAMTERGEBNIS"),
+                "Das Gesamtergebnis fehlt am Report-Ende.");
+            Assert.That(report, Does.Contain("VERDICT: BESTANDEN").Or.Contain("VERDICT: NICHT BESTANDEN"),
+                "Es wurde kein eindeutiges Verdict ausgegeben.");
         }
     }
 }
