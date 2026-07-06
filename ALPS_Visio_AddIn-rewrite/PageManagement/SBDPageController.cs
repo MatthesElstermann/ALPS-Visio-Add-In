@@ -42,10 +42,18 @@ namespace ALPS_Visio_AddIn_rewrite
 
         private void shapeAdded(Shape shape)
         {
-            tryDeriveExtends();
-            if (sbdPage.getExtends() != null)
+            // Visio-COM-Event-Handler: Exceptions fangen und nur loggen (siehe onCellChanged).
+            try
             {
-                snapHandler.checkForSnapping(shape);
+                tryDeriveExtends();
+                if (sbdPage.getExtends() != null)
+                {
+                    snapHandler.checkForSnapping(shape);
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine("SBDPageController.shapeAdded failed: " + e);
             }
         }
 
@@ -55,6 +63,21 @@ namespace ALPS_Visio_AddIn_rewrite
         /// shape accessible via cell.Shape
         /// </summary>
         private void onCellChanged(Cell cell)
+        {
+            // Visio-COM-Event-Handler: eine unbehandelte Exception (typisch COMException aus
+            // der Snap-Logik) stoert die weitere Event-Verarbeitung des Add-Ins — deshalb
+            // fangen und nur loggen.
+            try
+            {
+                handleCellChanged(cell);
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine("SBDPageController.onCellChanged(" + cell.Name + ") failed: " + e);
+            }
+        }
+
+        private void handleCellChanged(Cell cell)
         {
             SBDPage extends = sbdPage.getExtends();
             if (cell.Name == "Prop." + Constants.Properties.Transition.Extends + ".Value")

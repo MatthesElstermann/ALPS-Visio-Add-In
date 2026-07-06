@@ -72,6 +72,21 @@ namespace ALPS_Visio_AddIn_rewrite
 
         private void onCellChanged(Cell cell)
         {
+            // Visio-COM-Event-Handler: eine unbehandelte Exception (typisch COMException aus
+            // Snap-/Explorer-Logik) reisst hier nicht nur die eine Aktion ab, sondern stoert
+            // die weitere Event-Verarbeitung des Add-Ins — deshalb fangen und nur loggen.
+            try
+            {
+                handleCellChanged(cell);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("SIDPageController.onCellChanged(" + cell.Name + ") failed: " + e);
+            }
+        }
+
+        private void handleCellChanged(Cell cell)
+        {
             SIDPage extends = controlledSidPage.getExtends();
             switch (cell.Name)
             {
