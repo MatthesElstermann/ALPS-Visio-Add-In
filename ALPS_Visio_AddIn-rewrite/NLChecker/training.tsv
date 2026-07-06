@@ -1,0 +1,680 @@
+Customer	FullySpecifiedSubject	true
+John Doe	FullySpecifiedSubject	true
+HR Department	FullySpecifiedSubject	true
+ACME Inc.	FullySpecifiedSubject	true
+Robot Arm 42	FullySpecifiedSubject	true
+Customer Service Team	FullySpecifiedSubject	true
+Marketing & Sales	FullySpecifiedSubject	true
+Finance Dept.	FullySpecifiedSubject	true
+Supplier X GmbH	FullySpecifiedSubject	true
+Warehouse Automation System	FullySpecifiedSubject	true
+Delivery Drone #5	FullySpecifiedSubject	true
+Legal Entity "Alpha Corp"	FullySpecifiedSubject	true
+Production Line 3	FullySpecifiedSubject	true
+Backend Server 12	FullySpecifiedSubject	true
+Manufacturing Unit A	FullySpecifiedSubject	true
+IT Support Desk	FullySpecifiedSubject	true
+Self-Checkout Terminal 9	FullySpecifiedSubject	true
+Sales Representative	FullySpecifiedSubject	true
+Logistics Partner Z	FullySpecifiedSubject	true
+Client Relationship Manager	FullySpecifiedSubject	true
+Assembly Robot XZ-99	FullySpecifiedSubject	true
+Retail Store #24	FullySpecifiedSubject	true
+Regional Office - West	FullySpecifiedSubject	true
+Online Payment Gateway	FullySpecifiedSubject	true
+Automated Packing Machine	FullySpecifiedSubject	true
+Customer Support Department	FullySpecifiedSubject	true
+Payment System	FullySpecifiedSubject	true
+HR Team	FullySpecifiedSubject	true
+Accounting Department	FullySpecifiedSubject	true
+Order Processing System	FullySpecifiedSubject	true
+Production Line	FullySpecifiedSubject	true
+Factory A	FullySpecifiedSubject	true
+Supplier XYZ	FullySpecifiedSubject	true
+Person	FullySpecifiedSubject	false
+Machine	FullySpecifiedSubject	false
+Department	FullySpecifiedSubject	false
+Company	FullySpecifiedSubject	false
+Automation	FullySpecifiedSubject	false
+Server	FullySpecifiedSubject	false
+Client	FullySpecifiedSubject	false
+System	FullySpecifiedSubject	false
+User	FullySpecifiedSubject	false
+Employee	FullySpecifiedSubject	false
+Marketing	FullySpecifiedSubject	false
+Customer Support	FullySpecifiedSubject	false
+Production	FullySpecifiedSubject	false
+Vendor	FullySpecifiedSubject	false
+Manager	FullySpecifiedSubject	false
+Database	FullySpecifiedSubject	false
+AI Model	FullySpecifiedSubject	false
+12345	FullySpecifiedSubject	false
+!InvalidName	FullySpecifiedSubject	false
+Name_Without_Space	FullySpecifiedSubject	false
+Company123	FullySpecifiedSubject	false
+Server-1	FullySpecifiedSubject	false
+Device#42	FullySpecifiedSubject	false
+Unnamed Entity	FullySpecifiedSubject	false
+Unspecified Subject	FullySpecifiedSubject	false
+Generic Actor	FullySpecifiedSubject	false
+Data Processor	FullySpecifiedSubject	false
+Automated System	FullySpecifiedSubject	false
+Workflow Engine	FullySpecifiedSubject	false
+Worker	FullySpecifiedSubject	false
+Subsystem A	FullySpecifiedSubject	false
+Corporate Entity	FullySpecifiedSubject	false
+Machine Learning Model	FullySpecifiedSubject	false
+Unknown Process	FullySpecifiedSubject	false
+Employee #999	FullySpecifiedSubject	false
+AI Assistant	FullySpecifiedSubject	false
+Retail Unit	FullySpecifiedSubject	false
+Approval Process	FullySpecifiedSubject	false
+Submit Document	FullySpecifiedSubject	false
+Processing	FullySpecifiedSubject	false
+Verify Information	FullySpecifiedSubject	false
+Billing Cycle	FullySpecifiedSubject	false
+Inventory Check	FullySpecifiedSubject	false
+Third Party	FullySpecifiedSubject	true
+API Gateway	FullySpecifiedSubject	true
+Message Bus	FullySpecifiedSubject	true
+Accounts Payable Team	FullySpecifiedSubject	true
+Fraud Detection Unit	FullySpecifiedSubject	true
+Invoice Processing System	FullySpecifiedSubject	true
+Customer Relations Office	FullySpecifiedSubject	true
+Automated Email Dispatcher	FullySpecifiedSubject	true
+Payment Verification Service	FullySpecifiedSubject	true
+Billing Support Team	FullySpecifiedSubject	true
+Subscription Management Platform	FullySpecifiedSubject	true
+Finance Automation Bot	FullySpecifiedSubject	true
+Transaction Monitoring System	FullySpecifiedSubject	true
+Legal Compliance Office	FullySpecifiedSubject	true
+Customer Order Management	FullySpecifiedSubject	true
+Accounting Software Agent	FullySpecifiedSubject	true
+Procurement Department	FullySpecifiedSubject	true
+Electronic Payment Terminal	FullySpecifiedSubject	true
+Autonomous Invoice Handler	FullySpecifiedSubject	true
+Tax Compliance Unit	FullySpecifiedSubject	true
+Fraud Prevention AI	FullySpecifiedSubject	true
+Digital Identity Verification System	FullySpecifiedSubject	true
+Invoice Processor	FullySpecifiedSubject	true
+Customer Request Handling Team	FullySpecifiedSubject	true
+Email Notification System	FullySpecifiedSubject	true
+Payment Transaction Monitor	FullySpecifiedSubject	true
+Invoice Processing Bot	FullySpecifiedSubject	true
+Customer Request Management Platform	FullySpecifiedSubject	true
+Automated Notification Dispatcher	FullySpecifiedSubject	true
+Transaction Validation Unit	FullySpecifiedSubject	true
+Billing Operations Team	FullySpecifiedSubject	true
+Fraud Detection and Payment Security Unit	FullySpecifiedSubject	true
+Email Dispatching Server	FullySpecifiedSubject	true
+Order & Payment Handling Department	FullySpecifiedSubject	true
+Subscription Billing Engine	FullySpecifiedSubject	true
+Customer Support Request Queue	FullySpecifiedSubject	true
+Financial Transactions Oversight Team	FullySpecifiedSubject	true
+Customer Request Handler	FullySpecifiedSubject	true
+Email Notification Dispatcher	FullySpecifiedSubject	true
+Payment Transaction Processing System	FullySpecifiedSubject	true
+Support Request Management Team	FullySpecifiedSubject	true
+Automated Email Sender	FullySpecifiedSubject	true
+Financial Transaction Monitoring Unit	FullySpecifiedSubject	true
+Customer Interaction Platform	FullySpecifiedSubject	true
+Email Communication Gateway	FullySpecifiedSubject	true
+Transaction Verification Service	FullySpecifiedSubject	true
+Billing Support Desk	FullySpecifiedSubject	true
+Payment Processing Team	FullySpecifiedSubject	true
+Fraud Detection and Prevention Unit	FullySpecifiedSubject	true
+Automated Billing Assistant	FullySpecifiedSubject	true
+Notification Delivery Engine	FullySpecifiedSubject	true
+Customer Inquiry Management Office	FullySpecifiedSubject	true
+Order Confirmation	MessageSpecification	true
+Invoice Delivery	MessageSpecification	true
+Shipping Notification	MessageSpecification	true
+Payment Receipt	MessageSpecification	true
+Customer Inquiry	MessageSpecification	true
+Support Ticket Submission	MessageSpecification	true
+Contract Agreement	MessageSpecification	true
+Inventory Update	MessageSpecification	true
+Package Tracking Info	MessageSpecification	true
+Order Cancellation	MessageSpecification	true
+Document Transfer	MessageSpecification	true
+Login Authentication Request	MessageSpecification	true
+Data Synchronization	MessageSpecification	true
+Report Generation Request	MessageSpecification	true
+Access Authorization	MessageSpecification	true
+Feedback Submission	MessageSpecification	true
+Email Notification	MessageSpecification	true
+SMS Alert	MessageSpecification	true
+Purchase Order	MessageSpecification	true
+Return Request	MessageSpecification	true
+Data	MessageSpecification	false
+Notification	MessageSpecification	false
+Message	MessageSpecification	false
+Update	MessageSpecification	false
+Send Info	MessageSpecification	false
+Alert	MessageSpecification	false
+Request	MessageSpecification	false
+Process	MessageSpecification	false
+Sync	MessageSpecification	false
+Info Transfer	MessageSpecification	false
+Confirm	MessageSpecification	false
+Authenticate	MessageSpecification	false
+Status Update	MessageSpecification	false
+Verify	MessageSpecification	false
+Payment Approval Request	MessageSpecification	true
+Escalation Notification	MessageSpecification	true
+Service Level Agreement Update	MessageSpecification	true
+Compliance Alert	MessageSpecification	true
+Delivery Confirmation	MessageSpecification	true
+Order Status Update	MessageSpecification	true
+Invoice Dispute Notification	MessageSpecification	true
+Payment Reminder	MessageSpecification	true
+Contract Renewal Notice	MessageSpecification	true
+Product Recall Alert	MessageSpecification	true
+Process Order	DoState	true
+Generate Report	DoState	true
+Approve Request	DoState	true
+Update Database	DoState	true
+Calculate Invoice	DoState	true
+Validate Input	DoState	true
+Monitor System	DoState	true
+Execute Task	DoState	true
+Start Production	DoState	true
+End Process	DoState	true
+Do Work	DoState	false
+State Action	DoState	false
+Execute	DoState	false
+Action	DoState	false
+Run	DoState	false
+Perform Calculation	DoState	false
+Analyze Data	DoState	false
+Prepare Summary	DoState	false
+Review Documents	DoState	true
+Process Payment	DoState	true
+Validate Order	DoState	true
+Generate Invoice	DoState	true
+Monitor Inventory	DoState	true
+Analyze Feedback	DoState	true
+Prepare Contract	DoState	true
+Update Records	DoState	true
+Verify Compliance	DoState	true
+Process Refund	DoState	true
+Generate Statement	DoState	true
+Audit Transactions	DoState	true
+Resolve Issue	DoState	true
+Approve Purchase Order	DoState	true
+Reject Request	DoState	true
+Escalate Issue	DoState	true
+Fill out the order form	DoState	true
+Send Invoice	SendState	true
+Dispatch Goods	SendState	true
+Transmit Data	SendState	true
+Issue Notification	SendState	true
+Deliver Package	SendState	true
+Forward Request	SendState	true
+Provide Access	SendState	true
+Submit Report	SendState	true
+Upload File	SendState	true
+Send	SendState	false
+Transmit	SendState	false
+Forward	SendState	false
+Notify	SendState	false
+Deliver	SendState	false
+Push Data	SendState	false
+Distribute Files	SendState	false
+Send Payment Reminder	SendState	true
+Issue Compliance Alert	SendState	true
+Forward Escalation	SendState	true
+Deliver Contract	SendState	true
+Submit Audit Report	SendState	true
+Send Product Recall Notice	SendState	true
+Transmit Financial Data	SendState	true
+Issue Service Level Agreement Update	SendState	true
+Deliver Order Confirmation	SendState	true
+Receive Payment	ReceiveState	true
+Accept Order	ReceiveState	true
+Retrieve Document	ReceiveState	true
+Collect Feedback	ReceiveState	true
+Download File	ReceiveState	true
+Ingest Data	ReceiveState	true
+Receive Shipment	ReceiveState	true
+Capture Input	ReceiveState	true
+Acquire Information	ReceiveState	true
+Receive	ReceiveState	false
+Accept	ReceiveState	false
+Collect	ReceiveState	false
+Retrieve	ReceiveState	false
+Fetch Results	ReceiveState	false
+Gather Feedback	ReceiveState	false
+Receive Contract	ReceiveState	true
+Accept Delivery	ReceiveState	true
+Retrieve Compliance Report	ReceiveState	true
+Collect Audit Data	ReceiveState	true
+Receive Escalation	ReceiveState	true
+Accept Payment	ReceiveState	true
+Retrieve Financial Records	ReceiveState	true
+Capture Customer Feedback	ReceiveState	true
+Receive Service Level Agreement	ReceiveState	true
+Customer	FullySpecifiedSubject	true
+Supplier	FullySpecifiedSubject	true
+HR Department	FullySpecifiedSubject	true
+ACME Inc.	FullySpecifiedSubject	true
+Robot Arm 42	FullySpecifiedSubject	true
+Customer Service Team	FullySpecifiedSubject	true
+Marketing & Sales	FullySpecifiedSubject	true
+Finance Dept.	FullySpecifiedSubject	true
+Supplier X GmbH	FullySpecifiedSubject	true
+Warehouse Automation System	FullySpecifiedSubject	true
+Delivery Drone #5	FullySpecifiedSubject	true
+Legal Entity "Alpha Corp"	FullySpecifiedSubject	true
+Production Line 3	FullySpecifiedSubject	true
+Backend Server 12	FullySpecifiedSubject	true
+Manufacturing Unit A	FullySpecifiedSubject	true
+IT Support Desk	FullySpecifiedSubject	true
+Self-Checkout Terminal 9	FullySpecifiedSubject	true
+Sales Representative	FullySpecifiedSubject	true
+Logistics Partner Z	FullySpecifiedSubject	true
+Client Relationship Manager	FullySpecifiedSubject	true
+Assembly Robot XZ-99	FullySpecifiedSubject	true
+Retail Store #24	FullySpecifiedSubject	true
+Regional Office - West	FullySpecifiedSubject	true
+Online Payment Gateway	FullySpecifiedSubject	true
+Automated Packing Machine	FullySpecifiedSubject	true
+Customer Support Department	FullySpecifiedSubject	true
+Payment System	FullySpecifiedSubject	true
+HR Team	FullySpecifiedSubject	true
+Accounting Department	FullySpecifiedSubject	true
+Order Processing System	FullySpecifiedSubject	true
+Production Line	FullySpecifiedSubject	true
+Factory A	FullySpecifiedSubject	true
+Supplier XYZ	FullySpecifiedSubject	true
+Person	FullySpecifiedSubject	false
+Machine	FullySpecifiedSubject	false
+Department	FullySpecifiedSubject	false
+Company	FullySpecifiedSubject	false
+Automation	FullySpecifiedSubject	false
+Server	FullySpecifiedSubject	false
+Client	FullySpecifiedSubject	false
+System	FullySpecifiedSubject	false
+User	FullySpecifiedSubject	false
+Employee	FullySpecifiedSubject	false
+Marketing	FullySpecifiedSubject	false
+Customer Support	FullySpecifiedSubject	false
+Production	FullySpecifiedSubject	false
+Vendor	FullySpecifiedSubject	false
+Manager	FullySpecifiedSubject	false
+Database	FullySpecifiedSubject	false
+AI Model	FullySpecifiedSubject	false
+12345	FullySpecifiedSubject	false
+!InvalidName	FullySpecifiedSubject	false
+Name_Without_Space	FullySpecifiedSubject	false
+Company123	FullySpecifiedSubject	false
+Server-1	FullySpecifiedSubject	false
+Device#42	FullySpecifiedSubject	false
+Unnamed Entity	FullySpecifiedSubject	false
+Unspecified Subject	FullySpecifiedSubject	false
+Generic Actor	FullySpecifiedSubject	false
+Data Processor	FullySpecifiedSubject	false
+Automated System	FullySpecifiedSubject	false
+Workflow Engine	FullySpecifiedSubject	false
+Worker	FullySpecifiedSubject	false
+Subsystem A	FullySpecifiedSubject	false
+Corporate Entity	FullySpecifiedSubject	false
+Machine Learning Model	FullySpecifiedSubject	false
+Unknown Process	FullySpecifiedSubject	false
+Employee #999	FullySpecifiedSubject	false
+AI Assistant	FullySpecifiedSubject	false
+Retail Unit	FullySpecifiedSubject	false
+Approval Process	FullySpecifiedSubject	false
+Submit Document	FullySpecifiedSubject	false
+Processing	FullySpecifiedSubject	false
+Verify Information	FullySpecifiedSubject	false
+Billing Cycle	FullySpecifiedSubject	false
+Inventory Check	FullySpecifiedSubject	false
+Third Party	FullySpecifiedSubject	true
+API Gateway	FullySpecifiedSubject	true
+Message Bus	FullySpecifiedSubject	true
+Accounts Payable Team	FullySpecifiedSubject	true
+Fraud Detection Unit	FullySpecifiedSubject	true
+Invoice Processing System	FullySpecifiedSubject	true
+Customer Relations Office	FullySpecifiedSubject	true
+Automated Email Dispatcher	FullySpecifiedSubject	true
+Payment Verification Service	FullySpecifiedSubject	true
+Billing Support Team	FullySpecifiedSubject	true
+Subscription Management Platform	FullySpecifiedSubject	true
+Finance Automation Bot	FullySpecifiedSubject	true
+Transaction Monitoring System	FullySpecifiedSubject	true
+Legal Compliance Office	FullySpecifiedSubject	true
+Customer Order Management	FullySpecifiedSubject	true
+Accounting Software Agent	FullySpecifiedSubject	true
+Procurement Department	FullySpecifiedSubject	true
+Electronic Payment Terminal	FullySpecifiedSubject	true
+Autonomous Invoice Handler	FullySpecifiedSubject	true
+Tax Compliance Unit	FullySpecifiedSubject	true
+Fraud Prevention AI	FullySpecifiedSubject	true
+Digital Identity Verification System	FullySpecifiedSubject	true
+Invoice Processor	FullySpecifiedSubject	true
+Customer Request Handling Team	FullySpecifiedSubject	true
+Email Notification System	FullySpecifiedSubject	true
+Payment Transaction Monitor	FullySpecifiedSubject	true
+Invoice Processing Bot	FullySpecifiedSubject	true
+Customer Request Management Platform	FullySpecifiedSubject	true
+Automated Notification Dispatcher	FullySpecifiedSubject	true
+Transaction Validation Unit	FullySpecifiedSubject	true
+Billing Operations Team	FullySpecifiedSubject	true
+Fraud Detection and Payment Security Unit	FullySpecifiedSubject	true
+Email Dispatching Server	FullySpecifiedSubject	true
+Order & Payment Handling Department	FullySpecifiedSubject	true
+Subscription Billing Engine	FullySpecifiedSubject	true
+Customer Support Request Queue	FullySpecifiedSubject	true
+Financial Transactions Oversight Team	FullySpecifiedSubject	true
+Customer Request Handler	FullySpecifiedSubject	true
+Email Notification Dispatcher	FullySpecifiedSubject	true
+Payment Transaction Processing System	FullySpecifiedSubject	true
+Support Request Management Team	FullySpecifiedSubject	true
+Automated Email Sender	FullySpecifiedSubject	true
+Financial Transaction Monitoring Unit	FullySpecifiedSubject	true
+Customer Interaction Platform	FullySpecifiedSubject	true
+Email Communication Gateway	FullySpecifiedSubject	true
+Transaction Verification Service	FullySpecifiedSubject	true
+Billing Support Desk	FullySpecifiedSubject	true
+Payment Processing Team	FullySpecifiedSubject	true
+Fraud Detection and Prevention Unit	FullySpecifiedSubject	true
+Automated Billing Assistant	FullySpecifiedSubject	true
+Notification Delivery Engine	FullySpecifiedSubject	true
+Customer Inquiry Management Office	FullySpecifiedSubject	true
+Fill out the order form	FullySpecifiedSubject	false
+Process Payment	FullySpecifiedSubject	false
+Approve Request	FullySpecifiedSubject	false
+Generate Report	FullySpecifiedSubject	false
+Update Database	FullySpecifiedSubject	false
+Validate Input	FullySpecifiedSubject	false
+Monitor System	FullySpecifiedSubject	false
+Execute Task	FullySpecifiedSubject	false
+Start Production	FullySpecifiedSubject	false
+End Process	FullySpecifiedSubject	false
+Review Documents	FullySpecifiedSubject	false
+Process Refund	FullySpecifiedSubject	false
+Generate Statement	FullySpecifiedSubject	false
+Audit Transactions	FullySpecifiedSubject	false
+Resolve Issue	FullySpecifiedSubject	false
+Approve Purchase Order	FullySpecifiedSubject	false
+Reject Request	FullySpecifiedSubject	false
+Escalate Issue	FullySpecifiedSubject	false
+Send Invoice	FullySpecifiedSubject	false
+Dispatch Goods	FullySpecifiedSubject	false
+Transmit Data	FullySpecifiedSubject	false
+Issue Notification	FullySpecifiedSubject	false
+Deliver Package	FullySpecifiedSubject	false
+Forward Request	FullySpecifiedSubject	false
+Provide Access	FullySpecifiedSubject	false
+Submit Report	FullySpecifiedSubject	false
+Upload File	FullySpecifiedSubject	false
+Receive Payment	FullySpecifiedSubject	false
+Accept Order	FullySpecifiedSubject	false
+Retrieve Document	FullySpecifiedSubject	false
+Collect Feedback	FullySpecifiedSubject	false
+Download File	FullySpecifiedSubject	false
+Ingest Data	FullySpecifiedSubject	false
+Receive Shipment	FullySpecifiedSubject	false
+Capture Input	FullySpecifiedSubject	false
+Acquire Information	FullySpecifiedSubject	false
+Order Confirmation	FullySpecifiedSubject	false
+Invoice Delivery	FullySpecifiedSubject	false
+Shipping Notification	FullySpecifiedSubject	false
+Payment Receipt	FullySpecifiedSubject	false
+Customer Inquiry	FullySpecifiedSubject	false
+Support Ticket Submission	FullySpecifiedSubject	false
+Contract Agreement	FullySpecifiedSubject	false
+Inventory Update	FullySpecifiedSubject	false
+Package Tracking Info	FullySpecifiedSubject	false
+Order Cancellation	FullySpecifiedSubject	false
+Document Transfer	FullySpecifiedSubject	false
+Login Authentication Request	FullySpecifiedSubject	false
+Data Synchronization	FullySpecifiedSubject	false
+Report Generation Request	FullySpecifiedSubject	false
+Access Authorization	FullySpecifiedSubject	false
+Feedback Submission	FullySpecifiedSubject	false
+Email Notification	FullySpecifiedSubject	false
+SMS Alert	FullySpecifiedSubject	false
+Purchase Order	FullySpecifiedSubject	false
+Return Request	FullySpecifiedSubject	false
+Order form filled out	DoTransition	true
+Payment processed	DoTransition	true
+Request approved	DoTransition	true
+Report generated	DoTransition	true
+Database updated	DoTransition	true
+Input validated	DoTransition	true
+System monitored	DoTransition	true
+Task executed	DoTransition	true
+Production started	DoTransition	true
+Process ended	DoTransition	true
+Documents reviewed	DoTransition	true
+Refund processed	DoTransition	true
+Statement generated	DoTransition	true
+Transactions audited	DoTransition	true
+Issue resolved	DoTransition	true
+Purchase order approved	DoTransition	true
+Request rejected	DoTransition	true
+Issue escalated	DoTransition	true
+Compliance verified	DoTransition	true
+Customer record archived	DoTransition	true
+Invoice calculated	DoTransition	true
+Contract prepared	DoTransition	true
+Records updated	DoTransition	true
+Customer notified	DoTransition	true
+Goods dispatched	DoTransition	true
+Data transmitted	DoTransition	true
+Notification issued	DoTransition	true
+Package delivered	DoTransition	true
+Request forwarded	DoTransition	true
+Access provided	DoTransition	true
+Report submitted	DoTransition	true
+File uploaded	DoTransition	true
+Payment received	DoTransition	true
+Order accepted	DoTransition	true
+Document retrieved	DoTransition	true
+Feedback collected	DoTransition	true
+File downloaded	DoTransition	true
+Data ingested	DoTransition	true
+Shipment received	DoTransition	true
+Input captured	DoTransition	true
+Information acquired	DoTransition	true
+Order validated	DoTransition	true
+Invoice generated	DoTransition	true
+Inventory monitored	DoTransition	true
+Feedback analyzed	DoTransition	true
+Contract prepared	DoTransition	true
+Records updated	DoTransition	true
+Compliance verified	DoTransition	true
+Refund processed	DoTransition	true
+Statement generated	DoTransition	true
+Transactions audited	DoTransition	true
+Issue resolved	DoTransition	true
+Purchase order approved	DoTransition	true
+Request rejected	DoTransition	true
+Issue escalated	DoTransition	true
+Fill out the order form	DoTransition	false
+Process Payment	DoTransition	false
+Approve Request	DoTransition	false
+Generate Report	DoTransition	false
+Update Database	DoTransition	false
+Validate Input	DoTransition	false
+Monitor System	DoTransition	false
+Execute Task	DoTransition	false
+Start Production	DoTransition	false
+End Process	DoTransition	false
+Review Documents	DoTransition	false
+Process Refund	DoTransition	false
+Generate Statement	DoTransition	false
+Audit Transactions	DoTransition	false
+Resolve Issue	DoTransition	false
+Approve Purchase Order	DoTransition	false
+Reject Request	DoTransition	false
+Escalate Issue	DoTransition	false
+Verify Compliance	DoTransition	false
+Archive Customer Record	DoTransition	false
+Calculate Invoice	DoTransition	false
+Prepare Contract	DoTransition	false
+Update Records	DoTransition	false
+Notify Customer	DoTransition	false
+Dispatch Goods	DoTransition	false
+Transmit Data	DoTransition	false
+Issue Notification	DoTransition	false
+Deliver Package	DoTransition	false
+Forward Request	DoTransition	false
+Provide Access	DoTransition	false
+Submit Report	DoTransition	false
+Upload File	DoTransition	false
+Receive Payment	DoTransition	false
+Accept Order	DoTransition	false
+Retrieve Document	DoTransition	false
+Collect Feedback	DoTransition	false
+Download File	DoTransition	false
+Ingest Data	DoTransition	false
+Receive Shipment	DoTransition	false
+Capture Input	DoTransition	false
+Acquire Information	DoTransition	false
+Validate Order	DoTransition	false
+Generate Invoice	DoTransition	false
+Monitor Inventory	DoTransition	false
+Analyze Feedback	DoTransition	false
+Prepare Contract	DoTransition	false
+Update Records	DoTransition	false
+Verify Compliance	DoTransition	false
+Process Refund	DoTransition	false
+Generate Statement	DoTransition	false
+Audit Transactions	DoTransition	false
+Resolve Issue	DoTransition	false
+Approve Purchase Order	DoTransition	false
+Reject Request	DoTransition	false
+Escalate Issue	DoTransition	false
+Order Processors	MultiSubject	true
+Invoice Verifiers	MultiSubject	true
+Warehouse Workers	MultiSubject	true
+Assembly Line Workers	MultiSubject	true
+Customer Support Representatives	MultiSubject	true
+Approval Committee Members	MultiSubject	true
+Call Center Agents	MultiSubject	true
+Delivery Drivers	MultiSubject	true
+Quality Inspectors	MultiSubject	true
+Technical Support Representatives	MultiSubject	true
+Field Service Engineers	MultiSubject	true
+Sales Agents	MultiSubject	true
+Production Line Operators	MultiSubject	true
+Logistics Coordinators	MultiSubject	true
+Audit Team Members	MultiSubject	true
+Service Technicians	MultiSubject	true
+Data Entry Clerks	MultiSubject	true
+Manufacturing Workers	MultiSubject	true
+Service Agents	MultiSubject	true
+Support Specialists	MultiSubject	true
+IT Helpdesk Operators	MultiSubject	true
+Maintenance Crew Members	MultiSubject	true
+Research Assistants	MultiSubject	true
+Software Testers	MultiSubject	true
+Customer Care Representatives	MultiSubject	true
+Field Representatives	MultiSubject	true
+Marketing Analysts	MultiSubject	true
+Financial Advisors	MultiSubject	true
+Product Inspectors	MultiSubject	true
+Distribution Managers	MultiSubject	true
+Customer Service Team	MultiSubject	false
+Employee	MultiSubject	false
+Worker	MultiSubject	false
+Clerk	MultiSubject	false
+Team	MultiSubject	false
+Subject	MultiSubject	false
+Order Processor	MultiSubject	false
+Invoice Verifier	MultiSubject	false
+Support Representative	MultiSubject	false
+John Doe	MultiSubject	false
+HR Department	MultiSubject	false
+ACME Inc.	MultiSubject	false
+Robot Arm 42	MultiSubject	false
+Marketing & Sales	MultiSubject	false
+Finance Dept.	MultiSubject	false
+Supplier X GmbH	MultiSubject	false
+Warehouse Automation System	MultiSubject	false
+Delivery Drone #5	MultiSubject	false
+"Legal Entity ""Alpha Corp"""	MultiSubject	false
+Production Line 3	MultiSubject	false
+Backend Server 12	MultiSubject	false
+Manufacturing Unit A	MultiSubject	false
+IT Support Desk	MultiSubject	false
+Self-Checkout Terminal 9	MultiSubject	false
+Sales Representative	MultiSubject	false
+Logistics Partner Z	MultiSubject	false
+Client Relationship Manager	MultiSubject	false
+Assembly Robot XZ-99	MultiSubject	false
+Retail Store #24	MultiSubject	false
+Regional Office - West	MultiSubject	false
+Online Payment Gateway	MultiSubject	false
+Automated Packing Machine	MultiSubject	false
+Customer Support Department	MultiSubject	false
+Payment System	MultiSubject	false
+HR Team	MultiSubject	false
+Accounting Department	MultiSubject	false
+Order Processing System	MultiSubject	false
+Production Line	MultiSubject	false
+Factory A	MultiSubject	false
+Supplier XYZ	MultiSubject	false
+Person	MultiSubject	false
+Machine	MultiSubject	false
+Department	MultiSubject	false
+Company	MultiSubject	false
+Automation	MultiSubject	false
+Server	MultiSubject	false
+Client	MultiSubject	false
+System	MultiSubject	false
+User	MultiSubject	false
+Marketing	MultiSubject	false
+Customer Support	MultiSubject	false
+Production	MultiSubject	false
+Vendor	MultiSubject	false
+Manager	MultiSubject	false
+Database	MultiSubject	false
+AI Model	MultiSubject	false
+12345	MultiSubject	false
+!InvalidName	MultiSubject	false
+Name_Without_Space	MultiSubject	false
+Company123	MultiSubject	false
+Server-1	MultiSubject	false
+Device#42	MultiSubject	false
+Unnamed Entity	MultiSubject	false
+Unspecified Subject	MultiSubject	false
+Generic Actor	MultiSubject	false
+Data Processor	MultiSubject	false
+Automated System	MultiSubject	false
+Workflow Engine	MultiSubject	false
+Payment Gateway	InterfaceSubject	true
+Legacy ERP	InterfaceSubject	true
+Shipping Service	InterfaceSubject	true
+Email Provider	InterfaceSubject	true
+CRM System	InterfaceSubject	true
+External Billing API	InterfaceSubject	true
+Customer Database	InterfaceSubject	true
+Banking Interface	InterfaceSubject	true
+Analytics Connector	InterfaceSubject	true
+SMS Gateway	InterfaceSubject	true
+Tax Authority System	InterfaceSubject	true
+External Logistics Platform	InterfaceSubject	true
+Third-Party Authenticator	InterfaceSubject	true
+Weather Data Service	InterfaceSubject	true
+Social Media Interface	InterfaceSubject	true
+External Document Storage	InterfaceSubject	true
+John Doe	InterfaceSubject	false
+Main Process Controller	InterfaceSubject	false
+Handle Customer Request	InterfaceSubject	false
+InvoiceHandlerModule	InterfaceSubject	false
+Process Engine	InterfaceSubject	false
+Data Logger	InterfaceSubject	false
+OrderValidator	InterfaceSubject	false
+Start Event	InterfaceSubject	false
+CRMAdapterLogic	InterfaceSubject	false
+ExternalWorkflowOrchestrator	InterfaceSubject	false
+ClientHandler	InterfaceSubject	false
+ProcessStep2_Subject	InterfaceSubject	false
+StartMessageProcessor	InterfaceSubject	false
+Invoice Processing Logic	InterfaceSubject	false
+EvaluateCustomerRisk	InterfaceSubject	false
+MySQLServer	InterfaceSubject	false

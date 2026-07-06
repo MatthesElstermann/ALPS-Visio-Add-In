@@ -1,5 +1,6 @@
 ﻿using Microsoft.Office.Tools.Ribbon;
 using Microsoft.Office.Core;
+using System;
 using System.Windows.Forms;
 
 namespace ALPS_Visio_AddIn_rewrite
@@ -83,7 +84,7 @@ namespace ALPS_Visio_AddIn_rewrite
             naturalLanguageButton.OfficeImageId = "Spelling";
             naturalLanguageButton.ShowImage = true;
             naturalLanguageButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            naturalLanguageButton.Click += new RibbonControlEventHandler(this.NotImplemented);
+            naturalLanguageButton.Click += new RibbonControlEventHandler(this.PassNlChecker);
             owlGroup.Items.Add(naturalLanguageButton);
 
             // Carried over from the original add-in; not implemented yet (stub).
@@ -170,6 +171,44 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             MessageBox.Show("Diese Funktion ist noch nicht implementiert.", "ALPS/PASS Add-In",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// PASS NL Checker: classifies each shape label as valid/invalid (ML.NET model trained from the
+        /// bundled data) and asks an LLM for better labels where invalid. Ported from the standalone
+        /// NLPPASSChecking add-in. Needs an LLM API key (prompted on first use).
+        /// </summary>
+        private async void PassNlChecker(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                var checker = new NLChecker.NlChecker();
+                if (!checker.Initialize(out string error))
+                {
+                    MessageBox.Show(error, "PASS NL Checker", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var progress = new NLChecker.ProcessingForm();
+                progress.Show();
+
+                string report;
+                try
+                {
+                    report = await checker.CheckActiveDocumentAsync(Globals.ThisAddIn.Application, progress);
+                }
+                finally
+                {
+                    progress.Close();
+                }
+
+                new NLChecker.ValidityCheckResultsForm(report).ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler im PASS NL Checker:\n" + ex.Message, "PASS NL Checker",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
