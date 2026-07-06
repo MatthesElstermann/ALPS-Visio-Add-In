@@ -1,13 +1,13 @@
 # ALPS Visio Add-In
 
-A **Microsoft Visio VSTO add-in** that imports subject-oriented process models from
-**PASS/ALPS** OWL files and draws them as native, editable Visio diagrams.
+A **Microsoft Visio VSTO add-in** for subject-oriented process modelling with
+**PASS/ALPS**: it imports OWL process models and draws them as native, editable Visio
+diagrams, re-arranges existing diagrams, verifies an implementation model against its
+specification, and checks shape labels with an ML classifier plus LLM suggestions.
 
-The add-in reads an OWL/RDF model through the external [`alps.net.api`](https://www.nuget.org/packages/alps.net.api)
-library and renders each model element — subjects, messages, behaviours, states and
-transitions — as shapes on the matching Visio stencil. Models that already carry
-layout coordinates are placed exactly; models without coordinates are arranged by a
-built-in auto-layout.
+The heavy lifting of parsing OWL/RDF is delegated to the external
+[`alps.net.api`](https://www.nuget.org/packages/alps.net.api) library; this add-in adds
+the Visio layer on top.
 
 > **Platform note:** This is a .NET Framework 4.8 VSTO project with Office COM interop.
 > It builds and runs **only on Windows** with Visual Studio 2022 and Visio installed.
@@ -21,25 +21,97 @@ process modelling language: a process is described as a set of **subjects** (act
 entities) that exchange **messages** and each follow their own **behaviour** — a state
 machine of send/receive/do states connected by transitions.
 
-**ALPS** (*Abstract Layered PASS*) extends PASS with a multi-layer concept. In this
-add-in, a model with more than one layer is what distinguishes an ALPS model from a
-plain PASS model.
+**ALPS** (*Abstract Layered PASS*) extends PASS with a multi-layer concept: abstract
+layers specify *what must happen*, implementing layers refine *how*. In this add-in, a
+model with more than one layer is what distinguishes an ALPS model from a plain PASS
+model.
 
-Two diagram types are produced:
+Two diagram types are produced and managed:
 
 - **SID** — *Subject Interaction Diagram*: the subjects and the messages between them.
 - **SBD** — *Subject Behaviour Diagram*: the internal state machine of one subject.
 
 ---
 
-## Features
+## The ribbon at a glance
 
-- Import a PASS/ALPS process model from an `.owl` file into Visio.
-- Render the **SID** (subjects + message connectors) and one **SBD** page per subject.
-- Place shapes from the coordinates in the OWL file when present.
-- **Auto-layout** when the model has no coordinates: SBD states cascade into a tree,
-  SID subjects line up in a row, message boxes centre on their connectors.
-- Open the bundled ALPS/PASS stencils and show a layer explorer from the ribbon.
+After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with three groups:
+
+| Group | Button | Action |
+| --- | --- | --- |
+| Standard Functions | **Open ALPS/PASS Stencils** | Opens the ALPS/PASS shape stencils from the *My Shapes* folder. |
+| ALPS Layer Editing | **Show layer Explorer** | Opens the layer/model explorer (tree view of models, SID layers and SBD pages). |
+| OWL PASS Tools | **Import OWL** | Imports a PASS/ALPS model from an `.owl` file and draws it. |
+| OWL PASS Tools | **ALPS Verification** | Checks an implementation model against a specification model and shows a report with an overall verdict. |
+| OWL PASS Tools | **PASS NL Checker** | Classifies every shape label as valid/invalid (ML) and asks an LLM for better labels. |
+| OWL PASS Tools | **LLM API-Key** | Sets or replaces the API key the NL Checker uses for LLM suggestions. |
+| OWL PASS Tools | **PASS BPMN Converter** | *Not implemented yet* (placeholder carried over from the original add-in). |
+| OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
+
+The features in detail:
+
+### Import OWL
+
+Opens a file dialog, parses the chosen `.owl`/`.rdf` file through `alps.net.api` and
+renders the model: one **SID page** per layer (subjects + message connectors) and one
+**SBD page** per fully specified subject, linked to its subject shape.
+
+- Shapes are placed at the **coordinates from the OWL file** when present.
+- Models **without coordinates** are arranged by a built-in auto-layout (SBD states
+  cascade into a tree, SID subjects line up in a row).
+- Only the **first** model in a file is imported (multi-model import is planned).
+- Labels containing quotes and duplicate page names are handled safely (escaping via
+  `QuoteLiteral`, unique page names via `GetUniquePageName`).
+- Failed imports show an error dialog with the full cause chain instead of failing
+  silently.
+
+### Auto Arrange
+
+Re-arranges an **already drawn** SID or SBD page purely from its shapes — no parsed
+model required. The state graph is rebuilt from the connectors' glue, then a layered
+layout is applied (layer = longest path from a start state). Subjects line up in a row
+or column. The whole operation is one undo scope, so a single **Ctrl+Z** reverts it.
+
+### ALPS Verification
+
+Picks a **specification** (abstract) and an **implementation** OWL model, pairs their
+elements via the `implements` references and runs the SID checks: communication
+restrictions, subject-type conformance, message-connector conformance. The raw check
+output is shown in a window, followed by an **overall verdict**
+(`BESTANDEN` / `NICHT BESTANDEN`) that also counts specification elements without an
+implementation counterpart.
+
+Ported from the KIT master-thesis prototype
+([andikra/ALPS-Verification-Thesis](https://github.com/andikra)) — SBD checks are not
+implemented yet; the verdict covers the SID level only.
+
+### PASS NL Checker
+
+Checks every relevant shape label in the active document:
+
+1. An **ML.NET binary classifier** predicts whether the label is a valid name for its
+   shape type (do/send/receive states, subjects, messages, …). The model is trained on
+   first use from a bundled training set and cached under
+   `%APPDATA%\ALPS_Visio_AddIn\nl_model.zip`.
+2. For labels classified as invalid, an **LLM** (Uni Münster GPT endpoint) is asked for
+   two improved label suggestions.
+
+The LLM step needs an API key — you are prompted on first use, and the **LLM API-Key**
+button changes it later. The key is stored as plain text under
+`%APPDATA%\ALPS_Visio_AddIn\llm_api_key.txt`; without a key the ML classification still
+runs, only the suggestions are skipped.
+
+### Layer editing & snapping
+
+The **layer explorer** shows all models in the document with their SID layers and SBD
+pages and lets you edit layer names, priorities and the `extends` relation between
+layers.
+
+When a SID layer **extends** another layer, the extended layer is displayed as the
+page background, and **extension shapes snap**: dragging an *ActorExtension* onto a
+background subject (or a *StateExtension*/guard state onto a background state on SBD
+pages) links the two — including the associated behaviour pages. Moving a snapped shape
+away asks for confirmation / unsnaps it.
 
 ---
 
@@ -49,18 +121,31 @@ Two diagram types are produced:
 - Visual Studio 2022 with the **Office/SharePoint development** workload
 - Microsoft Visio (desktop)
 - .NET Framework 4.8 developer pack
+- The **ALPS/PASS stencils** in Visio's *My Shapes* folder (see below)
+
+### Stencils
+
+The add-in looks for the newest stencil files matching
+
+```
+Abstract PASS SID Visio Shapes v<version>.vssm
+Abstract PASS SBD Visio Shapes v<version>.vssm
+```
+
+in the folder(s) configured as Visio's **My Shapes** path (`Application.MyShapesPath`).
+Without them, opening stencils and importing models fails with a message that names the
+expected file.
 
 ---
 
-## Build & run
+## Build, run & test
 
 This is a **non-SDK MSBuild project** that uses a `packages.config`-style NuGet
 restore (a `packages/` folder, not `<PackageReference>`).
 
 1. Clone the repository and open `ALPS_Visio_Tools.sln` in Visual Studio 2022.
-2. Restore NuGet packages (`nuget restore ALPS_Visio_Tools.sln`, or let VS auto-restore).
-   A missing `packages/` folder is the usual cause of build errors. If `alps.net.api`
-   cannot be found, configure the matching NuGet package source.
+2. Restore NuGet packages (`nuget restore ALPS_Visio_Tools.sln`, or let VS
+   auto-restore). A missing `packages/` folder is the usual cause of build errors.
 3. Build the solution (or `msbuild ALPS_Visio_Tools.sln /p:Configuration=Debug`).
 4. Press **F5** — Visual Studio launches Visio with the add-in registered and the
    debugger attached. There is no command-line entry point.
@@ -70,22 +155,20 @@ The VSTO manifest is signed with a temporary key (`*_TemporaryKey.pfx`). See
 [docs/latex](docs/latex) for certificate and publishing details. End-user installation
 is described in **[docs/AddIn installation-guide.pdf](docs/AddIn%20installation-guide.pdf)**.
 
----
+### Tests
 
-## Usage
+`ALPS_Visio_AddIn.Tests/` is an NUnit test project (SDK-style, net48) covering the
+**Visio-independent** logic — run it from the VS Test Explorer:
 
-After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with an **ALPS Tools**
-group containing three buttons:
+- `VisioHelperQuoteLiteralTests` — ShapeSheet string escaping
+- `VisioHelperGetStencilTests` — SID/SBD stencil routing for every master
+- `AlpsReaderWriterFactoryTests` — regression test for a CWD-dependent
+  `alps.net.api` constructor bug the add-in works around
+- `VerifierTests` — the whole verification pipeline (parse → check → verdict) on the
+  example models in `docs/`
 
-| Button | Action |
-| --- | --- |
-| **Import OWL** | Opens a file dialog; the chosen `.owl` model is parsed and drawn into Visio. |
-| **Open ALPS/PASS Stencils** | Opens the bundled SID/SBD shape stencils. |
-| **Show layer Explorer** | Opens the layer/model explorer window. |
-
-Import a model into a **fresh Visio document** for the cleanest result. When the
-stencil's welcome/license message box appears after the import, dismiss it — the SID
-page keeps its name.
+Anything that draws through Visio COM is not headless-testable and is verified
+manually in Visio.
 
 ### Test models
 
@@ -97,6 +180,10 @@ The [`docs/`](docs) folder ships ready-to-import example models:
   built to exercise the SBD tree layout and the SID row layout.
 - `[Test]_Escaping_Quotes_2D.owl` — a model whose labels contain `"` characters
   (exercises Visio formula escaping).
+- `[Verif]_Spec_*.owl` / `[Verif]_Impl_*.owl` — specification/implementation pairs for
+  the ALPS Verification.
+
+Import a model into a **fresh Visio document** for the cleanest result.
 
 ---
 
@@ -104,10 +191,14 @@ The [`docs/`](docs) folder ships ready-to-import example models:
 
 Everything centres on turning a parsed OWL model into Visio shapes:
 
-1. **Startup** — `ThisAddIn` wires up Visio app events and builds the ribbon (`ALPSRibbon`).
+1. **Startup** — `ThisAddIn` wires up Visio app events (document/page/window) and
+   builds the ribbon (`ALPSRibbon`). A `ModelController` tracks which pages belong to
+   which model and feeds the layer explorer.
 2. **Trigger** — *Import OWL* calls `OWLImporter.Instance.Parse(file)`.
 3. **Parse** — `OWLImporter` drives `alps.net.api`'s reader, loading the bundled
-   ontologies plus the user's OWL into an in-memory `IPASSProcessModel` graph.
+   ontologies plus the user's OWL into an in-memory `IPASSProcessModel` graph. (The
+   reader singleton is obtained through `AlpsReaderWriterFactory`, which works around a
+   working-directory-dependent constructor bug in the library.)
 4. **Class substitution** — `VisioClassFactory` makes the parser instantiate this
    project's `Visio*` classes (which implement `IVisioImportable`) instead of the
    API's plain classes, so each model element knows how to draw itself.
@@ -126,30 +217,37 @@ Two interfaces define the rendering contract:
 
 - `IVisioImportable.ImportToVisio(page)` — every drawable element.
 - `IVisioImportableWithShape` adds `PrepareDimensions()` (returns `false` when the
-  element has no coordinates) and `GetShape()`.
+  element has no coordinates — implemented centrally in `VisualizationBounds`) and
+  `GetShape()`.
 
 ---
 
 ## Project structure
 
 ```
-ALPS_Visio_Tools.sln                 Solution (single project)
+ALPS_Visio_Tools.sln                 Solution (add-in + test project)
 ALPS_Visio_AddIn-rewrite/            The add-in
 ├── ThisAddIn.cs                      Startup, Visio event wiring
-├── ALPSRibbon.cs                     Ribbon tab + buttons
+├── ALPSRibbon.cs                     Ribbon tab + all buttons
 ├── OWLImporter.cs                    Parse + drive the import
+├── AlpsReaderWriterFactory.cs        Safe access to the alps.net.api reader singleton
+├── AutoArranger.cs                   Auto Arrange (re-layout of drawn SID/SBD pages)
 ├── VisioHelper.cs                    Visio COM helpers (shapes, pages, ShapeSheet)
-├── ShapeFinder.cs                    Locates stencil masters
+├── ShapeFinder.cs                    Locates the newest stencils in My Shapes
 ├── Constants.cs                      Visio constants (page types, properties, stencils)
 ├── OWLShapes/                        Model object graph — the Visio* classes
 │   ├── IVisioImportable(.WithShape)  Rendering contract
+│   ├── VisualizationBounds.cs        Shared PrepareDimensions implementation
 │   ├── VisioClassFactory.cs          Substitutes Visio* classes during parsing
 │   ├── ImportFunctionality/          IShapeImport helpers (Subject/State/Transition/…)
 │   ├── InteractionDescribing/        Subjects, messages (SID level)
 │   └── BehaviorDescribing/           States + transitions (SBD level)
 ├── PageManagement/                   Page/model controllers, snapping, geometry
 ├── UI/                               WPF windows (layer explorer, property dialogs)
+├── NLChecker/                        PASS NL Checker (ML.NET + LLM) & API-key handling
+├── Verification/                     ALPS Verification (SID checks + verdict)
 └── Resources/                        Bundled ontologies, icons, strings
+ALPS_Visio_AddIn.Tests/              NUnit tests for the Visio-independent logic
 docs/                                 Diagrams, notes, install guide, test OWL models
 ```
 
@@ -165,6 +263,10 @@ authoritative overview of the architecture and the open tasks. Highlights:
 - `FullySpecifiedSubject` is the most complete subject type; several ontology features
   (e.g. group states, subject execution mapping, some transition types) are not yet
   rendered, partly because the API does not always match the ontology.
+- The **PASS BPMN Converter** button is a placeholder — the feature does not exist yet.
+- The **ALPS Verification** is a prototype: SID checks only, SBD checks are empty.
+- The NL Checker's LLM step targets the Uni Münster GPT endpoint; other OpenAI-style
+  endpoints require a code change.
 - Performance during import is dominated by Visio itself.
 
 Additional notes and a deeper code walk-through live in
