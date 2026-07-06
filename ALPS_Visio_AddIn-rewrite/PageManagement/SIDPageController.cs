@@ -129,7 +129,7 @@ namespace ALPS_Visio_AddIn_rewrite
 
         public void setLayerName(string newName)
         {
-            newName = "\"" + newName + "\"";
+            newName = VisioHelper.QuoteLiteral(newName);
             visioPage.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].Formula = newName;
             controlledSidPage.setLayer(newName);
         }

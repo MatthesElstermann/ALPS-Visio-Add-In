@@ -121,7 +121,7 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 if (shape.CellExistsU["Prop." + Constants.Properties.Transition.Extends + ".Value", 0] == 0) continue;
                 Cell cell = shape.CellsU["Prop." + Constants.Properties.Transition.Extends + ".Value"];
-                cell.Formula = "\"" + newModelURI + "#" + snappedShapes[shape].NameU + "\"";
+                cell.Formula = VisioHelper.QuoteLiteral(newModelURI + "#" + snappedShapes[shape].NameU);
             }
         }
 
@@ -141,7 +141,7 @@ namespace ALPS_Visio_AddIn_rewrite
             if (snappingShape.CellExistsU["Prop." + Constants.Properties.Transition.Extends + ".Value", 0] != 0)
             {
                 Cell snappingShapeExtendsCell = snappingShape.CellsU["Prop." + Constants.Properties.Transition.Extends + ".Value"];
-                snappingShapeExtendsCell.Formula = "\"" + referencedBackgroundPage.getModelUriForUser() + "#" + backgroundReferenceShape.NameU + "\"";
+                snappingShapeExtendsCell.Formula = VisioHelper.QuoteLiteral(referencedBackgroundPage.getModelUriForUser() + "#" + backgroundReferenceShape.NameU);
             }
 
             SBDPage shapePage = null;

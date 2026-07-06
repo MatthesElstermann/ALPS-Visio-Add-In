@@ -139,7 +139,7 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 Cell cell = snappingShape.CellsU["Prop." + Constants.Properties.Transition.Extends + ".Value"];
                 string snapToShapeId = backgroundReferenceShape.CellsU["Prop.modelComponentID.Value"].ResultStr[""];
-                cell.Formula = "\"" + snapToShapeId + "\"";
+                cell.Formula = VisioHelper.QuoteLiteral(snapToShapeId);
             }
             if (snappingShape.CellExistsU["Prop.lable.Value", 0] != 0)
             {
