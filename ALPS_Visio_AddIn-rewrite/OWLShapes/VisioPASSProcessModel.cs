@@ -36,19 +36,24 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // extension / guard / macro layer sits on top of the base layer it extends. Setting the
             // foreground page's extends cell lets the model controller establish a live extends
             // relationship — which is what makes the GBD snap work after import (no SID snap needed).
-            Debug.WriteLine("[Import] wiring layer-extends...");
             foreach (IModelLayer modelLayer in layers)
             {
                 if (!modelLayer.isExtension()) continue;
                 IModelLayer extendedLayer = modelLayer.getExtendedElement();
-                Debug.WriteLine($"[Import]    layer '{modelLayer.getModelComponentID()}' isExtension extends " +
-                                $"'{extendedLayer?.getModelComponentID() ?? "null"}'");
                 if (extendedLayer == null) continue;
                 if (!layerPages.TryGetValue(modelLayer.getModelComponentID(), out Visio.Page foregroundPage)) continue;
-                VH.SetProp(foregroundPage.PageSheet, Constants.Properties.Transition.Extends, extendedLayer.getModelComponentID());
-                Debug.WriteLine($"[Import]    extends cell set for '{modelLayer.getModelComponentID()}'");
+                // Guarded: establishing the layer-extends relationship pulls in the whole extends
+                // machinery (background page, rectangle, snapping); a failure here must not abort the
+                // import or leave the document in a broken state.
+                try
+                {
+                    VH.SetProp(foregroundPage.PageSheet, Constants.Properties.Transition.Extends, extendedLayer.getModelComponentID());
+                }
+                catch (System.Exception e)
+                {
+                    Debug.WriteLine($"[Import] layer-extends wiring for '{modelLayer.getModelComponentID()}' failed: {e.Message}");
+                }
             }
-            Debug.WriteLine("[Import] import finished");
         }
         
         public override IParseablePASSProcessModelElement getParsedInstance()

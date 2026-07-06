@@ -38,15 +38,9 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         public void checkForSnapping(Shape snappingShape)
         {
-            // TEMP debug trace to locate why a snap dialog does or does not appear.
-            string cats = snappingShape.CellExistsU["User.msvShapeCategories", 0] != 0
-                ? snappingShape.CellsU["User.msvShapeCategories"].ResultStr[""] : "(none)";
-            bool snappable = isShapeSnappable(snappingShape);
-            System.Diagnostics.Debug.WriteLine($"[Snap] '{snappingShape.NameU}' master='{snappingShape.Master?.NameU}' cats=[{cats}] snappable={snappable}");
-            if (!snappable) return;
+            if (!isShapeSnappable(snappingShape)) return;
 
             List<Shape> snappableActorShapes = getSnappableShapesOnBackgroundPage().ToList();
-            System.Diagnostics.Debug.WriteLine($"[Snap]   background candidates: {snappableActorShapes.Count}");
 
             if (snappedShapes.ContainsKey(snappingShape) && !isLocatedClosely(snappingShape, snappedShapes[snappingShape]))
             {
@@ -61,7 +55,6 @@ namespace ALPS_Visio_AddIn_rewrite
                 if (snappedShapes.TryGetValue(snappingShape, out Shape current)
                     && current.Name == possibleReferenceBackgroundShape.Name) continue;
 
-                System.Diagnostics.Debug.WriteLine($"[Snap]   -> dialog for '{possibleReferenceBackgroundShape.NameU}'");
                 WindowSnapConfirmation snapConf = new WindowSnapConfirmation(this, snappingShape, possibleReferenceBackgroundShape);
                 snapConf.ShowDialog();
             }
@@ -102,13 +95,6 @@ namespace ALPS_Visio_AddIn_rewrite
             double height = backgroundReferenceShape.CellsU["Height"].Result[VisUnitCodes.visMillimeters] + 5;
             snappingShape.CellsU["Width"].Formula = width + " mm";
             snappingShape.CellsU["Height"].Formula = height + " mm";
-        }
-
-        protected bool isLocatedCloselyInXDirection(Shape shape, Shape snapToShape, double snapRange)
-        {
-            double shapeX = shape.CellsU["PinX"].Result[VisUnitCodes.visMillimeters];
-            double snapToShapeX = snapToShape.CellsU["PinX"].Result[VisUnitCodes.visMillimeters];
-            return Math.Abs(shapeX - snapToShapeX) <= snapRange;
         }
 
         protected bool isLocatedClosely(Shape shape, Shape snapToShape)

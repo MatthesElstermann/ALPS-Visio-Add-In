@@ -180,9 +180,6 @@ namespace ALPS_Visio_AddIn_rewrite
             SBDPage baseSbd = getSbdOfSubjectOn(baseSidPage, baseSubjectName);
             if (baseSbd == null) return;
 
-            Debug.WriteLine($"[Snap] auto-deriving background '{baseSbd.getNameU()}' for GBD '{getNameU()}' " +
-                            $"(subject '{owningSubject.NameU}' -> '{baseSubjectName}')");
-
             derivingExtends = true;
             try { setExtends(baseSbd); }
             finally { derivingExtends = false; }

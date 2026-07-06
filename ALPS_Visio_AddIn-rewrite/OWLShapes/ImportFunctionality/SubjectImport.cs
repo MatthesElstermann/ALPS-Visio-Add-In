@@ -24,9 +24,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
 		public override void Import(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
         {
-			Debug.WriteLine($"[Import] >> {subject.GetType().Name} '{subject.getModelComponentID()}' (master '{shapeType}')");
 			base.Import(shapeType, page, bounds);
-			Debug.WriteLine($"[Import]    shape placed for '{subject.getModelComponentID()}'");
 
             // TODO: hasSubjectExecutionMapping
             // VH.SetProperty(shape, Constants.Properties.ExecutionMapping, subject.getSubjectExecutionMapping().getExecutionMappingDefinition())
@@ -82,27 +80,27 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // model component ID; the snap derivation matches base subjects on that ID.
             if (subject is ISubjectExtension subjectExtension)
             {
-                Debug.WriteLine($"[Import]    ext block for '{subject.getModelComponentID()}'");
                 ISubject extended = subjectExtension.getExtendedSubject();
-                Debug.WriteLine($"[Import]    extendedSubject = '{extended?.getModelComponentID() ?? "null"}'");
                 if (extended != null)
-                {
                     VH.SetHyperlinkSubAddress(shape, Constants.Properties.ExtendedSubject, extended.getModelComponentID());
-                    Debug.WriteLine("[Import]    extendedSubject link written");
-                }
 
-                // The extension behaviors (the GBD content) are drawn in part 2 of the import build-out.
+                // Draw each extension behavior (the GBD content) onto its own page. Guarded so a
+                // failure on one behavior neither aborts the whole import nor leaves the document
+                // in a half-drawn state.
                 foreach (ISubjectBehavior extensionBehavior in subjectExtension.getExtensionBehaviors().Values)
                 {
-                    Debug.WriteLine($"[Import]    behavior '{extensionBehavior.getModelComponentID()}' " +
-                                    $"({extensionBehavior.GetType().Name}) importable={extensionBehavior is IVisioImportable}");
                     if (!(extensionBehavior is IVisioImportable importable)) continue;
-                    Visio.Page gbdPage = VH.CreateSBDPage(page,
-                        "GBD: " + extensionBehavior.getModelComponentID(),
-                        "" + extensionBehavior.getModelComponentID(), this.GetShape());
-                    Debug.WriteLine("[Import]    GBD page created, drawing behavior...");
-                    importable.ImportToVisio(gbdPage);
-                    Debug.WriteLine("[Import]    GBD drawn");
+                    try
+                    {
+                        Visio.Page gbdPage = VH.CreateSBDPage(page,
+                            "GBD: " + extensionBehavior.getModelComponentID(),
+                            "" + extensionBehavior.getModelComponentID(), this.GetShape());
+                        importable.ImportToVisio(gbdPage);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.WriteLine($"[Import] GBD for '{extensionBehavior.getModelComponentID()}' failed: {e.Message}");
+                    }
                 }
             }
 
