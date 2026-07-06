@@ -51,7 +51,8 @@ namespace ALPS_Visio_AddIn_rewrite
             catch (System.Runtime.InteropServices.COMException e)
             {
                 string name = stencil == VisioStencils.SID_STENCIL ? ShapeFinder.getSIDName() : ShapeFinder.getSBDName();
-                string msg = "Failed to load SID Shapes. Expecting file \"" + name + "\" to exist in the \"My Shapes\" folder.\n"
+                string kind = stencil == VisioStencils.SID_STENCIL ? "SID" : "SBD";
+                string msg = "Failed to load " + kind + " Shapes. Expecting file \"" + name + "\" to exist in the \"My Shapes\" folder.\n"
                            + "My Shapes path (Application.MyShapesPath): " + Globals.ThisAddIn.Application.MyShapesPath + "\n"
                            + "Error: " + e.Message;
                 System.Windows.Forms.MessageBox.Show(msg);
@@ -62,6 +63,11 @@ namespace ALPS_Visio_AddIn_rewrite
         public static Visio.Shape Place(string shapeType, Visio.Page page)
         {
             Visio.Document stencil = openStencil(GetStencil(shapeType));
+            // openStencil zeigt bei Fehlern bereits eine MessageBox und liefert null — hier
+            // mit klarer Ursache abbrechen statt spaeter mit NullReferenceException.
+            if (stencil == null)
+                throw new InvalidOperationException(
+                    "Stencil fuer Master \"" + shapeType + "\" konnte nicht geoeffnet werden — Import abgebrochen.");
             Visio.Master sidMaster = stencil.Masters.get_ItemU(shapeType);
             return page.Drop(sidMaster, 0, 0);
         }

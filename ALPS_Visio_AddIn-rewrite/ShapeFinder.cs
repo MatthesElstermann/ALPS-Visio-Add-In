@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
-using VDS.RDF.Query.Expressions.Functions.XPath.String;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
