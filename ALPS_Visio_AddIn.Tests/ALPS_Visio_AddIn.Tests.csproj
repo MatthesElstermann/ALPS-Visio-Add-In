@@ -34,4 +34,16 @@
     <ProjectReference Include="..\ALPS_Visio_AddIn-rewrite\ALPS_Visio_AddIn-rewrite.csproj" />
   </ItemGroup>
 
+  <!--
+    Direkte Compile-Referenz auf alps.net.api. Beim ProjectReference von diesem SDK-Projekt auf das
+    packages.config-basierte Hauptprojekt fliessen dessen Fremd-Assembly-Referenzen NICHT als
+    Compile-Referenz mit; der Factory-Test nutzt aber direkt den Typ PASSReaderWriter. Der Pfad wird
+    durch den NuGet-Restore des Hauptprojekts befuellt (gemeinsamer packages-Ordner).
+  -->
+  <ItemGroup>
+    <Reference Include="alps.net.api">
+      <HintPath>..\packages\alps.net.api.0.9.1.6\lib\net48\alps.net.api.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
