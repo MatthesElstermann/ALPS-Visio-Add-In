@@ -34,6 +34,10 @@ namespace ALPS_Visio_AddIn_rewrite
             this.modelController = controller;
             createSidPage();
             snapHandler = new SidSnapHandler(controller, controlledSidPage);
+            // refresh() laeuft auch beim Wiederverwenden eines Controllers (getController) —
+            // erst abmelden, sonst stapeln sich die CellChanged-Abos und der Handler feuert
+            // pro Zelle mehrfach.
+            visioPage.CellChanged -= onCellChanged;
             visioPage.CellChanged += onCellChanged;
         }
 
