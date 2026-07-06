@@ -150,75 +150,23 @@ namespace ALPS_Visio_AddIn_rewrite
 
             if (dialog.ShowDialog() != DialogResult.OK) return;
 
-            // Log-Pfad LOKAL berechnen -- OHNE OWLImporter zu beruehren. Jeder Zugriff auf ein
-            // statisches Mitglied von OWLImporter (auch nur DiagLogPath) loest dessen statische
-            // Initialisierung aus: das Feld "Instance = new OWLImporter()", dessen Konstruktor die
-            // Ontologien laedt und ueber alle Typen der Assembly reflektiert. Genau das war der
-            // Regress in v4: der Marker verwies auf OWLImporter.DiagLogPath -> die (vermutlich
-            // fehlschlagende) statische Init lief VOR der Box -> gar keine Box mehr.
-            string logPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "alps_import_diag.log");
-            try { System.IO.File.WriteAllText(logPath, "=== IMPORT-DIAGNOSE v6 === " + System.DateTime.Now + System.Environment.NewLine); }
-            catch { }
-            DiagLog(logPath, "Ribbon: Datei gewaehlt = " + dialog.FileName);
-
-            MessageBox.Show(
-                "=== IMPORT-DIAGNOSE v6 ===\n\n" +
-                "Gewaehlte Datei:\n" + dialog.FileName + "\n\n" +
-                "Schritt-Log (Zeile fuer Zeile, ueberlebt Haenger/Absturz):\n" + logPath + "\n\n" +
-                "Falls nach dieser Box keine weitere Meldung kommt: diese Datei im Editor oeffnen\n" +
-                "und Inhalt hierher kopieren -- die letzte Zeile zeigt, wo es haengt.\n\n" +
-                "Geladene Add-In-DLL:\n" + System.Reflection.Assembly.GetExecutingAssembly().Location,
-                "OWL-Import — Diagnose (Start)",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
-
-            // WICHTIG: Der ERSTE Zugriff auf OWLImporter.Instance loest die statische Initialisierung
-            // aus (Konstruktor: Ontologie-Laden via loadOWLParsingStructure + Reflexion ueber alle Typen
-            // der Assembly). Das ist der wahrscheinliche Fehlerpunkt -- z. B. eine im ClickOnce-Paket
-            // fehlende Abhaengigkeit (Microsoft.ML.* etc.) -> ReflectionTypeLoadException, oder ein
-            // Fehler in loadOWLParsingStructure. Er wird separat geloggt.
-            //
-            // Im catch darf KEIN OWLImporter-Mitglied mehr angefasst werden: schlaegt die statische
-            // Init fehl, wirft jeder erneute Zugriff die TypeInitializationException erneut -- mitten
-            // im catch -> verschluckt (genau das verhinderte in v3 die Fehler-Box).
+            // VSTO-Ribbon-Handler verschlucken unbehandelte Exceptions still, sodass ein
+            // fehlgeschlagener Import wie "es passiert nichts" aussieht. Deshalb explizit fangen und
+            // die Ursache samt InnerException-Kette sichtbar machen. Im catch bewusst KEIN Zugriff auf
+            // OWLImporter-Mitglieder -- schluege dessen statische Init fehl, wuerde ein erneuter Zugriff
+            // die TypeInitializationException nur wieder werfen.
             try
             {
-                DiagLog(logPath, "vor OWLImporter.Instance (statische Init: Ontologie-Laden + Typ-Reflexion) ...");
-                OWLImporter importer = OWLImporter.Instance;
-                DiagLog(logPath, "OWLImporter.Instance OK -- rufe Parse ...");
-                importer.Parse(dialog.FileName);
-                DiagLog(logPath, "Parse zurueckgekehrt (ohne Exception).");
-                MessageBox.Show(
-                    "Import abgeschlossen (ohne Exception).\n\nLog-Datei:\n" + logPath,
-                    "OWL-Import — Diagnose",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                OWLImporter.Instance.Parse(dialog.FileName);
             }
             catch (Exception ex)
             {
-                string description = DescribeException(ex);
-                DiagLog(logPath, "EXCEPTION:\n" + description);
                 MessageBox.Show(
-                    "Der OWL-Import ist fehlgeschlagen:\n\n" + description +
-                    "\n\n(Vollstaendig auch in der Log-Datei:\n" + logPath + ")",
+                    "Der OWL-Import ist fehlgeschlagen:\n\n" + DescribeException(ex),
                     "OWL-Import fehlgeschlagen",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
-        }
-
-        /// <summary>
-        /// Schreibt eine Diagnosezeile SOFORT in die Logdatei -- bewusst unabhaengig von OWLImporter,
-        /// damit auch ein Fehler/Haenger in dessen statischer Initialisierung noch protokolliert wird.
-        /// </summary>
-        private static void DiagLog(string path, string message)
-        {
-            try
-            {
-                System.IO.File.AppendAllText(path,
-                    System.DateTime.Now.ToString("HH:mm:ss.fff") + "  [Ribbon] " + message + System.Environment.NewLine);
-            }
-            catch { }
         }
 
         /// <summary>

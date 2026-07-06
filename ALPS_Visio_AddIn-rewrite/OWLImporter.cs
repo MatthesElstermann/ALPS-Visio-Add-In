@@ -21,32 +21,15 @@ namespace ALPS_Visio_AddIn_rewrite
 
         private readonly IPASSReaderWriter parser;
 
-        /// <summary>
-        /// Schreibt eine Zeile direkt in die Diagnose-Logdatei -- mit LOKAL berechnetem Pfad, weil
-        /// dieser Ctor waehrend der statischen Initialisierung laeuft, bevor die statischen Felder
-        /// (DiagLogPath/LastImportLog) initialisiert sind. Wirft eine Init-Zeile eine Exception, zeigt
-        /// die letzte Zeile in der Datei genau, welcher Schritt schuld ist.
-        /// </summary>
-        private static void CtorLog(string message)
-        {
-            try
-            {
-                File.AppendAllText(Path.Combine(Path.GetTempPath(), "alps_import_diag.log"),
-                    System.DateTime.Now.ToString("HH:mm:ss.fff") + "  [Ctor] " + message + System.Environment.NewLine);
-            }
-            catch { }
-        }
-
         private OWLImporter()
         {
-            CtorLog("1) PASSReaderWriter.getInstance() (mit CWD-Workaround) ...");
+            // PASSReaderWriter ueber die Factory holen: umgeht einen CWD-abhaengigen Bug im
+            // Konstruktor von alps.net.api 0.9.1.6, der den OWL-Import im Visio-Host lahmlegte
+            // (siehe AlpsReaderWriterFactory).
             parser = AlpsReaderWriterFactory.GetInstanceSafely();
 
             // enable reflection and set ModelElementFactory to assign parsed objects to Visio classes
-            CtorLog("2) ReflectiveEnumerator.addAssemblyToCheckForTypes() ...");
             ReflectiveEnumerator.addAssemblyToCheckForTypes(Assembly.GetExecutingAssembly());
-
-            CtorLog("3) setModelElementFactory(new VisioClassFactory()) ...");
             parser.setModelElementFactory(new VisioClassFactory());
 
             // Load the ontology (parsing structure) from the embedded resources, written to
@@ -55,15 +38,11 @@ namespace ALPS_Visio_AddIn_rewrite
             // add-in is hosted in Visio the CWD differs, so the ontology was not found and the
             // import silently produced nothing. (Imports are resolved by ontology IRI from the
             // file content, so the file location does not matter.)
-            CtorLog("4a) WriteOntologyToTempFile(standard_PASS) ...");
-            string standardOnt = WriteOntologyToTempFile("standard_PASS_ont_v_1.1.0.owl", Properties.Resources.standard_PASS_ont_v_1_1_0);
-            CtorLog("4b) WriteOntologyToTempFile(ALPS) ...");
-            string alpsOnt = WriteOntologyToTempFile("ALPS_ont_v_0.8.0.owl", Properties.Resources.ALPS_ont_v_0_8_0);
-
-            CtorLog("5) loadOWLParsingStructure() ...");
-            parser.loadOWLParsingStructure(new List<string> { standardOnt, alpsOnt });
-
-            CtorLog("6) OWLImporter-Ctor fertig.");
+            parser.loadOWLParsingStructure(new List<string>
+            {
+                WriteOntologyToTempFile("standard_PASS_ont_v_1.1.0.owl", Properties.Resources.standard_PASS_ont_v_1_1_0),
+                WriteOntologyToTempFile("ALPS_ont_v_0.8.0.owl", Properties.Resources.ALPS_ont_v_0_8_0)
+            });
         }
 
         /// <summary>
@@ -78,57 +57,21 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Diagnose-Log des letzten Imports. Wird von <see cref="Parse"/> Schritt fuer Schritt
-        /// gefuellt und vom Ribbon-Handler angezeigt, damit ein stiller Import (keine Exception,
-        /// aber auch nichts sichtbar) nachvollziehbar wird.
-        /// </summary>
-        public static readonly System.Text.StringBuilder LastImportLog = new System.Text.StringBuilder();
-
-        /// <summary>
-        /// Fester Pfad der Diagnose-Logdatei. Wird bei jedem Schritt SOFORT geschrieben
-        /// (AppendAllText oeffnet/schliesst -> effektiv geflusht), damit die letzte Zeile auch dann
-        /// sichtbar bleibt, wenn der Import haengt oder mit einer nicht fangbaren Exception abstuerzt
-        /// (dann erscheinen die MessageBoxen im Ribbon-Handler nie).
-        /// </summary>
-        public static readonly string DiagLogPath = Path.Combine(Path.GetTempPath(), "alps_import_diag.log");
-
-        public static void LogStep(string message)
-        {
-            LastImportLog.AppendLine(message);
-            System.Diagnostics.Debug.WriteLine("[Import] " + message);
-            try
-            {
-                File.AppendAllText(DiagLogPath,
-                    System.DateTime.Now.ToString("HH:mm:ss.fff") + "  " + message + System.Environment.NewLine);
-            }
-            catch { /* Logging darf den Import niemals stoeren */ }
-        }
-
-        /// <summary>
         /// Parse and import OWL file.
         /// </summary>
         public void Parse(string fileName)
         {
-            LastImportLog.Clear();
-            // Datei NICHT zuruecksetzen -- der Ribbon-Handler hat sie bereits mit einer v5-Kopfzeile
-            // angelegt und die Schritte vor der statischen Init hineingeschrieben. Hier nur anhaengen.
-            LogStep("Parse: Start, Datei = " + fileName);
-
             // Re-establish the Visio class substitution before every import. Other features (e.g. the
             // ALPS Verification) share this parser singleton and swap in the plain factory, which would
             // otherwise leave imports drawing nothing.
             parser.setModelElementFactory(new VisioClassFactory());
-            LogStep("VisioClassFactory gesetzt.");
 
             IList<IPASSProcessModel> passProcessModels = parser.loadModels(new List<string> { fileName });
-            LogStep("loadModels: " + passProcessModels.Count + " Modell(e) geladen.");
 
             // FEAT: import all models -- currently only the first model is imported.
             // Make a missing model visible instead of silently doing nothing.
             if (passProcessModels.Count == 0 || !(passProcessModels[0] is IVisioImportable importable))
             {
-                string firstType = passProcessModels.Count == 0 ? "(keine)" : passProcessModels[0].GetType().FullName;
-                LogStep("Kein importierbares Modell. Erstes Modell: " + firstType);
                 System.Windows.Forms.MessageBox.Show(
                     "Keine importierbaren PASS-/ALPS-Modelle in der Datei gefunden:\n" + fileName +
                     "\n\nHinweis: Ontologie-Dateien (Schema) enthalten keine Modelle und können " +
@@ -137,22 +80,16 @@ namespace ALPS_Visio_AddIn_rewrite
                 return;
             }
 
-            LogStep("Modell[0] ist importierbar: " + importable.GetType().FullName);
-
             // Disable the stencil's VBA listeners BEFORE opening the stencil, so the flag cell
             // already exists (= 0) when the stencil's VBA initializes. Otherwise the stencil
             // runs its "Willkommen"-routine, which on close renames the freshly created SID
             // page back to the Visio default ("Zeichenblatt-2").
             VH.setVBAListenersRunning(false);
-            LogStep("VBA-Listener deaktiviert.");
 
             // open stencils to reduce load time
             VH.openStencil(VH.VisioStencils.SID_STENCIL);
-            LogStep("SID-Stencil geoeffnet.");
 
-            LogStep("ImportToVisio: Start.");
             importable.ImportToVisio(null); // FEAT: import into current page
-            LogStep("ImportToVisio: Fertig.");
 
             // VBA listeners are intentionally NOT re-enabled here. The stencil's run-mode
             // welcome routine renames the imported SID page when its popup is closed (which

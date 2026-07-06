@@ -18,7 +18,6 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         public void ImportToVisio(Visio.Page page)
         {
             var layers = this.getAllElements().Values.OfType<IModelLayer>().ToList();
-            OWLImporter.LogStep($"Model.ImportToVisio: {layers.Count} Layer gefunden.");
             var layerPages = new Dictionary<string, Visio.Page>();
 
             // First pass: one SID page per layer. The pageLayer cell gets the layer's model ID
@@ -27,17 +26,10 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             foreach (IModelLayer modelLayer in layers)
             {
                 string layerId = modelLayer.getModelComponentID();
-                OWLImporter.LogStep($"Layer '{layerId}': CreateSIDPage ...");
                 Visio.Page sidPage = VH.CreateSIDPage(layerId, layerId, modelLayer.getUriModelComponentID(), "", "", "1");
-                OWLImporter.LogStep($"Layer '{layerId}': SID-Seite erstellt.");
                 layerPages[layerId] = sidPage;
 
-                if (modelLayer is IVisioImportable importable)
-                {
-                    OWLImporter.LogStep($"Layer '{layerId}': ImportToVisio ...");
-                    importable.ImportToVisio(sidPage);
-                    OWLImporter.LogStep($"Layer '{layerId}': ImportToVisio fertig.");
-                }
+                if (modelLayer is IVisioImportable importable) importable.ImportToVisio(sidPage);
             }
 
             // Second pass: wire the layer-extends relationship between the SID pages, so an
@@ -55,17 +47,13 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 // import or leave the document in a broken state.
                 try
                 {
-                    OWLImporter.LogStep($"Layer-extends '{modelLayer.getModelComponentID()}' -> '{extendedLayer.getModelComponentID()}' ...");
                     VH.SetProp(foregroundPage.PageSheet, Constants.Properties.Transition.Extends, extendedLayer.getModelComponentID());
-                    OWLImporter.LogStep($"Layer-extends '{modelLayer.getModelComponentID()}' fertig.");
                 }
                 catch (System.Exception e)
                 {
-                    OWLImporter.LogStep($"Layer-extends FEHLER '{modelLayer.getModelComponentID()}': {e.Message}");
                     Debug.WriteLine($"[Import] layer-extends wiring for '{modelLayer.getModelComponentID()}' failed: {e.Message}");
                 }
             }
-            OWLImporter.LogStep("Model.ImportToVisio: fertig.");
         }
         
         public override IParseablePASSProcessModelElement getParsedInstance()
