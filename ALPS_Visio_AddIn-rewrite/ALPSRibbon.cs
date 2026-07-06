@@ -150,6 +150,18 @@ namespace ALPS_Visio_AddIn_rewrite
 
             if (dialog.ShowDialog() != DialogResult.OK) return;
 
+            // DIAGNOSE-MARKER: Diese Box erscheint SOFORT nach der Dateiauswahl, VOR jeglicher
+            // Import-Logik. Sie beweist, welche DLL wirklich laeuft. Erscheint sie NICHT, laeuft
+            // noch ein alter Build (ClickOnce-Deployment nicht aktualisiert). Der Versions-String
+            // wird bei jeder Diagnose-Runde hochgezaehlt, damit "neuer Build?" sichtbar ist.
+            MessageBox.Show(
+                "=== IMPORT-DIAGNOSE v3 ===\n\n" +
+                "Handler laeuft, gewaehlte Datei:\n" + dialog.FileName + "\n\n" +
+                "Geladene Add-In-DLL:\n" + System.Reflection.Assembly.GetExecutingAssembly().Location,
+                "OWL-Import — Diagnose (Start)",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+
             // Ribbon-Handler schlucken unbehandelte Exceptions still (VSTO faengt sie ab), sodass
             // ein fehlgeschlagener Import wie "es passiert nichts" aussieht. Die Fehlerkette wird
             // deshalb explizit sichtbar gemacht -- inkl. InnerException (kritisch z. B. bei
