@@ -155,8 +155,13 @@ namespace ALPS_Visio_AddIn_rewrite
             // noch ein alter Build (ClickOnce-Deployment nicht aktualisiert). Der Versions-String
             // wird bei jeder Diagnose-Runde hochgezaehlt, damit "neuer Build?" sichtbar ist.
             MessageBox.Show(
-                "=== IMPORT-DIAGNOSE v3 ===\n\n" +
-                "Handler laeuft, gewaehlte Datei:\n" + dialog.FileName + "\n\n" +
+                "=== IMPORT-DIAGNOSE v4 ===\n\n" +
+                "Gewaehlte Datei:\n" + dialog.FileName + "\n\n" +
+                "WICHTIG: Der Import schreibt ein Schritt-Log SOFORT (Zeile fuer Zeile) nach:\n" +
+                OWLImporter.DiagLogPath + "\n\n" +
+                "Falls nach dieser Box KEINE weitere Meldung mehr kommt (Haenger/Absturz), oeffne\n" +
+                "diese Datei mit dem Editor und kopiere den Inhalt hierher -- die LETZTE Zeile\n" +
+                "zeigt, welcher Schritt haengen bleibt.\n\n" +
                 "Geladene Add-In-DLL:\n" + System.Reflection.Assembly.GetExecutingAssembly().Location,
                 "OWL-Import — Diagnose (Start)",
                 MessageBoxButtons.OK,

@@ -58,10 +58,24 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         public static readonly System.Text.StringBuilder LastImportLog = new System.Text.StringBuilder();
 
-        private static void LogStep(string message)
+        /// <summary>
+        /// Fester Pfad der Diagnose-Logdatei. Wird bei jedem Schritt SOFORT geschrieben
+        /// (AppendAllText oeffnet/schliesst -> effektiv geflusht), damit die letzte Zeile auch dann
+        /// sichtbar bleibt, wenn der Import haengt oder mit einer nicht fangbaren Exception abstuerzt
+        /// (dann erscheinen die MessageBoxen im Ribbon-Handler nie).
+        /// </summary>
+        public static readonly string DiagLogPath = Path.Combine(Path.GetTempPath(), "alps_import_diag.log");
+
+        public static void LogStep(string message)
         {
             LastImportLog.AppendLine(message);
             System.Diagnostics.Debug.WriteLine("[Import] " + message);
+            try
+            {
+                File.AppendAllText(DiagLogPath,
+                    System.DateTime.Now.ToString("HH:mm:ss.fff") + "  " + message + System.Environment.NewLine);
+            }
+            catch { /* Logging darf den Import niemals stoeren */ }
         }
 
         /// <summary>
@@ -70,6 +84,8 @@ namespace ALPS_Visio_AddIn_rewrite
         public void Parse(string fileName)
         {
             LastImportLog.Clear();
+            try { File.WriteAllText(DiagLogPath, "=== IMPORT-DIAGNOSE v4 === " + System.DateTime.Now + System.Environment.NewLine); }
+            catch { }
             LogStep("Parse: Start, Datei = " + fileName);
 
             // Re-establish the Visio class substitution before every import. Other features (e.g. the
