@@ -176,8 +176,8 @@ namespace ALPS_Visio_AddIn_rewrite
 
             foreach (Shape shape in visioPage.Shapes)
             {
-                if (shape.CellExistsU["Hyperlink." + Constants.Properties.ExtendedSubject + ".SubAdress", 0] == 0) continue;
-                string formula = shape.CellsU["Hyperlink." + Constants.Properties.ExtendedSubject + ".SubAdress"].Formula;
+                if (shape.CellExistsU["Hyperlink." + Constants.Properties.ExtendedSubject + Constants.SubAddressSuffix, 0] == 0) continue;
+                string formula = shape.CellsU["Hyperlink." + Constants.Properties.ExtendedSubject + Constants.SubAddressSuffix].Formula;
                 string subjectName = (formula.Contains('/')) ? formula.Split('/')[1] : formula;
                 snapHandler.snap(shape, subjectName);
             }

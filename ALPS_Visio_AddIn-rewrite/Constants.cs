@@ -6,7 +6,7 @@ namespace ALPS_Visio_AddIn_rewrite
         public const string PropPrefix = "Prop.";
         public const string HyperlinkPrefix = "Hyperlink.";
         public const string ValueSuffix = ".Value";
-        public const string SubAddressSuffix = ".SubAdress";
+        public const string SubAddressSuffix = ".SubAddress";
 
         // Misc
         public const string ExtensionSeparatorMasterName = "alpsExtensionSeperator";
