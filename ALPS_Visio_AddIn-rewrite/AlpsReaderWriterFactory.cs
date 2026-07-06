@@ -19,9 +19,9 @@ namespace ALPS_Visio_AddIn_rewrite
     /// <c>getInstance()</c> das Arbeitsverzeichnis kurz auf einen Ordner zu setzen, dessen Pfad
     /// "bin" enthaelt, und es danach wiederherzustellen.
     /// </summary>
-    internal static class AlpsReaderWriterFactory
+    public static class AlpsReaderWriterFactory
     {
-        internal static PASSReaderWriter GetInstanceSafely()
+        public static PASSReaderWriter GetInstanceSafely()
         {
             string previousCwd = null;
             try { previousCwd = Directory.GetCurrentDirectory(); }

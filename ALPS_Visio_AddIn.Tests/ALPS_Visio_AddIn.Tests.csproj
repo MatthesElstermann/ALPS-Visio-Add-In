@@ -15,6 +15,13 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>ALPS_Visio_AddIn_rewrite.Tests</RootNamespace>
     <AssemblyName>ALPS_Visio_AddIn.Tests</AssemblyName>
+    <!--
+      Binding-Redirects automatisch erzeugen: alps.net.api/dotNetRDF/ML ziehen Support-Assemblies
+      (System.Memory, System.Runtime.CompilerServices.Unsafe, ...) nach, deren Redirects sonst nur in
+      der app.config des Hauptprojekts stehen. Ohne diese wuerde das Laden im Testlauf werfen.
+    -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <ItemGroup>
