@@ -2,12 +2,12 @@
 
   <!--
     Getrenntes NUnit-Testprojekt fuer die Visio-UNABHAENGIGE Logik des Add-Ins. Bewusst SDK-Style
-    (PackageReference statt packages.config) -- das haelt die Testinfrastruktur schlank und ist mit
+    (PackageReference statt packages.config); das haelt die Testinfrastruktur schlank und ist mit
     VS 2022 neben dem klassischen VSTO-Projekt in derselben Solution problemlos nutzbar.
 
     NICHT testbar sind alle Pfade, die Visio-COM zeichnen (kein aktives Visio im Testlauf). Getestet
-    werden reine/rechnende Bausteine: QuoteLiteral (Escaping), spaeter Verifier.Verify (Spec-vs-Impl-
-    Pipeline, laeuft ganz ohne Visio) und AlpsReaderWriterFactory (Regressionstest fuer den CWD-Fix).
+    werden reine bzw. rechnende Bausteine: QuoteLiteral (Escaping), spaeter Verifier.Verify
+    (Spec/Impl-Pipeline, laeuft ganz ohne Visio) und AlpsReaderWriterFactory (Regressionstest CWD-Fix).
   -->
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
