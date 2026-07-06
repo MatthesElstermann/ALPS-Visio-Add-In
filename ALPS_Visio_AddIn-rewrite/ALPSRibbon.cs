@@ -76,16 +76,27 @@ namespace ALPS_Visio_AddIn_rewrite
             verificationButton.Click += new RibbonControlEventHandler(this.AlpsVerification);
             owlGroup.Items.Add(verificationButton);
 
-            // Carried over from the original add-in; not implemented yet (stub).
+            // PASS NL Checker (ML.NET label validity + LLM suggestions), ported from NLPPASSChecking.
             RibbonButton naturalLanguageButton = this.Factory.CreateRibbonButton();
             naturalLanguageButton.Name = "naturalLanguageButton";
             naturalLanguageButton.Label = "PASS NL Checker";
-            naturalLanguageButton.SuperTip = "Check a PASS model against a natural-language description.";
+            naturalLanguageButton.SuperTip = "Check every shape label for its type (ML) and get LLM suggestions for weak labels.";
             naturalLanguageButton.OfficeImageId = "Spelling";
             naturalLanguageButton.ShowImage = true;
             naturalLanguageButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
             naturalLanguageButton.Click += new RibbonControlEventHandler(this.PassNlChecker);
             owlGroup.Items.Add(naturalLanguageButton);
+
+            // Set/replace the LLM API key used by the PASS NL Checker (stored under %APPDATA%).
+            RibbonButton apiKeyButton = this.Factory.CreateRibbonButton();
+            apiKeyButton.Name = "apiKeyButton";
+            apiKeyButton.Label = "LLM API-Key";
+            apiKeyButton.SuperTip = "Set or replace the LLM API key used by the PASS NL Checker for label suggestions.";
+            apiKeyButton.OfficeImageId = "Lock";
+            apiKeyButton.ShowImage = true;
+            apiKeyButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            apiKeyButton.Click += new RibbonControlEventHandler(this.SetApiKey);
+            owlGroup.Items.Add(apiKeyButton);
 
             // Carried over from the original add-in; not implemented yet (stub).
             RibbonButton bpmnButton = this.Factory.CreateRibbonButton();
@@ -209,6 +220,17 @@ namespace ALPS_Visio_AddIn_rewrite
                 MessageBox.Show("Fehler im PASS NL Checker:\n" + ex.Message, "PASS NL Checker",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        /// <summary>
+        /// Opens the API-key dialog (pre-filled with the current key) so the LLM API key used by the
+        /// PASS NL Checker can be set or replaced at any time.
+        /// </summary>
+        private void SetApiKey(object sender, RibbonControlEventArgs e)
+        {
+            if (NLChecker.ApiKeyManager.UpdateApiKey())
+                MessageBox.Show("LLM API-Key gespeichert.", "PASS NL Checker",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
