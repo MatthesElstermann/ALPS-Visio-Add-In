@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Getrenntes NUnit-Testprojekt fuer die Visio-UNABHAENGIGE Logik des Add-Ins. Bewusst SDK-Style
+    (PackageReference statt packages.config) -- das haelt die Testinfrastruktur schlank und ist mit
+    VS 2022 neben dem klassischen VSTO-Projekt in derselben Solution problemlos nutzbar.
+
+    NICHT testbar sind alle Pfade, die Visio-COM zeichnen (kein aktives Visio im Testlauf). Getestet
+    werden reine/rechnende Bausteine: QuoteLiteral (Escaping), spaeter Verifier.Verify (Spec-vs-Impl-
+    Pipeline, laeuft ganz ohne Visio) und AlpsReaderWriterFactory (Regressionstest fuer den CWD-Fix).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>ALPS_Visio_AddIn_rewrite.Tests</RootNamespace>
+    <AssemblyName>ALPS_Visio_AddIn.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ALPS_Visio_AddIn-rewrite\ALPS_Visio_AddIn-rewrite.csproj" />
+  </ItemGroup>
+
+</Project>
