@@ -70,20 +70,23 @@ namespace ALPS_Visio_AddIn_rewrite
             Document visioStencil = visioDocs.OpenEx(ShapeFinder.getSIDName(),
                     (short)VisOpenSaveArgs.visOpenDocked);
 
+            // Look the master up with FirstOrDefault instead of Masters.ItemU: a missing master makes
+            // ItemU throw a COMException that was merely swallowed below. The throw itself still fires
+            // on every extends establishment (import AND every window switch on layered docs, via
+            // reset()/updateExtends) and each one is an expensive debugger notification — the main
+            // source of the "everything feels slow" symptom. FirstOrDefault returns null instead.
+            Master visioRectMaster = visioStencil.Masters.Cast<Master>()
+                .FirstOrDefault(master => master.NameU.Equals("alpsExtensionSeperator"));
+            if (visioRectMaster == null) return;
+
             try
             {
-                Master visioRectMaster = visioStencil.Masters.ItemU["alpsExtensionSeperator"];
-
-                DiagramPageController newPropC = getController(newProperty);
-                double width = newPropC.getWidth();
-                double height = newPropC.getHeight();
-
                 Shape visioRectShape = visioPage.Drop(visioRectMaster, 1, 1);
                 visioPage.Layers.ItemU["BackgroundSeparatorLayer"].CellsC[7].Formula = "1";
             }
             catch (COMException)
             {
-                // Happens when the visioRectMaster cannot be retrieved properly
+                // The layer/cell setup can still fail on some stencils; keep the dropped shape.
             }
         }
 
