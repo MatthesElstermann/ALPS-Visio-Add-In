@@ -64,11 +64,14 @@ namespace ALPS_Visio_AddIn_rewrite
             app.DeferRecalc = 1;
 
             bool committed = false;
+            bool centerMessageBoxes = false;
             try
             {
                 string pageType = ReadPageTypeFormula(page);
                 if (pageType.Contains(Constants.Properties.SBDPage))
                 {
+                    // SBD-Label-Boxen folgen ihren Connectoren per Stencil-Formel —
+                    // kein Nachzentrieren noetig.
                     ArrangeStates(page, direction);
                     committed = true;
                 }
@@ -76,6 +79,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 {
                     ArrangeSubjects(page, direction);
                     committed = true;
+                    centerMessageBoxes = true;
                 }
                 else
                 {
@@ -90,7 +94,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 app.DeferRecalc = prevDeferRecalc;
                 try
                 {
-                    if (committed) CenterAttachedBoxes(page);
+                    if (centerMessageBoxes) CenterMessageBoxes(page);
                 }
                 finally
                 {
@@ -101,23 +105,43 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Triggers the stencil's "Center" action on every shape that has one — that is the
-        /// built-in way the message/label boxes snap back onto their connector (the import
-        /// uses the same action). Without this the boxes keep their pre-arrange position.
+        /// Snaps the SID message boxes back onto their connectors after the subjects moved.
+        /// Only the connector-companion containers are touched — they carry the
+        /// <c>User.idOnPage</c> cell, the same marker the import uses to find them. The
+        /// stencil's "Center" action moves ONLY the container itself, so the message shapes
+        /// inside (container list members) are shifted by the same offset afterwards —
+        /// otherwise they slip out of the box.
         /// </summary>
-        private static void CenterAttachedBoxes(Visio.Page page)
+        private static void CenterMessageBoxes(Visio.Page page)
         {
             foreach (Visio.Shape shape in page.Shapes)
             {
                 try
                 {
-                    if (shape.CellExistsU["Actions.Center.Action", 0] != 0)
-                        shape.CellsU["Actions.Center.Action"].Trigger();
+                    if (shape.CellExistsU["User.idOnPage", 0] == 0) continue;
+                    if (shape.CellExistsU["Actions.Center.Action", 0] == 0) continue;
+
+                    double beforeX = VH.GetCell(shape, "PinX");
+                    double beforeY = VH.GetCell(shape, "PinY");
+                    shape.CellsU["Actions.Center.Action"].Trigger();
+                    double deltaX = VH.GetCell(shape, "PinX") - beforeX;
+                    double deltaY = VH.GetCell(shape, "PinY") - beforeY;
+                    if (deltaX == 0 && deltaY == 0) continue;
+
+                    Visio.ContainerProperties container = shape.ContainerProperties;
+                    if (container == null) continue;
+                    foreach (object memberId in (System.Array)container.GetMemberShapes(
+                        Visio.VisContainerFlags.visContainerFlagsDefault))
+                    {
+                        Visio.Shape member = page.Shapes.ItemFromID[Convert.ToInt32(memberId)];
+                        VH.SetCell(member, "PinX", VH.GetCell(member, "PinX") + deltaX);
+                        VH.SetCell(member, "PinY", VH.GetCell(member, "PinY") + deltaY);
+                    }
                 }
                 catch (System.Runtime.InteropServices.COMException e)
                 {
                     System.Diagnostics.Debug.WriteLine(
-                        "CenterAttachedBoxes: Zentrieren von " + shape.NameU + " fehlgeschlagen: " + e.Message);
+                        "CenterMessageBoxes: Zentrieren von " + shape.NameU + " fehlgeschlagen: " + e.Message);
                 }
             }
         }
@@ -145,8 +169,8 @@ namespace ALPS_Visio_AddIn_rewrite
             foreach (string id in nodes.Keys.ToList())
                 if (layer[id] < 0) layer[id] = 0;
 
-            PlaceLayers(page, nodes, layer, adjacency, direction);
-            GlueEdgesToFlow(edges, nodes, id => layer[id], direction);
+            IDictionary<string, double> perpendicularOffset = PlaceLayers(page, nodes, layer, adjacency, direction);
+            GlueEdgesToFlow(edges, nodes, id => layer[id], perpendicularOffset, direction);
         }
 
         /// <summary>
@@ -206,7 +230,9 @@ namespace ALPS_Visio_AddIn_rewrite
             var subjectAdjacency = subjectNodes.Keys.ToDictionary(id => id, id => new List<string>());
             var edges = new List<(Visio.Shape connector, string source, string target)>();
             BuildEdges(page, subjectNodes, subjectAdjacency, edges);
-            GlueEdgesToFlow(edges, subjectNodes, id => rank[id], direction);
+            // Subjekte stehen alle auf der Mittellinie — Spurwahl faellt auf die Kanten-Art zurueck.
+            IDictionary<string, double> perpendicularOffset = subjectNodes.Keys.ToDictionary(id => id, id => 0.0);
+            GlueEdgesToFlow(edges, subjectNodes, id => rank[id], perpendicularOffset, direction);
         }
 
         /// <summary>
@@ -214,12 +240,15 @@ namespace ALPS_Visio_AddIn_rewrite
         /// perpendicular to the flow and centered. LeftToRight lays layers along X (siblings
         /// stacked along Y); TopToBottom lays layers along Y from the top (siblings along X).
         /// </summary>
-        private static void PlaceLayers(Visio.Page page, IDictionary<string, Visio.Shape> nodes,
+        /// <returns>Each node's signed offset (mm) from the layout's center line, perpendicular
+        /// to the flow — used for the outer-lane choice when re-gluing the connectors.</returns>
+        private static IDictionary<string, double> PlaceLayers(Visio.Page page, IDictionary<string, Visio.Shape> nodes,
             IDictionary<string, int> layer, IDictionary<string, List<string>> adjacency, LayoutDirection direction)
         {
             List<KeyValuePair<int, List<string>>> groups = BuildOrderedLayers(layer, adjacency);
             int maxLayer = layer.Values.Max();
             int maxSiblings = groups.Max(g => g.Value.Count);
+            var perpendicularOffset = new Dictionary<string, double>();
 
             if (direction == LayoutDirection.LeftToRight)
             {
@@ -236,7 +265,11 @@ namespace ALPS_Visio_AddIn_rewrite
                     List<string> ids = group.Value;
                     double startY = midY + (ids.Count - 1) * SiblingStepLR / 2.0;
                     for (int i = 0; i < ids.Count; i++)
-                        SetPin(nodes[ids[i]], x, startY - i * SiblingStepLR);
+                    {
+                        double y = startY - i * SiblingStepLR;
+                        SetPin(nodes[ids[i]], x, y);
+                        perpendicularOffset[ids[i]] = y - midY;
+                    }
                 }
             }
             else
@@ -254,9 +287,14 @@ namespace ALPS_Visio_AddIn_rewrite
                     List<string> ids = group.Value;
                     double startX = midX - (ids.Count - 1) * SiblingStepTB / 2.0;
                     for (int i = 0; i < ids.Count; i++)
-                        SetPin(nodes[ids[i]], startX + i * SiblingStepTB, y);
+                    {
+                        double x = startX + i * SiblingStepTB;
+                        SetPin(nodes[ids[i]], x, y);
+                        perpendicularOffset[ids[i]] = x - midX;
+                    }
                 }
             }
+            return perpendicularOffset;
         }
 
         /// <summary>
@@ -314,55 +352,56 @@ namespace ALPS_Visio_AddIn_rewrite
         /// Re-glues the connectors to flow-aligned points on their nodes. The import glues every
         /// connector for left-to-right flow (begin at the source's right-center, end at the
         /// target's left-center); for Top-Down that produces awkward sideways S-curves.
-        /// Three lanes keep the edge kinds apart so their lines and label boxes do not collide:
-        /// adjacent forward edges flow straight with the layout; edges that SKIP layers run in
-        /// the top/left outer lane instead of cutting through the chain; back and same-rank
-        /// edges run in the bottom/right outer lane.
+        /// Adjacent forward edges flow straight with the layout. All other edges (layer
+        /// skippers, back and same-rank edges) take an OUTER lane — on the side where their
+        /// most-displaced endpoint already sits, so the line runs around the diagram instead of
+        /// cutting through it. For endpoints on the center line the edge kinds are separated:
+        /// skippers go top/left, back edges go bottom/right.
         /// </summary>
         private static void GlueEdgesToFlow(List<(Visio.Shape connector, string source, string target)> edges,
-            IDictionary<string, Visio.Shape> nodes, Func<string, int> rank, LayoutDirection direction)
+            IDictionary<string, Visio.Shape> nodes, Func<string, int> rank,
+            IDictionary<string, double> perpendicularOffset, LayoutDirection direction)
         {
+            bool leftRight = direction == LayoutDirection.LeftToRight;
+
             foreach ((Visio.Shape connector, string source, string target) in edges)
             {
                 int rankDelta = rank(target) - rank(source);
                 try
                 {
-                    if (direction == LayoutDirection.TopToBottom)
+                    if (rankDelta == 1)
                     {
-                        if (rankDelta == 1)
-                        {
-                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 0.0); // bottom-center
-                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 1.0);   // top-center
-                        }
-                        else if (rankDelta > 1)
-                        {
-                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.0, 0.5); // left lane
-                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.0, 0.5);
-                        }
-                        else
-                        {
-                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 1.0, 0.5); // right lane
-                            connector.CellsU["EndY"].GlueToPos(nodes[target], 1.0, 0.5);
-                        }
-                    }
-                    else
-                    {
-                        if (rankDelta == 1)
+                        if (leftRight)
                         {
                             connector.CellsU["BeginX"].GlueToPos(nodes[source], 1.0, 0.5); // right-center
                             connector.CellsU["EndY"].GlueToPos(nodes[target], 0.0, 0.5);   // left-center
                         }
-                        else if (rankDelta > 1)
-                        {
-                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 1.0); // top lane
-                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 1.0);
-                        }
                         else
                         {
-                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 0.0); // bottom lane
-                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 0.0);
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 0.0); // bottom-center
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 1.0);   // top-center
                         }
+                        continue;
                     }
+
+                    // Aussenspur: der staerker von der Mittellinie versetzte Endpunkt bestimmt
+                    // die Seite (seine Kante laeuft dann aussen herum, nicht quer durchs Feld).
+                    // Die Offsets stammen aus der Layout-Rechnung selbst — bewusst KEIN
+                    // Result-Rueckgelese aus Visio, DeferRecalc ist hier noch aktiv.
+                    double sourceOffset = perpendicularOffset[source];
+                    double targetOffset = perpendicularOffset[target];
+                    double offset = Math.Abs(sourceOffset) >= Math.Abs(targetOffset) ? sourceOffset : targetOffset;
+
+                    bool positiveSide; // LR: obere Spur (y+), TB: rechte Spur (x+)
+                    if (offset > 1.0) positiveSide = true;
+                    else if (offset < -1.0) positiveSide = false;
+                    else positiveSide = leftRight ? rankDelta > 1 : rankDelta <= 0;
+
+                    double glueX = leftRight ? 0.5 : (positiveSide ? 1.0 : 0.0);
+                    double glueY = leftRight ? (positiveSide ? 1.0 : 0.0) : 0.5;
+
+                    connector.CellsU["BeginX"].GlueToPos(nodes[source], glueX, glueY);
+                    connector.CellsU["EndY"].GlueToPos(nodes[target], glueX, glueY);
                 }
                 catch (System.Runtime.InteropServices.COMException e)
                 {
