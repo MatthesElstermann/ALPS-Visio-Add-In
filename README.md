@@ -150,10 +150,9 @@ restore (a `packages/` folder, not `<PackageReference>`).
 4. Press **F5** — Visual Studio launches Visio with the add-in registered and the
    debugger attached. There is no command-line entry point.
 
-The VSTO manifest is signed with a temporary key (`*_TemporaryKey.pfx`). See
-[docs/publish_test_certificate](docs/publish_test_certificate) and the LaTeX notes in
-[docs/latex](docs/latex) for certificate and publishing details. End-user installation
-is described in **[docs/AddIn installation-guide.pdf](docs/AddIn%20installation-guide.pdf)**.
+The VSTO manifest is signed with a temporary key (`*_TemporaryKey.pfx`). End-user
+installation — including the certificate steps — is described in
+**[docs/AddIn installation-guide.pdf](docs/AddIn%20installation-guide.pdf)**.
 
 ### Tests
 
