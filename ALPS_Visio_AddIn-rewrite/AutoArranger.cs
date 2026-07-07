@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Visio = Microsoft.Office.Interop.Visio;
 using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
@@ -147,15 +148,31 @@ namespace ALPS_Visio_AddIn_rewrite
                     VH.SetCellMM(box, "PinY", midY);
 
                     Visio.ContainerProperties container = box.ContainerProperties;
-                    if (container == null) continue;
-                    foreach (object memberId in (System.Array)container.GetMemberShapes(
-                        (int)Visio.VisContainerFlags.visContainerFlagsDefault))
+                    if (container == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            "CenterMessageBoxes: " + box.NameU + " hat keine ContainerProperties.");
+                        continue;
+                    }
+
+                    System.Array memberIds = (System.Array)container.GetMemberShapes(
+                        (int)Visio.VisContainerFlags.visContainerFlagsDefault);
+                    System.Diagnostics.Debug.WriteLine(
+                        "CenterMessageBoxes: " + box.NameU + " delta=(" + deltaX.ToString("F1") + ";" +
+                        deltaY.ToString("F1") + ") mm, Mitglieder=" + memberIds.Length);
+
+                    foreach (object memberId in memberIds)
                     {
                         try
                         {
                             Visio.Shape member = page.Shapes.ItemFromID[Convert.ToInt32(memberId)];
-                            VH.SetCellMM(member, "PinX", PinMM(member, "PinX") + deltaX);
-                            VH.SetCellMM(member, "PinY", PinMM(member, "PinY") + deltaY);
+                            // FormulaForceU statt normalem Formula-Set: die Pins von
+                            // Listen-Mitgliedern sind GUARD-geschuetzt — ein normales Set
+                            // wirft und die Nachricht bleibt neben der Box stehen.
+                            member.CellsU["PinX"].FormulaForceU =
+                                (PinMM(member, "PinX") + deltaX).ToString(CultureInfo.InvariantCulture) + " mm";
+                            member.CellsU["PinY"].FormulaForceU =
+                                (PinMM(member, "PinY") + deltaY).ToString(CultureInfo.InvariantCulture) + " mm";
                         }
                         catch (System.Runtime.InteropServices.COMException e)
                         {
