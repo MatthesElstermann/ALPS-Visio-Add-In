@@ -134,6 +134,9 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 try
                 {
+                    // Auch die Connectoren tragen User.idOnPage — nur echte (2D-)Boxen behandeln,
+                    // sonst versucht die Schleife, den GUARD-geschuetzten Connector zu verschieben.
+                    if (!Is2D(box)) continue;
                     if (box.CellExistsU["User.idOnPage", 0] == 0) continue;
                     int idOnPage = (int)box.CellsU["User.idOnPage"].Result[""];
                     if (!connectorsByCorrespondingId.TryGetValue(idOnPage, out Visio.Shape connector)) continue;
@@ -144,40 +147,49 @@ namespace ALPS_Visio_AddIn_rewrite
                     double deltaY = midY - PinMM(box, "PinY");
                     if (Math.Abs(deltaX) < 0.01 && Math.Abs(deltaY) < 0.01) continue;
 
-                    VH.SetCellMM(box, "PinX", midX);
-                    VH.SetCellMM(box, "PinY", midY);
-
+                    // Mitglieder VOR dem Verschieben der Box abfragen: versetzt man die Box
+                    // zuerst, wirft Visio die physisch zurueckbleibenden Nachrichten aus der
+                    // Container-Mitgliedschaft — GetMemberShapes lieferte dann 0.
                     Visio.ContainerProperties container = box.ContainerProperties;
-                    if (container == null)
-                    {
-                        System.Diagnostics.Debug.WriteLine(
-                            "CenterMessageBoxes: " + box.NameU + " hat keine ContainerProperties.");
-                        continue;
-                    }
-
-                    System.Array memberIds = (System.Array)container.GetMemberShapes(
+                    System.Array memberIds = container == null ? null : (System.Array)container.GetMemberShapes(
                         (int)Visio.VisContainerFlags.visContainerFlagsDefault);
                     System.Diagnostics.Debug.WriteLine(
                         "CenterMessageBoxes: " + box.NameU + " delta=(" + deltaX.ToString("F1") + ";" +
-                        deltaY.ToString("F1") + ") mm, Mitglieder=" + memberIds.Length);
+                        deltaY.ToString("F1") + ") mm, Mitglieder=" + (memberIds == null ? -1 : memberIds.Length));
 
-                    foreach (object memberId in memberIds)
+                    VH.SetCellMM(box, "PinX", midX);
+                    VH.SetCellMM(box, "PinY", midY);
+
+                    if (container == null || memberIds == null) continue;
+                    for (int i = 0; i < memberIds.Length; i++)
                     {
+                        Visio.Shape member;
+                        try { member = page.Shapes.ItemFromID[Convert.ToInt32(memberIds.GetValue(i))]; }
+                        catch (System.Runtime.InteropServices.COMException) { continue; }
+
                         try
                         {
-                            Visio.Shape member = page.Shapes.ItemFromID[Convert.ToInt32(memberId)];
-                            // FormulaForceU statt normalem Formula-Set: die Pins von
-                            // Listen-Mitgliedern sind GUARD-geschuetzt — ein normales Set
-                            // wirft und die Nachricht bleibt neben der Box stehen.
-                            member.CellsU["PinX"].FormulaForceU =
-                                (PinMM(member, "PinX") + deltaX).ToString(CultureInfo.InvariantCulture) + " mm";
-                            member.CellsU["PinY"].FormulaForceU =
-                                (PinMM(member, "PinY") + deltaY).ToString(CultureInfo.InvariantCulture) + " mm";
+                            // InsertListMember positioniert das Shape physisch in seinen
+                            // Listen-Slot (derselbe Mechanismus wie beim Import) und stellt
+                            // die durch den Box-Move verlorene Mitgliedschaft wieder her.
+                            container.InsertListMember(member, i);
                         }
-                        catch (System.Runtime.InteropServices.COMException e)
+                        catch (System.Runtime.InteropServices.COMException)
                         {
-                            System.Diagnostics.Debug.WriteLine(
-                                "CenterMessageBoxes: Mitglied " + memberId + " nicht verschiebbar: " + e.Message);
+                            // Fallback: Pins direkt mitversetzen; FormulaForce uebersteuert
+                            // den GUARD der Listen-Mitglieder.
+                            try
+                            {
+                                member.CellsU["PinX"].FormulaForceU =
+                                    (PinMM(member, "PinX") + deltaX).ToString(CultureInfo.InvariantCulture) + " mm";
+                                member.CellsU["PinY"].FormulaForceU =
+                                    (PinMM(member, "PinY") + deltaY).ToString(CultureInfo.InvariantCulture) + " mm";
+                            }
+                            catch (System.Runtime.InteropServices.COMException e)
+                            {
+                                System.Diagnostics.Debug.WriteLine(
+                                    "CenterMessageBoxes: Mitglied " + member.NameU + " nicht verschiebbar: " + e.Message);
+                            }
                         }
                     }
                 }
