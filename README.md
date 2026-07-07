@@ -151,8 +151,10 @@ restore (a `packages/` folder, not `<PackageReference>`).
    debugger attached. There is no command-line entry point.
 
 The VSTO manifest is signed with a temporary key (`*_TemporaryKey.pfx`). End-user
-installation — including the certificate steps — is described in
-**[docs/AddIn installation-guide.pdf](docs/AddIn%20installation-guide.pdf)**.
+installation — including the certificate steps — is described in the
+[installation guide](#end-user-installation-certificate-import) at the end of this
+README (with screenshots in
+[docs/AddIn installation-guide.pdf](docs/AddIn%20installation-guide.pdf)).
 
 ### Tests
 
@@ -279,3 +281,57 @@ Additional notes and a deeper code walk-through live in
 This repository belongs to the ALPS/PASS tooling around
 [@MatthesElstermann](https://github.com/MatthesElstermann). For questions about the
 model semantics or the original add-in, that is the place to start.
+
+---
+
+## End-user installation (certificate import)
+
+*Markdown version of "Certificate import for Windows to install ALPS Visio Plugin" by
+Matthes Elstermann and Lukas Gnad — the original PDF with screenshots is
+[docs/AddIn installation-guide.pdf](docs/AddIn%20installation-guide.pdf).*
+
+### Read before installation
+
+The ALPS Visio plugin can only be installed if the plugin's certificate is trusted by
+the Windows system. The certificate used to sign the plugin is a **testing
+certificate**, so a standard Windows system will not accept it as coming from a trusted
+authority.
+
+To install anyway, the certificate can be imported into the *Trusted Root Certification
+Authorities* store manually. **This is a potential security risk** — Windows will then
+trust anything signed by this certificate — so it is **highly recommended to remove the
+certificate again right after a successful installation** (see below).
+
+### Installing the certificate
+
+1. Go to the plugin directory, right-click **`setup.exe`** and choose **Properties**.
+2. Open the **Digital Signatures** tab, select the certificate in the *Signature list*
+   and click **Details**.
+3. Under *Signer information*, click **View Certificate**.
+4. In the certificate window, click **Install Certificate…** — the *Certificate Import
+   Wizard* opens.
+5. **Store location:** choose **Current User** (the certificate should not affect other
+   users on the system) and continue.
+6. **Certificate store:** do *not* let Windows pick the store automatically — select
+   **"Place all certificates in the following store"** and browse to
+   **Trusted Root Certification Authorities**. (With the automatic choice the
+   certificate ends up in a store that is *not* consulted for software installation,
+   and the plugin setup will still fail.)
+7. Windows shows a **security warning** that it cannot validate the certificate and
+   that you install it at your own risk. Confirm with **Yes** and finish the wizard.
+8. Close all windows and run the plugin installation (`setup.exe`).
+
+Afterwards, remove the certificate again (next section).
+
+### Removing the installed certificate
+
+Where the certificate lives depends on the store location chosen during the import:
+
+- Installed for the **current user**: open the Windows search bar and run
+  **"Manage user certificates"** (`certmgr.msc`).
+- Installed for the **whole system**: open the Windows search bar and run
+  **"Manage computer certificates"** (`certlm.msc`).
+
+In the certificate manager, navigate to **Trusted Root Certification Authorities →
+Certificates** in the tree on the left, locate the installed certificate (issued to
+*Elstermann*) and delete it.
