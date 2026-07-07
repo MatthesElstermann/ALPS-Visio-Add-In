@@ -130,6 +130,9 @@ namespace ALPS_Visio_AddIn_rewrite
                 catch (System.Runtime.InteropServices.COMException) { /* Shape ohne lesbare Zelle */ }
             }
 
+            // Phase 1: Zielpositionen (Connector-Mittelpunkte) und Mitglieder einsammeln.
+            // Mitglieder MUESSEN vor jedem Box-Move gelesen werden (Ejection, siehe unten).
+            var placements = new List<BoxPlacement>();
             foreach (Visio.Shape box in page.Shapes)
             {
                 try
@@ -141,38 +144,87 @@ namespace ALPS_Visio_AddIn_rewrite
                     int idOnPage = (int)box.CellsU["User.idOnPage"].Result[""];
                     if (!connectorsByCorrespondingId.TryGetValue(idOnPage, out Visio.Shape connector)) continue;
 
-                    double midX = (PinMM(connector, "BeginX") + PinMM(connector, "EndX")) / 2.0;
-                    double midY = (PinMM(connector, "BeginY") + PinMM(connector, "EndY")) / 2.0;
-                    double deltaX = midX - PinMM(box, "PinX");
-                    double deltaY = midY - PinMM(box, "PinY");
+                    Visio.ContainerProperties container = box.ContainerProperties;
+                    placements.Add(new BoxPlacement
+                    {
+                        Box = box,
+                        Container = container,
+                        MemberIds = container == null ? null : (System.Array)container.GetMemberShapes(
+                            (int)Visio.VisContainerFlags.visContainerFlagsDefault),
+                        Width = PinMM(box, "Width"),
+                        Height = PinMM(box, "Height"),
+                        BeforeX = PinMM(box, "PinX"),
+                        BeforeY = PinMM(box, "PinY"),
+                        TargetX = (PinMM(connector, "BeginX") + PinMM(connector, "EndX")) / 2.0,
+                        TargetY = (PinMM(connector, "BeginY") + PinMM(connector, "EndY")) / 2.0,
+                    });
+                }
+                catch (System.Runtime.InteropServices.COMException e)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "CenterMessageBoxes: " + box.NameU + " nicht erfassbar: " + e.Message);
+                }
+            }
+
+            // Phase 2: Ueberlappende Boxen auseinanderschieben — z. B. liegen in Top-Down die
+            // Mittelpunkte von Hin- und Rueckkante auf gleicher Hoehe. Verschoben wird entlang
+            // der Achse mit dem geringeren noetigen Versatz, beide Boxen je zur Haelfte.
+            const double boxGap = 3.0;
+            for (int a = 0; a < placements.Count; a++)
+                for (int b = a + 1; b < placements.Count; b++)
+                {
+                    BoxPlacement p = placements[a], q = placements[b];
+                    double dx = q.TargetX - p.TargetX, dy = q.TargetY - p.TargetY;
+                    double overlapX = (p.Width + q.Width) / 2.0 + boxGap - Math.Abs(dx);
+                    double overlapY = (p.Height + q.Height) / 2.0 + boxGap - Math.Abs(dy);
+                    if (overlapX <= 0 || overlapY <= 0) continue;
+
+                    if (overlapY <= overlapX)
+                    {
+                        double sign = dy >= 0 ? 1.0 : -1.0;
+                        p.TargetY -= sign * overlapY / 2.0;
+                        q.TargetY += sign * overlapY / 2.0;
+                    }
+                    else
+                    {
+                        double sign = dx >= 0 ? 1.0 : -1.0;
+                        p.TargetX -= sign * overlapX / 2.0;
+                        q.TargetX += sign * overlapX / 2.0;
+                    }
+                }
+
+            // Phase 3: Boxen versetzen und die Nachrichten wieder einsetzen.
+            foreach (BoxPlacement placement in placements)
+            {
+                try
+                {
+                    double deltaX = placement.TargetX - placement.BeforeX;
+                    double deltaY = placement.TargetY - placement.BeforeY;
                     if (Math.Abs(deltaX) < 0.01 && Math.Abs(deltaY) < 0.01) continue;
 
-                    // Mitglieder VOR dem Verschieben der Box abfragen: versetzt man die Box
-                    // zuerst, wirft Visio die physisch zurueckbleibenden Nachrichten aus der
-                    // Container-Mitgliedschaft — GetMemberShapes lieferte dann 0.
-                    Visio.ContainerProperties container = box.ContainerProperties;
-                    System.Array memberIds = container == null ? null : (System.Array)container.GetMemberShapes(
-                        (int)Visio.VisContainerFlags.visContainerFlagsDefault);
                     System.Diagnostics.Debug.WriteLine(
-                        "CenterMessageBoxes: " + box.NameU + " delta=(" + deltaX.ToString("F1") + ";" +
-                        deltaY.ToString("F1") + ") mm, Mitglieder=" + (memberIds == null ? -1 : memberIds.Length));
+                        "CenterMessageBoxes: " + placement.Box.NameU + " delta=(" + deltaX.ToString("F1") + ";" +
+                        deltaY.ToString("F1") + ") mm, Mitglieder=" +
+                        (placement.MemberIds == null ? -1 : placement.MemberIds.Length));
 
-                    VH.SetCellMM(box, "PinX", midX);
-                    VH.SetCellMM(box, "PinY", midY);
+                    VH.SetCellMM(placement.Box, "PinX", placement.TargetX);
+                    VH.SetCellMM(placement.Box, "PinY", placement.TargetY);
 
-                    if (container == null || memberIds == null) continue;
-                    for (int i = 0; i < memberIds.Length; i++)
+                    if (placement.Container == null || placement.MemberIds == null) continue;
+                    for (int i = 0; i < placement.MemberIds.Length; i++)
                     {
                         Visio.Shape member;
-                        try { member = page.Shapes.ItemFromID[Convert.ToInt32(memberIds.GetValue(i))]; }
+                        try { member = page.Shapes.ItemFromID[Convert.ToInt32(placement.MemberIds.GetValue(i))]; }
                         catch (System.Runtime.InteropServices.COMException) { continue; }
 
                         try
                         {
                             // InsertListMember positioniert das Shape physisch in seinen
                             // Listen-Slot (derselbe Mechanismus wie beim Import) und stellt
-                            // die durch den Box-Move verlorene Mitgliedschaft wieder her.
-                            container.InsertListMember(member, i);
+                            // die durch den Box-Move verlorene Mitgliedschaft wieder her:
+                            // das programmatische Versetzen eines Containers ejektiert
+                            // dessen zurueckbleibende Mitglieder.
+                            placement.Container.InsertListMember(member, i);
                         }
                         catch (System.Runtime.InteropServices.COMException)
                         {
@@ -196,9 +248,20 @@ namespace ALPS_Visio_AddIn_rewrite
                 catch (System.Runtime.InteropServices.COMException e)
                 {
                     System.Diagnostics.Debug.WriteLine(
-                        "CenterMessageBoxes: Zentrieren von " + box.NameU + " fehlgeschlagen: " + e.Message);
+                        "CenterMessageBoxes: Zentrieren von " + placement.Box.NameU + " fehlgeschlagen: " + e.Message);
                 }
             }
+        }
+
+        /// <summary>Geplante Zielposition einer Message-Box samt vorab gesicherter Mitglieder.</summary>
+        private sealed class BoxPlacement
+        {
+            public Visio.Shape Box;
+            public Visio.ContainerProperties Container;
+            public System.Array MemberIds;
+            public double Width, Height;
+            public double BeforeX, BeforeY;
+            public double TargetX, TargetY;
         }
 
         /// <summary>
