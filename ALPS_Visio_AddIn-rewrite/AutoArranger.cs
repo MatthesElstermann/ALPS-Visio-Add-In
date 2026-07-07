@@ -50,6 +50,14 @@ namespace ALPS_Visio_AddIn_rewrite
             if (page == null) return;
 
             int scope = app.BeginUndoScope("Auto Arrange");
+
+            // Rendering und Neuberechnung waehrend des Umsortierens aussetzen — sonst
+            // zeichnet Visio nach jedem einzelnen PinX/PinY-Set die Seite neu.
+            short prevScreenUpdating = app.ScreenUpdating;
+            short prevDeferRecalc = app.DeferRecalc;
+            app.ScreenUpdating = 0;
+            app.DeferRecalc = 1;
+
             bool committed = false;
             try
             {
@@ -72,6 +80,8 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             finally
             {
+                app.DeferRecalc = prevDeferRecalc;
+                app.ScreenUpdating = prevScreenUpdating;
                 app.EndUndoScope(scope, committed);
             }
         }
