@@ -105,33 +105,48 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Snaps the SID message boxes back onto their connectors after the subjects moved.
-        /// Only the connector-companion containers are touched — they carry the
-        /// <c>User.idOnPage</c> cell, the same marker the import uses to find them. The
-        /// stencil's "Center" action moves ONLY the container itself, so the message shapes
-        /// inside (container list members) are shifted by the same offset afterwards —
-        /// otherwise they slip out of the box.
+        /// Moves the SID message boxes back onto the midpoint of their connectors after the
+        /// subjects moved — deterministically, WITHOUT the stencil's "Center" action (its
+        /// effect is not reliably readable right after the trigger, which made the member
+        /// offset zero or garbage). Box and connector are linked by the same id pair the
+        /// import uses: the box's <c>User.idOnPage</c> equals the connector's
+        /// <c>User.idOfCorrespondingShape</c>. The message shapes inside the box (container
+        /// list members) are shifted by the same offset, so the box interior stays intact.
+        /// Runs AFTER DeferRecalc is restored — the connector endpoints are read back here.
         /// </summary>
         private static void CenterMessageBoxes(Visio.Page page)
         {
+            // Connectoren mit Begleitbox einsammeln (idOfCorrespondingShape -> Connector).
+            var connectorsByCorrespondingId = new Dictionary<int, Visio.Shape>();
             foreach (Visio.Shape shape in page.Shapes)
             {
                 try
                 {
-                    if (shape.CellExistsU["User.idOnPage", 0] == 0) continue;
-                    if (shape.CellExistsU["Actions.Center.Action", 0] == 0) continue;
+                    if (shape.CellExistsU["User.idOfCorrespondingShape", 0] == 0) continue;
+                    int id = (int)shape.CellsU["User.idOfCorrespondingShape"].Result[""];
+                    if (!connectorsByCorrespondingId.ContainsKey(id)) connectorsByCorrespondingId[id] = shape;
+                }
+                catch (System.Runtime.InteropServices.COMException) { /* Shape ohne lesbare Zelle */ }
+            }
 
-                    // Durchgaengig in mm rechnen: Result[""] liefert interne Einheiten (Zoll),
-                    // waehrend eine nackte Zahl im Formel-Set als Dokumenteinheit (mm) gelesen
-                    // wird — dieser Mix hat die Mitglieder zuvor an falsche Koordinaten geschossen.
-                    double beforeX = PinMM(shape, "PinX");
-                    double beforeY = PinMM(shape, "PinY");
-                    shape.CellsU["Actions.Center.Action"].Trigger();
-                    double deltaX = PinMM(shape, "PinX") - beforeX;
-                    double deltaY = PinMM(shape, "PinY") - beforeY;
+            foreach (Visio.Shape box in page.Shapes)
+            {
+                try
+                {
+                    if (box.CellExistsU["User.idOnPage", 0] == 0) continue;
+                    int idOnPage = (int)box.CellsU["User.idOnPage"].Result[""];
+                    if (!connectorsByCorrespondingId.TryGetValue(idOnPage, out Visio.Shape connector)) continue;
+
+                    double midX = (PinMM(connector, "BeginX") + PinMM(connector, "EndX")) / 2.0;
+                    double midY = (PinMM(connector, "BeginY") + PinMM(connector, "EndY")) / 2.0;
+                    double deltaX = midX - PinMM(box, "PinX");
+                    double deltaY = midY - PinMM(box, "PinY");
                     if (Math.Abs(deltaX) < 0.01 && Math.Abs(deltaY) < 0.01) continue;
 
-                    Visio.ContainerProperties container = shape.ContainerProperties;
+                    VH.SetCellMM(box, "PinX", midX);
+                    VH.SetCellMM(box, "PinY", midY);
+
+                    Visio.ContainerProperties container = box.ContainerProperties;
                     if (container == null) continue;
                     foreach (object memberId in (System.Array)container.GetMemberShapes(
                         (int)Visio.VisContainerFlags.visContainerFlagsDefault))
@@ -152,7 +167,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 catch (System.Runtime.InteropServices.COMException e)
                 {
                     System.Diagnostics.Debug.WriteLine(
-                        "CenterMessageBoxes: Zentrieren von " + shape.NameU + " fehlgeschlagen: " + e.Message);
+                        "CenterMessageBoxes: Zentrieren von " + box.NameU + " fehlgeschlagen: " + e.Message);
                 }
             }
         }
