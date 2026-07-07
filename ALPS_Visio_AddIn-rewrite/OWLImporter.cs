@@ -90,35 +90,22 @@ namespace ALPS_Visio_AddIn_rewrite
             // open stencils to reduce load time
             VH.openStencil(VH.VisioStencils.SID_STENCIL);
 
-            // Batch-Modus fuer den eigentlichen Zeichenvorgang: ohne dies rendert und
-            // rekalkuliert Visio nach jedem Zell-Set, und jede neue Seite/Zelle feuert
-            // die Add-In-Events (PageAdded-Registrierung, CellChanged-Handler) einzeln.
-            // Der ModelController wird stattdessen nach dem Import EINMAL neu aufgebaut.
+            // Waehrend des Zeichnens nur das Bildschirm-Rendering aussetzen. Bewusst NICHT
+            // EventsEnabled/DeferRecalc: Die ALPS-Stencils sind SmartShapes — der Drop des
+            // Message-Connectors erzeugt z. B. die Message-Box erst ueber seine
+            // EventDrop-Logik, und der Import liest direkt danach Formel-ERGEBNISSE
+            // zurueck (User.idOnPage-Matching). Ohne Events fehlt die Box
+            // (messageBox == null), mit aufgeschobenem Recalc waeren die Reads stale.
             Visio.Application app = Globals.ThisAddIn.Application;
             short prevScreenUpdating = app.ScreenUpdating;
-            short prevDeferRecalc = app.DeferRecalc;
-            short prevEventsEnabled = app.EventsEnabled;
             app.ScreenUpdating = 0;
-            app.DeferRecalc = 1;
-            app.EventsEnabled = 0;
             try
             {
                 importable.ImportToVisio(null); // FEAT: import into current page
             }
             finally
             {
-                app.EventsEnabled = prevEventsEnabled;
-                app.DeferRecalc = prevDeferRecalc;
                 app.ScreenUpdating = prevScreenUpdating;
-
-                // Events waren aus, PageAdded ist fuer die neuen Seiten nie gefeuert —
-                // Seiten-Tracking und Layer-Explorer einmalig nachziehen. Bewusst auch
-                // nach einem Importfehler, damit der Controller konsistent bleibt.
-                try { Globals.ThisAddIn.rebuildModelController(); }
-                catch (System.Exception e)
-                {
-                    System.Diagnostics.Debug.WriteLine("rebuildModelController nach Import fehlgeschlagen: " + e);
-                }
             }
 
             // VBA listeners are intentionally NOT re-enabled here. The stencil's run-mode

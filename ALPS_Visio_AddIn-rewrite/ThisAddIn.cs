@@ -137,16 +137,6 @@ namespace ALPS_Visio_AddIn_rewrite
             layerExplorer?.displayTreeView(modelManager.getTreeView());
         }
 
-        /// <summary>
-        /// Baut den ModelController komplett neu aus den Seiten des aktiven Dokuments auf.
-        /// Wird vom OWL-Import gebraucht: Der schaltet die Visio-Events waehrend des
-        /// Zeichnens ab (Performance), wodurch pageAdded fuer die neuen Seiten nie feuert.
-        /// </summary>
-        internal void rebuildModelController()
-        {
-            reset();
-        }
-
         #endregion
     }
 }
