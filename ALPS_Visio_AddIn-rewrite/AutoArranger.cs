@@ -85,9 +85,40 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             finally
             {
+                // Recalc ZUERST zurueck: die Center-Actions der Boxen lesen die Geometrie
+                // ihrer Connectoren — mit aufgeschobenem Recalc waere die noch stale.
                 app.DeferRecalc = prevDeferRecalc;
-                app.ScreenUpdating = prevScreenUpdating;
-                app.EndUndoScope(scope, committed);
+                try
+                {
+                    if (committed) CenterAttachedBoxes(page);
+                }
+                finally
+                {
+                    app.ScreenUpdating = prevScreenUpdating;
+                    app.EndUndoScope(scope, committed);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Triggers the stencil's "Center" action on every shape that has one — that is the
+        /// built-in way the message/label boxes snap back onto their connector (the import
+        /// uses the same action). Without this the boxes keep their pre-arrange position.
+        /// </summary>
+        private static void CenterAttachedBoxes(Visio.Page page)
+        {
+            foreach (Visio.Shape shape in page.Shapes)
+            {
+                try
+                {
+                    if (shape.CellExistsU["Actions.Center.Action", 0] != 0)
+                        shape.CellsU["Actions.Center.Action"].Trigger();
+                }
+                catch (System.Runtime.InteropServices.COMException e)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "CenterAttachedBoxes: Zentrieren von " + shape.NameU + " fehlgeschlagen: " + e.Message);
+                }
             }
         }
 
@@ -282,42 +313,54 @@ namespace ALPS_Visio_AddIn_rewrite
         /// <summary>
         /// Re-glues the connectors to flow-aligned points on their nodes. The import glues every
         /// connector for left-to-right flow (begin at the source's right-center, end at the
-        /// target's left-center); for Top-Down that produces awkward sideways S-curves. Forward
-        /// edges leave with the flow; back and same-rank edges are routed along the side/bottom
-        /// so they pass the chain instead of cutting through it.
+        /// target's left-center); for Top-Down that produces awkward sideways S-curves.
+        /// Three lanes keep the edge kinds apart so their lines and label boxes do not collide:
+        /// adjacent forward edges flow straight with the layout; edges that SKIP layers run in
+        /// the top/left outer lane instead of cutting through the chain; back and same-rank
+        /// edges run in the bottom/right outer lane.
         /// </summary>
         private static void GlueEdgesToFlow(List<(Visio.Shape connector, string source, string target)> edges,
             IDictionary<string, Visio.Shape> nodes, Func<string, int> rank, LayoutDirection direction)
         {
             foreach ((Visio.Shape connector, string source, string target) in edges)
             {
-                bool forward = rank(target) > rank(source);
+                int rankDelta = rank(target) - rank(source);
                 try
                 {
                     if (direction == LayoutDirection.TopToBottom)
                     {
-                        if (forward)
+                        if (rankDelta == 1)
                         {
                             connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 0.0); // bottom-center
                             connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 1.0);   // top-center
                         }
+                        else if (rankDelta > 1)
+                        {
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.0, 0.5); // left lane
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.0, 0.5);
+                        }
                         else
                         {
-                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 1.0, 0.5); // right-center
-                            connector.CellsU["EndY"].GlueToPos(nodes[target], 1.0, 0.5);   // right-center
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 1.0, 0.5); // right lane
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 1.0, 0.5);
                         }
                     }
                     else
                     {
-                        if (forward)
+                        if (rankDelta == 1)
                         {
                             connector.CellsU["BeginX"].GlueToPos(nodes[source], 1.0, 0.5); // right-center
                             connector.CellsU["EndY"].GlueToPos(nodes[target], 0.0, 0.5);   // left-center
                         }
+                        else if (rankDelta > 1)
+                        {
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 1.0); // top lane
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 1.0);
+                        }
                         else
                         {
-                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 0.0); // bottom-center
-                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 0.0);   // bottom-center
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 0.0); // bottom lane
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 0.0);
                         }
                     }
                 }
