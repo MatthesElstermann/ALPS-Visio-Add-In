@@ -131,7 +131,7 @@ namespace ALPS_Visio_AddIn_rewrite
                     Visio.ContainerProperties container = shape.ContainerProperties;
                     if (container == null) continue;
                     foreach (object memberId in (System.Array)container.GetMemberShapes(
-                        Visio.VisContainerFlags.visContainerFlagsDefault))
+                        (int)Visio.VisContainerFlags.visContainerFlagsDefault))
                     {
                         Visio.Shape member = page.Shapes.ItemFromID[Convert.ToInt32(memberId)];
                         VH.SetCell(member, "PinX", VH.GetCell(member, "PinX") + deltaX);
