@@ -121,21 +121,32 @@ namespace ALPS_Visio_AddIn_rewrite
                     if (shape.CellExistsU["User.idOnPage", 0] == 0) continue;
                     if (shape.CellExistsU["Actions.Center.Action", 0] == 0) continue;
 
-                    double beforeX = VH.GetCell(shape, "PinX");
-                    double beforeY = VH.GetCell(shape, "PinY");
+                    // Durchgaengig in mm rechnen: Result[""] liefert interne Einheiten (Zoll),
+                    // waehrend eine nackte Zahl im Formel-Set als Dokumenteinheit (mm) gelesen
+                    // wird — dieser Mix hat die Mitglieder zuvor an falsche Koordinaten geschossen.
+                    double beforeX = PinMM(shape, "PinX");
+                    double beforeY = PinMM(shape, "PinY");
                     shape.CellsU["Actions.Center.Action"].Trigger();
-                    double deltaX = VH.GetCell(shape, "PinX") - beforeX;
-                    double deltaY = VH.GetCell(shape, "PinY") - beforeY;
-                    if (deltaX == 0 && deltaY == 0) continue;
+                    double deltaX = PinMM(shape, "PinX") - beforeX;
+                    double deltaY = PinMM(shape, "PinY") - beforeY;
+                    if (Math.Abs(deltaX) < 0.01 && Math.Abs(deltaY) < 0.01) continue;
 
                     Visio.ContainerProperties container = shape.ContainerProperties;
                     if (container == null) continue;
                     foreach (object memberId in (System.Array)container.GetMemberShapes(
                         (int)Visio.VisContainerFlags.visContainerFlagsDefault))
                     {
-                        Visio.Shape member = page.Shapes.ItemFromID[Convert.ToInt32(memberId)];
-                        VH.SetCell(member, "PinX", VH.GetCell(member, "PinX") + deltaX);
-                        VH.SetCell(member, "PinY", VH.GetCell(member, "PinY") + deltaY);
+                        try
+                        {
+                            Visio.Shape member = page.Shapes.ItemFromID[Convert.ToInt32(memberId)];
+                            VH.SetCellMM(member, "PinX", PinMM(member, "PinX") + deltaX);
+                            VH.SetCellMM(member, "PinY", PinMM(member, "PinY") + deltaY);
+                        }
+                        catch (System.Runtime.InteropServices.COMException e)
+                        {
+                            System.Diagnostics.Debug.WriteLine(
+                                "CenterMessageBoxes: Mitglied " + memberId + " nicht verschiebbar: " + e.Message);
+                        }
                     }
                 }
                 catch (System.Runtime.InteropServices.COMException e)
@@ -156,7 +167,8 @@ namespace ALPS_Visio_AddIn_rewrite
 
             var adjacency = nodes.Keys.ToDictionary(id => id, id => new List<string>());
             var edges = new List<(Visio.Shape connector, string source, string target)>();
-            BuildEdges(page, nodes, adjacency, edges);
+            var danglers = new List<(Visio.Shape connector, string nodeId, bool gluedAtEnd)>();
+            BuildEdges(page, nodes, adjacency, edges, danglers);
 
             // Roots = explicit start states, otherwise states without an incoming edge.
             var hasIncoming = new HashSet<string>(adjacency.Values.SelectMany(targets => targets));
@@ -169,8 +181,55 @@ namespace ALPS_Visio_AddIn_rewrite
             foreach (string id in nodes.Keys.ToList())
                 if (layer[id] < 0) layer[id] = 0;
 
-            IDictionary<string, double> perpendicularOffset = PlaceLayers(page, nodes, layer, adjacency, direction);
+            IDictionary<string, (double x, double y)> positions =
+                PlaceLayers(page, nodes, layer, adjacency, direction, out double perpendicularMid);
+
+            bool leftRight = direction == LayoutDirection.LeftToRight;
+            IDictionary<string, double> perpendicularOffset = positions.Keys.ToDictionary(
+                id => id,
+                id => leftRight ? positions[id].y - perpendicularMid : positions[id].x - perpendicularMid);
+
             GlueEdgesToFlow(edges, nodes, id => layer[id], perpendicularOffset, direction);
+            PositionDanglingMarkers(danglers, positions, direction);
+        }
+
+        /// <summary>
+        /// Moves the free end of one-sided connectors (e.g. the start-state marker arrow, which
+        /// is glued to its state at only one end) next to the state's new position. The glued
+        /// end follows the state automatically, but the free end keeps its old ABSOLUTE page
+        /// position — after re-arranging it points from somewhere random into the diagram.
+        /// </summary>
+        private static void PositionDanglingMarkers(
+            List<(Visio.Shape connector, string nodeId, bool gluedAtEnd)> danglers,
+            IDictionary<string, (double x, double y)> positions, LayoutDirection direction)
+        {
+            const double markerLength = 15.0; // mm freier Vorlauf vor/hinter dem Zustand
+
+            foreach ((Visio.Shape connector, string nodeId, bool gluedAtEnd) in danglers)
+            {
+                try
+                {
+                    if (!positions.TryGetValue(nodeId, out (double x, double y) position)) continue;
+
+                    // Ende am Zustand geklebt (Start-Marker) -> freies Ende GEGEN die
+                    // Flussrichtung davor; Beginn am Zustand -> freies Ende dahinter.
+                    double sign = gluedAtEnd ? 1.0 : -1.0;
+                    double freeX = position.x, freeY = position.y;
+                    if (direction == LayoutDirection.TopToBottom)
+                        freeY = position.y + sign * (ShapeHeight / 2.0 + markerLength);
+                    else
+                        freeX = position.x - sign * (ShapeWidth / 2.0 + markerLength);
+
+                    string freeEnd = gluedAtEnd ? "Begin" : "End";
+                    VH.SetCellMM(connector, freeEnd + "X", freeX);
+                    VH.SetCellMM(connector, freeEnd + "Y", freeY);
+                }
+                catch (System.Runtime.InteropServices.COMException e)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "PositionDanglingMarkers: " + connector.NameU + " nicht verschiebbar: " + e.Message);
+                }
+            }
         }
 
         /// <summary>
@@ -240,15 +299,17 @@ namespace ALPS_Visio_AddIn_rewrite
         /// perpendicular to the flow and centered. LeftToRight lays layers along X (siblings
         /// stacked along Y); TopToBottom lays layers along Y from the top (siblings along X).
         /// </summary>
-        /// <returns>Each node's signed offset (mm) from the layout's center line, perpendicular
-        /// to the flow — used for the outer-lane choice when re-gluing the connectors.</returns>
-        private static IDictionary<string, double> PlaceLayers(Visio.Page page, IDictionary<string, Visio.Shape> nodes,
-            IDictionary<string, int> layer, IDictionary<string, List<string>> adjacency, LayoutDirection direction)
+        /// <returns>Each node's placed center position (mm). <paramref name="perpendicularMid"/>
+        /// is the layout's center line perpendicular to the flow (LR: midY, TB: midX) — both are
+        /// used for the outer-lane choice and the dangling-marker placement.</returns>
+        private static IDictionary<string, (double x, double y)> PlaceLayers(Visio.Page page,
+            IDictionary<string, Visio.Shape> nodes, IDictionary<string, int> layer,
+            IDictionary<string, List<string>> adjacency, LayoutDirection direction, out double perpendicularMid)
         {
             List<KeyValuePair<int, List<string>>> groups = BuildOrderedLayers(layer, adjacency);
             int maxLayer = layer.Values.Max();
             int maxSiblings = groups.Max(g => g.Value.Count);
-            var perpendicularOffset = new Dictionary<string, double>();
+            var positions = new Dictionary<string, (double x, double y)>();
 
             if (direction == LayoutDirection.LeftToRight)
             {
@@ -258,6 +319,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
 
                 double midY = pageHeight / 2.0;
+                perpendicularMid = midY;
                 double x0 = MarginX + ShapeWidth / 2.0;
                 foreach (KeyValuePair<int, List<string>> group in groups)
                 {
@@ -268,7 +330,7 @@ namespace ALPS_Visio_AddIn_rewrite
                     {
                         double y = startY - i * SiblingStepLR;
                         SetPin(nodes[ids[i]], x, y);
-                        perpendicularOffset[ids[i]] = y - midY;
+                        positions[ids[i]] = (x, y);
                     }
                 }
             }
@@ -280,6 +342,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
 
                 double midX = pageWidth / 2.0;
+                perpendicularMid = midX;
                 double y0 = pageHeight - MarginY - ShapeHeight / 2.0; // top layer, go down
                 foreach (KeyValuePair<int, List<string>> group in groups)
                 {
@@ -290,11 +353,11 @@ namespace ALPS_Visio_AddIn_rewrite
                     {
                         double x = startX + i * SiblingStepTB;
                         SetPin(nodes[ids[i]], x, y);
-                        perpendicularOffset[ids[i]] = x - midX;
+                        positions[ids[i]] = (x, y);
                     }
                 }
             }
-            return perpendicularOffset;
+            return positions;
         }
 
         /// <summary>
@@ -437,11 +500,14 @@ namespace ALPS_Visio_AddIn_rewrite
         /// <summary>
         /// Reconstructs directed edges from the 1D connector shapes: a connector's begin point
         /// is glued to the source node, its end point to the target node. Fills the adjacency
-        /// map and the edge list (with the connector shape, for re-gluing).
+        /// map and the edge list (with the connector shape, for re-gluing). Connectors glued to
+        /// exactly ONE node (e.g. the start-state marker arrow) are collected as danglers so
+        /// their free end can be re-positioned after the layout.
         /// </summary>
         private static void BuildEdges(Visio.Page page, IDictionary<string, Visio.Shape> nodes,
             IDictionary<string, List<string>> adjacency,
-            List<(Visio.Shape connector, string source, string target)> edges)
+            List<(Visio.Shape connector, string source, string target)> edges,
+            List<(Visio.Shape connector, string nodeId, bool gluedAtEnd)> danglers = null)
         {
             foreach (Visio.Shape shape in page.Shapes)
             {
@@ -460,6 +526,13 @@ namespace ALPS_Visio_AddIn_rewrite
                 {
                     adjacency[source].Add(target);
                     edges.Add((shape, source, target));
+                }
+                else if (danglers != null && (source != null ^ target != null) && shape.Connects.Count == 1)
+                {
+                    // Nur echte Einseiter (genau EINE Klebung insgesamt): Connectoren, deren
+                    // zweites Ende an einem Fremd-Shape ohne Modell-ID klebt, bleiben unberuehrt —
+                    // ihnen das Ende umzusetzen wuerde die bestehende Klebung zerstoeren.
+                    danglers.Add((shape, source ?? target, target != null));
                 }
             }
         }
@@ -482,6 +555,12 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         private static bool Is2D(Visio.Shape shape) => shape.OneD == 0;
+
+        /// <summary>Reads a shape cell in millimetres (matches the layout's mm-based math).</summary>
+        private static double PinMM(Visio.Shape shape, string cell)
+        {
+            return shape.CellsU[cell].Result["mm"];
+        }
 
         private static string ReadId(Visio.Shape shape)
         {
