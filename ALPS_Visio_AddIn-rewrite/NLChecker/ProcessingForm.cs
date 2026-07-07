@@ -34,20 +34,40 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             this.progressBar = new ProgressBar();
             this.SuspendLayout();
 
+            // DPI-festes Layout wie beim ApiKeyDialog: AutoSize-Container statt fester
+            // Pixelpositionen, sonst schneidet hohe Bildschirmskalierung den Text ab.
             this.lblProgress.AutoSize = true;
-            this.lblProgress.Location = new Point(10, 10);
+            this.lblProgress.Margin = new Padding(0, 0, 0, 8);
             this.lblProgress.Text = "Starting processing...";
 
-            this.progressBar.Location = new Point(10, 40);
-            this.progressBar.Size = new Size(300, 20);
+            this.progressBar.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            this.progressBar.MinimumSize = new Size(300, 20);
 
-            this.ClientSize = new Size(320, 70);
-            this.Controls.Add(this.lblProgress);
-            this.Controls.Add(this.progressBar);
+            TableLayoutPanel layout = new TableLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ColumnCount = 1,
+                RowCount = 2,
+                Dock = DockStyle.Fill,
+                Padding = new Padding(12),
+            };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            layout.Controls.Add(this.lblProgress, 0, 0);
+            layout.Controls.Add(this.progressBar, 0, 1);
+
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.AutoScaleDimensions = new SizeF(6F, 13F);
+            this.AutoSize = true;
+            this.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            this.Controls.Add(layout);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Text = "PASS NL Checker";
             this.ResumeLayout(false);
+            this.PerformLayout();
         }
     }
 }

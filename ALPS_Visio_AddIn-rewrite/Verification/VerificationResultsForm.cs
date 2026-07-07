@@ -24,6 +24,9 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             this.richTextBox.ReadOnly = true;
             this.richTextBox.WordWrap = false;
 
+            // Fenstergroesse skaliert mit der Bildschirmskalierung mit (Inhalt ist gedockt).
+            this.AutoScaleMode = AutoScaleMode.Font;
+            this.AutoScaleDimensions = new SizeF(6F, 13F);
             this.ClientSize = new Size(800, 600);
             this.Controls.Add(this.richTextBox);
             this.Text = "ALPS Verification – Ergebnis";
