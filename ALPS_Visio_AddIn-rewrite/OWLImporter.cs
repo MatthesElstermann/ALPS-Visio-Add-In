@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using VH = ALPS_Visio_AddIn_rewrite.VisioHelper;
+using Visio = Microsoft.Office.Interop.Visio;
 
 namespace ALPS_Visio_AddIn_rewrite
 {
@@ -89,7 +90,36 @@ namespace ALPS_Visio_AddIn_rewrite
             // open stencils to reduce load time
             VH.openStencil(VH.VisioStencils.SID_STENCIL);
 
-            importable.ImportToVisio(null); // FEAT: import into current page
+            // Batch-Modus fuer den eigentlichen Zeichenvorgang: ohne dies rendert und
+            // rekalkuliert Visio nach jedem Zell-Set, und jede neue Seite/Zelle feuert
+            // die Add-In-Events (PageAdded-Registrierung, CellChanged-Handler) einzeln.
+            // Der ModelController wird stattdessen nach dem Import EINMAL neu aufgebaut.
+            Visio.Application app = Globals.ThisAddIn.Application;
+            short prevScreenUpdating = app.ScreenUpdating;
+            short prevDeferRecalc = app.DeferRecalc;
+            short prevEventsEnabled = app.EventsEnabled;
+            app.ScreenUpdating = 0;
+            app.DeferRecalc = 1;
+            app.EventsEnabled = 0;
+            try
+            {
+                importable.ImportToVisio(null); // FEAT: import into current page
+            }
+            finally
+            {
+                app.EventsEnabled = prevEventsEnabled;
+                app.DeferRecalc = prevDeferRecalc;
+                app.ScreenUpdating = prevScreenUpdating;
+
+                // Events waren aus, PageAdded ist fuer die neuen Seiten nie gefeuert —
+                // Seiten-Tracking und Layer-Explorer einmalig nachziehen. Bewusst auch
+                // nach einem Importfehler, damit der Controller konsistent bleibt.
+                try { Globals.ThisAddIn.rebuildModelController(); }
+                catch (System.Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine("rebuildModelController nach Import fehlgeschlagen: " + e);
+                }
+            }
 
             // VBA listeners are intentionally NOT re-enabled here. The stencil's run-mode
             // welcome routine renames the imported SID page when its popup is closed (which

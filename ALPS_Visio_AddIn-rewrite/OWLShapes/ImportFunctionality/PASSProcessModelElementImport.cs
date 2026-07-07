@@ -46,13 +46,17 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             if (this.element is IHasSimple2DVisualizationBox
                 && bounds != null && bounds.Count >= 2 && bounds[1].getRelative2DPosX() > 0)
             {
+                // Seitenmasse einmal lesen — vorher vier COM-Aufrufe pro Shape
+                double pageWidth = VH.GetCell(page.PageSheet, "PageWidth");
+                double pageHeight = VH.GetCell(page.PageSheet, "PageHeight");
+
                 // set position
-                VH.SetCell(shape, "PinX", bounds[0].getRelative2DPosX() * VH.GetCell(page.PageSheet, "PageWidth"));
-                VH.SetCell(shape, "PinY", bounds[0].getRelative2DPosY() * VH.GetCell(page.PageSheet, "PageHeight"));
+                VH.SetCell(shape, "PinX", bounds[0].getRelative2DPosX() * pageWidth);
+                VH.SetCell(shape, "PinY", bounds[0].getRelative2DPosY() * pageHeight);
 
                 // set dimensions
-                VH.SetCell(shape, "Width", bounds[1].getRelative2DPosX() * VH.GetCell(page.PageSheet, "PageWidth"));
-                VH.SetCell(shape, "Height", bounds[1].getRelative2DPosY() * VH.GetCell(page.PageSheet, "PageHeight"));
+                VH.SetCell(shape, "Width", bounds[1].getRelative2DPosX() * pageWidth);
+                VH.SetCell(shape, "Height", bounds[1].getRelative2DPosY() * pageHeight);
             }
         }
 
