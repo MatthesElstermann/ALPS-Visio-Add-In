@@ -10,8 +10,11 @@ namespace ALPS_Visio_AddIn_rewrite
     /// Re-arranges an already drawn SID or SBD page from the shapes alone — no parsed model
     /// required. The node graph is rebuilt from the connectors' glue, then a layered layout is
     /// applied: states fall into layers by longest path from a root, each layer's states are
-    /// spread perpendicular to the flow; subjects line up in a single line. Works in two
-    /// directions so the user can pick the flow that fits the diagram.
+    /// ordered by the barycenter of their predecessors (crossing reduction) and spread
+    /// perpendicular to the flow; subjects line up in a single line. The connectors are re-glued
+    /// to flow-aligned points (e.g. bottom → top for Top-Down), because the import glues them
+    /// for left-to-right flow only. Works in two directions so the user can pick the flow that
+    /// fits the diagram.
     /// </summary>
     public static class AutoArranger
     {
@@ -24,10 +27,12 @@ namespace ALPS_Visio_AddIn_rewrite
             TopToBottom
         }
 
-        // Spacing between shape centers, by axis (mm). Horizontal is wider because the shapes
-        // and the transition-label boxes are wider than tall. Used for whichever role (layer
-        // step or sibling step) maps onto that axis in the chosen direction.
-        private const double StepX = 100.0, StepY = 55.0;
+        // Spacing between shape centers by role and direction (mm). The layer step must leave
+        // room for the transition-label boxes that sit mid-connector: they are wider than tall,
+        // so the horizontal layer step (LeftToRight) can stay tighter relative to the shape
+        // size than the vertical one (TopToBottom).
+        private const double LayerStepLR = 100.0, SiblingStepLR = 55.0;
+        private const double LayerStepTB = 70.0, SiblingStepTB = 100.0;
         private const double MarginX = 25.0, MarginY = 25.0;
         private const double ShapeWidth = 45.0, ShapeHeight = 30.0;
 
@@ -95,7 +100,8 @@ namespace ALPS_Visio_AddIn_rewrite
             if (nodes.Count == 0) return;
 
             var adjacency = nodes.Keys.ToDictionary(id => id, id => new List<string>());
-            BuildEdges(page, nodes, adjacency);
+            var edges = new List<(Visio.Shape connector, string source, string target)>();
+            BuildEdges(page, nodes, adjacency, edges);
 
             // Roots = explicit start states, otherwise states without an incoming edge.
             var hasIncoming = new HashSet<string>(adjacency.Values.SelectMany(targets => targets));
@@ -108,12 +114,13 @@ namespace ALPS_Visio_AddIn_rewrite
             foreach (string id in nodes.Keys.ToList())
                 if (layer[id] < 0) layer[id] = 0;
 
-            PlaceLayers(page, nodes, layer, direction);
+            PlaceLayers(page, nodes, layer, adjacency, direction);
+            GlueEdgesToFlow(edges, nodes, id => layer[id], direction);
         }
 
         /// <summary>
         /// SID: place the subject shapes in a single line — a row (LeftToRight) or a column
-        /// (TopToBottom) — centered on the page.
+        /// (TopToBottom) — centered on the page, and re-glue the message connectors to match.
         /// </summary>
         private static void ArrangeSubjects(Visio.Page page, LayoutDirection direction)
         {
@@ -153,6 +160,22 @@ namespace ALPS_Visio_AddIn_rewrite
                     y -= SubjectHeight + SubjectVSpacing;
                 }
             }
+
+            // Message connectors are import-glued for left-to-right flow — re-glue them to the
+            // chosen direction. The subject's position in the line acts as its rank.
+            var subjectNodes = new Dictionary<string, Visio.Shape>();
+            var rank = new Dictionary<string, int>();
+            for (int i = 0; i < subjects.Count; i++)
+            {
+                string id = ReadId(subjects[i]);
+                if (string.IsNullOrEmpty(id) || subjectNodes.ContainsKey(id)) continue;
+                subjectNodes[id] = subjects[i];
+                rank[id] = i;
+            }
+            var subjectAdjacency = subjectNodes.Keys.ToDictionary(id => id, id => new List<string>());
+            var edges = new List<(Visio.Shape connector, string source, string target)>();
+            BuildEdges(page, subjectNodes, subjectAdjacency, edges);
+            GlueEdgesToFlow(edges, subjectNodes, id => rank[id], direction);
         }
 
         /// <summary>
@@ -161,46 +184,148 @@ namespace ALPS_Visio_AddIn_rewrite
         /// stacked along Y); TopToBottom lays layers along Y from the top (siblings along X).
         /// </summary>
         private static void PlaceLayers(Visio.Page page, IDictionary<string, Visio.Shape> nodes,
-            IDictionary<string, int> layer, LayoutDirection direction)
+            IDictionary<string, int> layer, IDictionary<string, List<string>> adjacency, LayoutDirection direction)
         {
-            var groups = nodes.Keys.GroupBy(id => layer[id]).OrderBy(g => g.Key).ToList();
+            List<KeyValuePair<int, List<string>>> groups = BuildOrderedLayers(layer, adjacency);
             int maxLayer = layer.Values.Max();
-            int maxSiblings = groups.Max(g => g.Count());
+            int maxSiblings = groups.Max(g => g.Value.Count);
 
             if (direction == LayoutDirection.LeftToRight)
             {
-                double pageWidth = Math.Max(maxLayer * StepX + ShapeWidth + 2 * MarginX, PageDimension(page, true));
-                double pageHeight = Math.Max((maxSiblings - 1) * StepY + ShapeHeight + 2 * MarginY, PageDimension(page, false));
+                double pageWidth = Math.Max(maxLayer * LayerStepLR + ShapeWidth + 2 * MarginX, PageDimension(page, true));
+                double pageHeight = Math.Max((maxSiblings - 1) * SiblingStepLR + ShapeHeight + 2 * MarginY, PageDimension(page, false));
                 VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageWidth, pageWidth);
                 VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
 
                 double midY = pageHeight / 2.0;
                 double x0 = MarginX + ShapeWidth / 2.0;
-                foreach (var group in groups)
+                foreach (KeyValuePair<int, List<string>> group in groups)
                 {
-                    double x = x0 + group.Key * StepX;
-                    var ids = group.ToList();
-                    double startY = midY + (ids.Count - 1) * StepY / 2.0;
+                    double x = x0 + group.Key * LayerStepLR;
+                    List<string> ids = group.Value;
+                    double startY = midY + (ids.Count - 1) * SiblingStepLR / 2.0;
                     for (int i = 0; i < ids.Count; i++)
-                        SetPin(nodes[ids[i]], x, startY - i * StepY);
+                        SetPin(nodes[ids[i]], x, startY - i * SiblingStepLR);
                 }
             }
             else
             {
-                double pageWidth = Math.Max((maxSiblings - 1) * StepX + ShapeWidth + 2 * MarginX, PageDimension(page, true));
-                double pageHeight = Math.Max(maxLayer * StepY + ShapeHeight + 2 * MarginY, PageDimension(page, false));
+                double pageWidth = Math.Max((maxSiblings - 1) * SiblingStepTB + ShapeWidth + 2 * MarginX, PageDimension(page, true));
+                double pageHeight = Math.Max(maxLayer * LayerStepTB + ShapeHeight + 2 * MarginY, PageDimension(page, false));
                 VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageWidth, pageWidth);
                 VH.SetCellMM(page.PageSheet, Constants.ShapeCells.PageHeight, pageHeight);
 
                 double midX = pageWidth / 2.0;
                 double y0 = pageHeight - MarginY - ShapeHeight / 2.0; // top layer, go down
-                foreach (var group in groups)
+                foreach (KeyValuePair<int, List<string>> group in groups)
                 {
-                    double y = y0 - group.Key * StepY;
-                    var ids = group.ToList();
-                    double startX = midX - (ids.Count - 1) * StepX / 2.0;
+                    double y = y0 - group.Key * LayerStepTB;
+                    List<string> ids = group.Value;
+                    double startX = midX - (ids.Count - 1) * SiblingStepTB / 2.0;
                     for (int i = 0; i < ids.Count; i++)
-                        SetPin(nodes[ids[i]], startX + i * StepX, y);
+                        SetPin(nodes[ids[i]], startX + i * SiblingStepTB, y);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Groups the nodes by layer and orders each layer's members by the barycenter (average
+        /// position) of their predecessors in the previous layer — the classic crossing-reduction
+        /// step. Nodes without predecessors keep their relative position.
+        /// </summary>
+        private static List<KeyValuePair<int, List<string>>> BuildOrderedLayers(
+            IDictionary<string, int> layer, IDictionary<string, List<string>> adjacency)
+        {
+            List<KeyValuePair<int, List<string>>> layers = layer.Keys
+                .GroupBy(id => layer[id])
+                .OrderBy(g => g.Key)
+                .Select(g => new KeyValuePair<int, List<string>>(g.Key, g.ToList()))
+                .ToList();
+
+            var predecessors = new Dictionary<string, List<string>>();
+            foreach (KeyValuePair<string, List<string>> entry in adjacency)
+                foreach (string target in entry.Value)
+                {
+                    if (!predecessors.TryGetValue(target, out List<string> list))
+                        predecessors[target] = list = new List<string>();
+                    list.Add(entry.Key);
+                }
+
+            for (int k = 1; k < layers.Count; k++)
+            {
+                var positionInPrevious = new Dictionary<string, int>();
+                for (int i = 0; i < layers[k - 1].Value.Count; i++)
+                    positionInPrevious[layers[k - 1].Value[i]] = i;
+
+                List<string> current = layers[k].Value;
+                var fallback = new Dictionary<string, double>();
+                for (int i = 0; i < current.Count; i++) fallback[current[i]] = i;
+
+                // OrderBy ist stabil — Knoten ohne Vorgaenger behalten ihre relative Lage.
+                layers[k] = new KeyValuePair<int, List<string>>(layers[k].Key,
+                    current.OrderBy(id => Barycenter(id, predecessors, positionInPrevious) ?? fallback[id]).ToList());
+            }
+            return layers;
+        }
+
+        /// <summary>Average position of the node's predecessors in the previous layer, if any.</summary>
+        private static double? Barycenter(string id, IDictionary<string, List<string>> predecessors,
+            IDictionary<string, int> positionInPrevious)
+        {
+            if (!predecessors.TryGetValue(id, out List<string> preds)) return null;
+            List<double> positions = preds.Where(positionInPrevious.ContainsKey)
+                .Select(p => (double)positionInPrevious[p]).ToList();
+            if (positions.Count == 0) return null;
+            return positions.Average();
+        }
+
+        /// <summary>
+        /// Re-glues the connectors to flow-aligned points on their nodes. The import glues every
+        /// connector for left-to-right flow (begin at the source's right-center, end at the
+        /// target's left-center); for Top-Down that produces awkward sideways S-curves. Forward
+        /// edges leave with the flow; back and same-rank edges are routed along the side/bottom
+        /// so they pass the chain instead of cutting through it.
+        /// </summary>
+        private static void GlueEdgesToFlow(List<(Visio.Shape connector, string source, string target)> edges,
+            IDictionary<string, Visio.Shape> nodes, Func<string, int> rank, LayoutDirection direction)
+        {
+            foreach ((Visio.Shape connector, string source, string target) in edges)
+            {
+                bool forward = rank(target) > rank(source);
+                try
+                {
+                    if (direction == LayoutDirection.TopToBottom)
+                    {
+                        if (forward)
+                        {
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 0.0); // bottom-center
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 1.0);   // top-center
+                        }
+                        else
+                        {
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 1.0, 0.5); // right-center
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 1.0, 0.5);   // right-center
+                        }
+                    }
+                    else
+                    {
+                        if (forward)
+                        {
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 1.0, 0.5); // right-center
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.0, 0.5);   // left-center
+                        }
+                        else
+                        {
+                            connector.CellsU["BeginX"].GlueToPos(nodes[source], 0.5, 0.0); // bottom-center
+                            connector.CellsU["EndY"].GlueToPos(nodes[target], 0.5, 0.0);   // bottom-center
+                        }
+                    }
+                }
+                catch (System.Runtime.InteropServices.COMException e)
+                {
+                    // Ein nicht klebbarer Connector soll das Arrangieren nicht abbrechen.
+                    System.Diagnostics.Debug.WriteLine(
+                        "GlueEdgesToFlow: Umkleben von " + connector.NameU + " fehlgeschlagen: " + e.Message);
                 }
             }
         }
@@ -229,9 +354,12 @@ namespace ALPS_Visio_AddIn_rewrite
 
         /// <summary>
         /// Reconstructs directed edges from the 1D connector shapes: a connector's begin point
-        /// is glued to the source node, its end point to the target node.
+        /// is glued to the source node, its end point to the target node. Fills the adjacency
+        /// map and the edge list (with the connector shape, for re-gluing).
         /// </summary>
-        private static void BuildEdges(Visio.Page page, IDictionary<string, Visio.Shape> nodes, IDictionary<string, List<string>> adjacency)
+        private static void BuildEdges(Visio.Page page, IDictionary<string, Visio.Shape> nodes,
+            IDictionary<string, List<string>> adjacency,
+            List<(Visio.Shape connector, string source, string target)> edges)
         {
             foreach (Visio.Shape shape in page.Shapes)
             {
@@ -247,7 +375,10 @@ namespace ALPS_Visio_AddIn_rewrite
                     else if (fromCell.StartsWith("End")) target = id;
                 }
                 if (source != null && target != null && source != target)
+                {
                     adjacency[source].Add(target);
+                    edges.Add((shape, source, target));
+                }
             }
         }
 
