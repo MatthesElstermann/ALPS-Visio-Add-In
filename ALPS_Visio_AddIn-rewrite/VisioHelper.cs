@@ -32,21 +32,34 @@ namespace ALPS_Visio_AddIn_rewrite
             SBD_STENCIL
         }
 
+        // Documents.OpenEx und Masters.ItemU sind teure COM-Aufrufe und fielen frueher pro
+        // platziertem Shape an (Place -> openStencil -> OpenEx). Die Caches vermeiden das;
+        // zeigt ein Eintrag auf ein inzwischen geschlossenes Stencil (COMException), wird
+        // er invalidiert und einmal frisch aufgeloest.
+        private static readonly Dictionary<VisioStencils, Visio.Document> _stencilCache =
+            new Dictionary<VisioStencils, Visio.Document>();
+        private static readonly Dictionary<string, Visio.Master> _masterCache =
+            new Dictionary<string, Visio.Master>();
+
         /// <summary>
-        /// Opens the latest stencil file from the configured Shapes folder.
+        /// Opens the latest stencil file from the configured Shapes folder. The opened
+        /// document is cached; a closed stencil is detected and reopened.
         /// </summary>
         public static Visio.Document openStencil(VisioStencils stencil)
         {
+            if (_stencilCache.TryGetValue(stencil, out Visio.Document cached))
+            {
+                if (IsAlive(cached)) return cached;
+                _stencilCache.Remove(stencil);
+            }
+
             Visio.Documents visioDocs = Globals.ThisAddIn.Application.Documents;
             try
             {
-                switch (stencil)
-                {
-                    case VisioStencils.SID_STENCIL:
-                        return visioDocs.OpenEx(ShapeFinder.getSIDName(), (short)Visio.VisOpenSaveArgs.visOpenDocked);
-                    case VisioStencils.SBD_STENCIL:
-                        return visioDocs.OpenEx(ShapeFinder.getSBDName(), (short)Visio.VisOpenSaveArgs.visOpenDocked);
-                }
+                string fileName = stencil == VisioStencils.SID_STENCIL ? ShapeFinder.getSIDName() : ShapeFinder.getSBDName();
+                Visio.Document doc = visioDocs.OpenEx(fileName, (short)Visio.VisOpenSaveArgs.visOpenDocked);
+                _stencilCache[stencil] = doc;
+                return doc;
             }
             catch (System.Runtime.InteropServices.COMException e)
             {
@@ -60,16 +73,50 @@ namespace ALPS_Visio_AddIn_rewrite
             return null;
         }
 
+        /// <summary>Checks whether a cached COM document is still open (RCW still valid).</summary>
+        private static bool IsAlive(Visio.Document doc)
+        {
+            try
+            {
+                int _ = doc.ID;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static Visio.Shape Place(string shapeType, Visio.Page page)
         {
+            try
+            {
+                return page.Drop(GetMaster(shapeType), 0, 0);
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                // Der Master-Cache kann auf ein inzwischen geschlossenes Stencil zeigen —
+                // Eintraege invalidieren und genau einmal frisch aufloesen.
+                _masterCache.Remove(shapeType);
+                _stencilCache.Remove(GetStencil(shapeType));
+                return page.Drop(GetMaster(shapeType), 0, 0);
+            }
+        }
+
+        private static Visio.Master GetMaster(string shapeType)
+        {
+            if (_masterCache.TryGetValue(shapeType, out Visio.Master cached)) return cached;
+
             Visio.Document stencil = openStencil(GetStencil(shapeType));
             // openStencil zeigt bei Fehlern bereits eine MessageBox und liefert null — hier
             // mit klarer Ursache abbrechen statt spaeter mit NullReferenceException.
             if (stencil == null)
                 throw new InvalidOperationException(
                     "Stencil fuer Master \"" + shapeType + "\" konnte nicht geoeffnet werden — Import abgebrochen.");
-            Visio.Master sidMaster = stencil.Masters.get_ItemU(shapeType);
-            return page.Drop(sidMaster, 0, 0);
+
+            Visio.Master master = stencil.Masters.get_ItemU(shapeType);
+            _masterCache[shapeType] = master;
+            return master;
         }
 
         private static readonly HashSet<string> _sidShapeTypes = new HashSet<string>
