@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ML;
@@ -50,18 +51,88 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             }
             catch (Exception ex)
             {
-                error = "Das NL-Klassifikationsmodell konnte nicht geladen/trainiert werden:\n" + ex.Message;
+                // Volle Exception-Kette ausgeben (ToString inkl. InnerExceptions/Stacktrace):
+                // die eigentliche Ursache -- z. B. eine DllNotFoundException fuer
+                // CpuMathNative.dll -- steckt sonst unsichtbar in der InnerException.
+                error = "Das NL-Klassifikationsmodell konnte nicht geladen/trainiert werden.\n\n" + ex;
                 return false;
             }
             return true;
         }
 
+        // -------------------------------------------------------------------------
+        // Native-DLL-Aufloesung fuer ML.NET im Visio-Host
+        // -------------------------------------------------------------------------
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool SetDllDirectory(string lpPathName);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr LoadLibrary(string lpFileName);
+
+        private static bool _nativeResolutionPrepared;
+
+        /// <summary>
+        /// ML.NET laedt seine nativen Bibliotheken (v. a. CpuMathNative.dll) ueber die
+        /// normale Windows-DLL-Suche. Die beginnt beim Ordner der EXE -- im Visio-Host
+        /// also bei visio.exe statt beim Add-In-Ausgabeordner, wo die NuGet-Targets die
+        /// Natives ablegen. Training/Laden scheitert dann mit DllNotFoundException.
+        /// Fix: Add-In-Ordner in den DLL-Suchpfad haengen und CpuMathNative direkt
+        /// vorladen (eine bereits geladene DLL findet jeder spaetere P/Invoke).
+        /// </summary>
+        private static void PrepareNativeLibraryResolution()
+        {
+            if (_nativeResolutionPrepared) return;
+            _nativeResolutionPrepared = true;
+
+            try
+            {
+                string addinDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (string.IsNullOrEmpty(addinDir)) return;
+
+                SetDllDirectory(addinDir);
+
+                string[] candidates =
+                {
+                    Path.Combine(addinDir, "CpuMathNative.dll"),
+                    Path.Combine(addinDir, "runtimes", "win-x64", "native", "CpuMathNative.dll"),
+                    Path.Combine(addinDir, "runtimes", "win-x86", "native", "CpuMathNative.dll"),
+                };
+                foreach (string candidate in candidates)
+                {
+                    if (File.Exists(candidate) && LoadLibrary(candidate) != IntPtr.Zero)
+                        break;
+                }
+            }
+            catch
+            {
+                // Best effort -- schlaegt die Vorbereitung fehl, liefert das Training
+                // selbst die volle Diagnose (siehe Initialize).
+            }
+        }
+
         /// <summary>Loads the persisted model, training it from the bundled data if none exists yet.</summary>
         private void LoadOrTrainModel()
         {
+            PrepareNativeLibraryResolution();
             Directory.CreateDirectory(AppDataDir);
             if (!File.Exists(ModelFilePath)) TrainModelFromBundledData();
 
+            try
+            {
+                LoadModelFile();
+            }
+            catch
+            {
+                // Korruptes/inkompatibles Cache-Modell (z. B. aus einem frueher
+                // abgebrochenen Lauf): einmal neu trainieren statt dauerhaft zu scheitern.
+                TrainModelFromBundledData();
+                LoadModelFile();
+            }
+        }
+
+        private void LoadModelFile()
+        {
             _model = _mlContext.Model.Load(ModelFilePath, out _);
             _predEngine = _mlContext.Model.CreatePredictionEngine<ShapeName, ShapeNamePrediction>(_model);
         }
@@ -69,9 +140,10 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         /// <summary>Retrains the model from the bundled training data and reloads it.</summary>
         public void Retrain()
         {
+            PrepareNativeLibraryResolution();
+            Directory.CreateDirectory(AppDataDir);
             TrainModelFromBundledData();
-            _model = _mlContext.Model.Load(ModelFilePath, out _);
-            _predEngine = _mlContext.Model.CreatePredictionEngine<ShapeName, ShapeNamePrediction>(_model);
+            LoadModelFile();
         }
 
         private void TrainModelFromBundledData()

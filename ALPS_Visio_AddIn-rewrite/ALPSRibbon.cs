@@ -87,6 +87,18 @@ namespace ALPS_Visio_AddIn_rewrite
             naturalLanguageButton.Click += new RibbonControlEventHandler(this.PassNlChecker);
             owlGroup.Items.Add(naturalLanguageButton);
 
+            // Lokales NL-Modell (neu) trainieren -- entspricht dem Retrain-Button des
+            // Original-Add-Ins (NLPPASSChecking), der im Port bisher fehlte.
+            RibbonButton retrainButton = this.Factory.CreateRibbonButton();
+            retrainButton.Name = "retrainButton";
+            retrainButton.Label = "NL-Modell trainieren";
+            retrainButton.SuperTip = "Trainiert das lokale ML-Modell des PASS NL Checkers neu aus den mitgelieferten Trainingsdaten und ersetzt das gecachte Modell unter %APPDATA%.";
+            retrainButton.OfficeImageId = "Repeat";
+            retrainButton.ShowImage = true;
+            retrainButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            retrainButton.Click += new RibbonControlEventHandler(this.RetrainNlModel);
+            owlGroup.Items.Add(retrainButton);
+
             // Set/replace the LLM API key used by the PASS NL Checker (stored under %APPDATA%).
             RibbonButton apiKeyButton = this.Factory.CreateRibbonButton();
             apiKeyButton.Name = "apiKeyButton";
@@ -307,6 +319,31 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 MessageBox.Show("Fehler im PASS NL Checker:\n" + ex.Message, "PASS NL Checker",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Trains the local NL-checker model from the bundled training data (replaces the
+        /// cached model). Shows the FULL exception chain on failure -- the root cause
+        /// (e.g. a missing native ML.NET library) hides in the inner exceptions.
+        /// </summary>
+        private void RetrainNlModel(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
+                new NLChecker.NlChecker().Retrain();
+                MessageBox.Show("NL-Modell erfolgreich trainiert und gespeichert.", "PASS NL Checker",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Training des NL-Modells fehlgeschlagen:\n\n" + ex, "PASS NL Checker",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                System.Windows.Forms.Cursor.Current = Cursors.Default;
             }
         }
 

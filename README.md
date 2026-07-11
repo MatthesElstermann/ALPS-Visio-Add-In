@@ -44,6 +44,7 @@ After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with three gro
 | OWL PASS Tools | **Import OWL** | Imports a PASS/ALPS model from an `.owl` file and draws it. |
 | OWL PASS Tools | **ALPS Verification** | Checks an implementation model against a specification model and shows a report with an overall verdict. |
 | OWL PASS Tools | **PASS NL Checker** | Classifies every shape label as valid/invalid (ML) and asks an LLM for better labels. |
+| OWL PASS Tools | **NL-Modell trainieren** | Retrains the NL Checker's local ML model from the bundled training data. |
 | OWL PASS Tools | **LLM API-Key** | Sets or replaces the API key the NL Checker uses for LLM suggestions. |
 | OWL PASS Tools | **PASS BPMN Converter** | *Not implemented yet* (placeholder carried over from the original add-in). |
 | OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
