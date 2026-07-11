@@ -28,12 +28,11 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         protected override bool isShapeSnappable(IVShape shape)
         {
-            // A state extension snaps onto a background state. The stencil tags the generic
-            // extension master as "StateExtension", but the guard-behaviour states
-            // (GuardReceive/Send/Do) instead carry a per-type "Guard…State" category — accept both.
-            if (shape.HasCategory("StateExtension")) return true;
-            if (shape.CellExistsU["User.msvShapeCategories", 0] == 0) return false;
-            return shape.CellsU["User.msvShapeCategories"].ResultStr[""].Contains("Guard");
+            // Only the state reference (stencil category "StateExtension") snaps onto a
+            // background state. The guard-behaviour states (GuardReceive/Send/Do) are
+            // deliberately NOT snappable — a broader "Guard…State" acceptance added in
+            // 55f7536 made them snap and was reverted on user request.
+            return shape.HasCategory("StateExtension");
         }
 
         protected override void setBackPage(DiagramPage newProperty)
