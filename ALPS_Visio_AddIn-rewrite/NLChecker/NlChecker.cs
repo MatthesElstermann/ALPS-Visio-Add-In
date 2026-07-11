@@ -54,7 +54,8 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                 // Volle Exception-Kette ausgeben (ToString inkl. InnerExceptions/Stacktrace):
                 // die eigentliche Ursache -- z. B. eine DllNotFoundException fuer
                 // CpuMathNative.dll -- steckt sonst unsichtbar in der InnerException.
-                error = "Das NL-Klassifikationsmodell konnte nicht geladen/trainiert werden.\n\n" + ex;
+                error = "Das NL-Klassifikationsmodell konnte nicht geladen/trainiert werden.\n\n" + ex
+                    + "\n\n--- Native-DLL-Suche ---\n" + NativeDiagnostics;
                 return false;
             }
             return true;
@@ -73,41 +74,66 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         private static bool _nativeResolutionPrepared;
 
         /// <summary>
+        /// Protokoll der Native-DLL-Suche; wird bei Fehlern an die Meldung angehaengt,
+        /// damit aus dem Fehlerdialog ablesbar ist, welche Pfade probiert wurden.
+        /// </summary>
+        internal static string NativeDiagnostics { get; private set; } = "";
+
+        /// <summary>
         /// ML.NET laedt seine nativen Bibliotheken (v. a. CpuMathNative.dll) ueber die
         /// normale Windows-DLL-Suche. Die beginnt beim Ordner der EXE -- im Visio-Host
-        /// also bei visio.exe statt beim Add-In-Ausgabeordner, wo die NuGet-Targets die
-        /// Natives ablegen. Training/Laden scheitert dann mit DllNotFoundException.
-        /// Fix: Add-In-Ordner in den DLL-Suchpfad haengen und CpuMathNative direkt
-        /// vorladen (eine bereits geladene DLL findet jeder spaetere P/Invoke).
+        /// also bei visio.exe statt beim Add-In-Ausgabeordner. Zusaetzlich kopiert die
+        /// Kopier-Regel im NuGet-Paket (Microsoft.ML.CpuMath.props) die Native nur bei
+        /// explizitem PlatformTarget x64/x86 -- dieses Projekt baut aber AnyCPU, daher
+        /// legt erst ein eigener csproj-Eintrag sie unter NativeAssets\{x64,x86} ab.
+        /// Hier wird die zur Prozess-Bitness passende Variante direkt vorgeladen
+        /// (eine bereits geladene DLL findet jeder spaetere P/Invoke ueber den Namen).
         /// </summary>
         private static void PrepareNativeLibraryResolution()
         {
             if (_nativeResolutionPrepared) return;
             _nativeResolutionPrepared = true;
 
+            var diag = new StringBuilder();
             try
             {
                 string addinDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                diag.AppendLine("Add-In-Ordner: " + (addinDir ?? "<unbekannt>"));
+                diag.AppendLine("Prozess: " + (Environment.Is64BitProcess ? "64-Bit" : "32-Bit"));
                 if (string.IsNullOrEmpty(addinDir)) return;
 
-                SetDllDirectory(addinDir);
-
+                string arch = Environment.Is64BitProcess ? "x64" : "x86";
                 string[] candidates =
                 {
+                    Path.Combine(addinDir, "NativeAssets", arch, "CpuMathNative.dll"),
                     Path.Combine(addinDir, "CpuMathNative.dll"),
-                    Path.Combine(addinDir, "runtimes", "win-x64", "native", "CpuMathNative.dll"),
-                    Path.Combine(addinDir, "runtimes", "win-x86", "native", "CpuMathNative.dll"),
+                    Path.Combine(addinDir, "runtimes", "win-" + arch, "nativeassets", "netstandard2.0", "CpuMathNative.dll"),
                 };
                 foreach (string candidate in candidates)
                 {
-                    if (File.Exists(candidate) && LoadLibrary(candidate) != IntPtr.Zero)
-                        break;
+                    if (!File.Exists(candidate))
+                    {
+                        diag.AppendLine("fehlt:  " + candidate);
+                        continue;
+                    }
+                    if (LoadLibrary(candidate) != IntPtr.Zero)
+                    {
+                        SetDllDirectory(Path.GetDirectoryName(candidate));
+                        diag.AppendLine("geladen: " + candidate);
+                        return;
+                    }
+                    diag.AppendLine("Ladefehler (Win32 " + Marshal.GetLastWin32Error() + "): " + candidate);
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // Best effort -- schlaegt die Vorbereitung fehl, liefert das Training
                 // selbst die volle Diagnose (siehe Initialize).
+                diag.AppendLine("Vorbereitung fehlgeschlagen: " + ex.Message);
+            }
+            finally
+            {
+                NativeDiagnostics = diag.ToString();
             }
         }
 

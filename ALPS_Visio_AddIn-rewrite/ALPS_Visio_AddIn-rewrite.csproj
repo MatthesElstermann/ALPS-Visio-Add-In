@@ -529,6 +529,25 @@
   <PropertyGroup>
     <ManifestKeyFile>ALPS_Visio_AddIn-rewrite_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
+  <!-- ML.NET-Natives in den Ausgabeordner kopieren. Die Kopier-Regel in
+       Microsoft.ML.CpuMath.props greift nur bei explizitem PlatformTarget
+       x64/x86 - dieses VSTO-Projekt baut aber AnyCPU, daher landete
+       CpuMathNative.dll nie im Output und Training scheiterte im Visio-Host
+       mit DllNotFoundException. Beide Architekturen werden in Unterordner
+       kopiert; NlChecker.PrepareNativeLibraryResolution laedt zur Laufzeit
+       die zur Prozess-Bitness passende Variante. -->
+  <ItemGroup>
+    <Content Include="..\packages\Microsoft.ML.CpuMath.4.0.2\runtimes\win-x64\nativeassets\netstandard2.0\CpuMathNative.dll" Condition="Exists('..\packages\Microsoft.ML.CpuMath.4.0.2\runtimes\win-x64\nativeassets\netstandard2.0\CpuMathNative.dll')">
+      <Link>NativeAssets\x64\CpuMathNative.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="..\packages\Microsoft.ML.CpuMath.4.0.2\runtimes\win-x86\nativeassets\netstandard2.0\CpuMathNative.dll" Condition="Exists('..\packages\Microsoft.ML.CpuMath.4.0.2\runtimes\win-x86\nativeassets\netstandard2.0\CpuMathNative.dll')">
+      <Link>NativeAssets\x86\CpuMathNative.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- Include additional build rules for an Office application add-in. -->

@@ -338,8 +338,9 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Training des NL-Modells fehlgeschlagen:\n\n" + ex, "PASS NL Checker",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Training des NL-Modells fehlgeschlagen:\n\n" + ex
+                        + "\n\n--- Native-DLL-Suche ---\n" + NLChecker.NlChecker.NativeDiagnostics,
+                    "PASS NL Checker", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
