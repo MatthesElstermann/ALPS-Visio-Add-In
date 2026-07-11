@@ -43,7 +43,7 @@ After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with four grou
 | ALPS Layer Editing | **Show layer Explorer** | Opens the layer/model explorer (tree view of models, SID layers and SBD pages). |
 | OWL PASS Tools | **Import OWL** | Imports a PASS/ALPS model from an `.owl` file and draws it. |
 | OWL PASS Tools | **ALPS Verification** | Checks an implementation model against a specification model and shows a report with an overall verdict. |
-| OWL PASS Tools | **PASS BPMN Converter** | *Not implemented yet* (placeholder carried over from the original add-in). |
+| OWL PASS Tools | **PASS BPMN Converter** | Converts a PASS model (`.owl`) into a BPMN 2.0 model (`.bpmn`), viewable e.g. in bpmn.io or Camunda. |
 | OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
 | PASS NL Checker | **PASS NL Checker** | Checks every shape label with the local ML model and asks an LLM for better labels where invalid. |
 | PASS NL Checker | **NL-Modell trainieren** | Retrains the NL Checker's local ML model from the bundled training data. |
@@ -105,6 +105,23 @@ cost). Model name and API key are stored **per provider** in
 `%APPDATA%\ALPS_Visio_AddIn\nl_checker_settings.json` (plain text; an old
 `llm_api_key.txt` from earlier versions is migrated automatically). Without an API key
 the check still runs — only the suggestions are skipped.
+
+### PASS BPMN Converter
+
+Converts a PASS model (`.owl` file) into a **BPMN 2.0** model, preserving as much of
+the executional semantics as possible: pick the OWL input and a `.bpmn` output path,
+done. Subject Interaction Diagrams and Subject Behavior Diagrams (Base, Macro and
+Guard behaviors) are supported; diagram elements (BPMN DI) are generated and arranged
+automatically, so the result can be opened directly in [bpmn.io](https://bpmn.io/),
+Camunda Modeler and similar tools. Warnings about elements that cannot be converted
+accurately are collected and shown after the conversion.
+
+Ported from the standalone
+[pass-bpmn-converter](https://github.com/pass-bpmn-converter/pass-bpmn-converter)
+(GPLv3) into `BpmnConverter/` (namespace `PassBpmnConverter`). Known limitations of
+the converter: *Choice Segments*, non-standard *Send/Receive types* and *Data Objects*
+are not supported yet; some concepts (end states with outgoing transitions, state
+references inside guard behaviors, input pools) can only be approximated in BPMN.
 
 ### Layer editing & snapping
 
@@ -269,7 +286,8 @@ authoritative overview of the architecture and the open tasks. Highlights:
 - `FullySpecifiedSubject` is the most complete subject type; several ontology features
   (e.g. group states, subject execution mapping, some transition types) are not yet
   rendered, partly because the API does not always match the ontology.
-- The **PASS BPMN Converter** button is a placeholder — the feature does not exist yet.
+- The **PASS BPMN Converter** converts one-way (PASS → BPMN); Choice Segments,
+  non-standard Send/Receive types and Data Objects are not converted yet.
 - The **ALPS Verification** is a prototype: SID checks only, SBD checks are empty.
 - The NL Checker's LLM side supports UniGPT (Uni Münster), OpenAI and Anthropic;
   other providers require a code change in `NLChecker/LlmClient.cs`.

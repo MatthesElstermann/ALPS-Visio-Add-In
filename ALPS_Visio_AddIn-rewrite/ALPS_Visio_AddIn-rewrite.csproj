@@ -30,9 +30,12 @@
     <RootNamespace>ALPS_Visio_AddIn_rewrite</RootNamespace>
     <AssemblyName>ALPS_Visio_AddIn-rewrite</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <!-- C# 9: the ported ALPS Verification code uses relational patterns (e.g. "case > 1:").
-         Compiler-only feature — no runtime dependency; existing C# 7.3 code stays compatible. -->
-    <LangVersion>9.0</LangVersion>
+    <!-- C# 12: der portierte pass-bpmn-converter (BpmnConverter/) nutzt file-scoped
+         Namespaces, required-Member und Collection-Expressions. Reine Compiler-Features
+         (VS-2022-Roslyn) — keine Runtime-Abhaengigkeit; required braucht zusaetzlich die
+         Attribut-Polyfills in BpmnConverter/Polyfills.cs. Bestandscode (C# 7.3/9) bleibt
+         unveraendert kompatibel. -->
+    <LangVersion>12.0</LangVersion>
     <DefineConstants>VSTO40;UseOfficeInterop</DefineConstants>
     <ResolveComReferenceSilent>true</ResolveComReferenceSilent>
     <TargetFrameworkProfile />
@@ -529,6 +532,96 @@
   <PropertyGroup>
     <ManifestKeyFile>ALPS_Visio_AddIn-rewrite_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
+  <!-- Portierter PASS-nach-BPMN-Konverter (github.com/pass-bpmn-converter), siehe BpmnConverter/. -->
+  <ItemGroup>
+    <Compile Include="BpmnConverter\Bpmn\BpmnUtility.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Layout\BpmnDiagramGenerator.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Layout\Grid.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Activity.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BaseElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BoundaryEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnDiagram.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnEdge.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnLabel.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnLabelStyle.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnPlane.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnShape.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\MessageVisibleKind.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnModel.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnModelConstants.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\CallActivity.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\CallableElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\CatchEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Collaboration.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ConditionalEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DC\Bounds.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DC\Font.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DC\Point.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Diagram.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\DiagramElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Edge.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Label.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\LabeledEdge.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\LabeledShape.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Node.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Plane.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Shape.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Style.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Definitions.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EndEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ErrorEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Escalation.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EscalationEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Event.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EventBasedGateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EventBasedGatewayType.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ExclusiveGateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Expression.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\FlowElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\FlowElementsContainer.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\FlowNode.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Gateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\GatewayDirection.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\InteractionNode.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\IntermediateCatchEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\IntermediateThrowEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\LinkEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Message.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\MessageEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\MessageFlow.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Participant.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ParticipantMultiplicity.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Process.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ReceiveTask.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\RootElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ScriptTask.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\SendTask.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\SequenceFlow.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Signal.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\SignalEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\StartEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\SubProcess.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Task.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ThrowEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\TimerEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnAttribute.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnAttributeAttribute.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnElementAttribute.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnSerializer.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnTypeAttribute.cs" />
+    <Compile Include="BpmnConverter\Conversion\Converter.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\BoundaryNode.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\Edge.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\Element.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\Graph.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\Node.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\SubGraph.cs" />
+    <Compile Include="BpmnConverter\Conversion\LinqExtensions.cs" />
+    <Compile Include="BpmnConverter\Pass\PassParser.cs" />
+    <Compile Include="BpmnConverter\Pass\PassUtility.cs" />
+    <Compile Include="BpmnConverter\Polyfills.cs" />
+  </ItemGroup>
   <!-- ML.NET-Natives in den Ausgabeordner kopieren. Die Kopier-Regel in
        Microsoft.ML.CpuMath.props greift nur bei explizitem PlatformTarget
        x64/x86 - dieses VSTO-Projekt baut aber AnyCPU, daher landete

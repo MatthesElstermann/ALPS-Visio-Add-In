@@ -119,15 +119,15 @@ namespace ALPS_Visio_AddIn_rewrite
             nlSettingsButton.Click += new RibbonControlEventHandler(this.OpenNlCheckerSettings);
             nlGroup.Items.Add(nlSettingsButton);
 
-            // Carried over from the original add-in; not implemented yet (stub).
+            // PASS→BPMN-Konverter (portiert von github.com/pass-bpmn-converter).
             RibbonButton bpmnButton = this.Factory.CreateRibbonButton();
             bpmnButton.Name = "bpmnButton";
             bpmnButton.Label = "PASS BPMN Converter";
-            bpmnButton.SuperTip = "Convert between PASS and BPMN process models.";
+            bpmnButton.SuperTip = "Konvertiert ein PASS-Modell (OWL-Datei) in ein BPMN-2.0-Modell (.bpmn, z. B. für bpmn.io oder Camunda).";
             bpmnButton.OfficeImageId = "FileSaveAsOtherFormats";
             bpmnButton.ShowImage = true;
             bpmnButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            bpmnButton.Click += new RibbonControlEventHandler(this.NotImplemented);
+            bpmnButton.Click += new RibbonControlEventHandler(this.ConvertPassToBpmn);
             owlGroup.Items.Add(bpmnButton);
 
             // Split button: clicking the button portion runs the default arrange immediately,
@@ -285,12 +285,74 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Shared placeholder for ribbon buttons whose feature is not implemented yet.
+        /// Konvertiert ein PASS-Modell (OWL-Datei) in ein BPMN-2.0-Modell und speichert es als
+        /// .bpmn-Datei (portierter pass-bpmn-converter, siehe BpmnConverter/). Die Warnungen des
+        /// Konverters (Console.WriteLine im Original) werden eingefangen und mit angezeigt.
         /// </summary>
-        private void NotImplemented(object sender, RibbonControlEventArgs e)
+        private void ConvertPassToBpmn(object sender, RibbonControlEventArgs e)
         {
-            MessageBox.Show("Diese Funktion ist noch nicht implementiert.", "ALPS/PASS Add-In",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            string inputPath;
+            using (var openDialog = new OpenFileDialog
+            {
+                Title = "PASS-Modell (OWL) wählen",
+                Filter = "Ontology Files (*.owl)|*.owl|RDF Files (*.rdf)|*.rdf|Alle Dateien (*.*)|*.*"
+            })
+            {
+                if (openDialog.ShowDialog() != DialogResult.OK) return;
+                inputPath = openDialog.FileName;
+            }
+
+            string outputPath;
+            using (var saveDialog = new SaveFileDialog
+            {
+                Title = "BPMN-Ausgabedatei wählen",
+                Filter = "BPMN Files (*.bpmn)|*.bpmn",
+                DefaultExt = "bpmn",
+                FileName = System.IO.Path.GetFileNameWithoutExtension(inputPath) + ".bpmn"
+            })
+            {
+                if (saveDialog.ShowDialog() != DialogResult.OK) return;
+                outputPath = saveDialog.FileName;
+            }
+
+            // Der portierte Konverter meldet Warnungen per Console.WriteLine — im Visio-Host
+            // gibt es keine Konsole, deshalb umleiten und im Ergebnisdialog mit ausgeben.
+            var consoleBuffer = new System.IO.StringWriter();
+            System.IO.TextWriter originalOut = Console.Out;
+            try
+            {
+                System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
+                Console.SetOut(consoleBuffer);
+
+                var models = PassBpmnConverter.Pass.PassParser.LoadModels(
+                    new System.Collections.Generic.List<string> { inputPath });
+                if (models == null || models.Count < 1)
+                    throw new Exception("Aus der gewählten Datei konnte kein PASS-Modell geladen werden.");
+
+                var bpmnModel = PassBpmnConverter.Conversion.Converter.ConvertPassToBpmn(models[0]);
+                PassBpmnConverter.Bpmn.BpmnDiagramGenerator.GenerateDiagram(bpmnModel);
+                PassBpmnConverter.Bpmn.BpmnSerializer.Serialize(bpmnModel, outputPath);
+
+                string warnings = consoleBuffer.ToString().Trim();
+                string message = "BPMN-Modell erfolgreich gespeichert:\n" + outputPath;
+                if (warnings.Length > 0)
+                    message += "\n\nHinweise des Konverters:\n" + warnings;
+                MessageBox.Show(message, "PASS BPMN Converter", MessageBoxButtons.OK,
+                    warnings.Length > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                string warnings = consoleBuffer.ToString().Trim();
+                string message = "Die BPMN-Konvertierung ist fehlgeschlagen:\n\n" + DescribeException(ex);
+                if (warnings.Length > 0)
+                    message += "\n\nHinweise des Konverters:\n" + warnings;
+                MessageBox.Show(message, "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                System.Windows.Forms.Cursor.Current = Cursors.Default;
+            }
         }
 
         /// <summary>
