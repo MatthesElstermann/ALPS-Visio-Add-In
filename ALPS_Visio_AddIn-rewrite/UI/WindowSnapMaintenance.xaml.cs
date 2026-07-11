@@ -14,7 +14,9 @@ namespace ALPS_Visio_AddIn_rewrite
             InitializeComponent();
         }
 
-        private SbdSnapHandler SnapHandler;
+        // Basisklassen-Typ statt SbdSnapHandler: der Dialog wird inzwischen auch vom
+        // SidSnapHandler benutzt (Bestaetigung beim Trennen gesnappter Subjekte).
+        private SnapHandler SnapHandler;
 
         private Shape Shape;
         private Shape SnapToShape;
@@ -25,7 +27,7 @@ namespace ALPS_Visio_AddIn_rewrite
         /// <param name="snapHandler">callback</param>
         /// <param name="shape">name of shape</param>
         /// <param name="snapToShape">name of shape should be snapping to</param>
-        public WindowSnapMaintenance(SbdSnapHandler snapHandler, Shape shape, Shape snapToShape)
+        public WindowSnapMaintenance(SnapHandler snapHandler, Shape shape, Shape snapToShape)
         {
             InitializeComponent();
 

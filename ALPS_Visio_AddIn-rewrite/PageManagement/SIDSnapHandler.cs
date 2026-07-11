@@ -71,11 +71,13 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// A plug-in method which is called by the abstract base class
+        /// A plug-in method which is called by the abstract base class.
+        /// Frueher wurde hier kommentarlos getrennt — jetzt fragt (wie auf SBD-Seiten)
+        /// ein Bestaetigungsdialog nach, ob der Snap wirklich geloest werden soll.
         /// </summary>
         protected override void handleDistantSnappedShapes(Shape snappingShape)
         {
-            unsnap(snappingShape);
+            showMaintenanceDialog(snappingShape);
         }
 
         /// <summary>

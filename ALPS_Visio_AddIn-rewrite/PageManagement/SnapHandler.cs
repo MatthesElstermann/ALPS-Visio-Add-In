@@ -9,6 +9,13 @@ namespace ALPS_Visio_AddIn_rewrite
         protected IDictionary<Shape, Shape> snappedShapes;
 
         /// <summary>
+        /// Shapes, fuer die gerade ein Trenn-Bestaetigungsdialog offen ist. Ein Move
+        /// feuert onCellChanged zweimal (PinX und PinY) — ohne diesen Guard erschiene
+        /// der (nicht-modale) Dialog deshalb doppelt.
+        /// </summary>
+        private readonly HashSet<Shape> shapesWithOpenMaintenanceDialog = new HashSet<Shape>();
+
+        /// <summary>
         /// const for distance btw 2 shapes
         /// </summary>
         public const int SNAP_RANGE = 20;
@@ -63,6 +70,30 @@ namespace ALPS_Visio_AddIn_rewrite
         protected abstract bool isShapeSnappable(IVShape shape);
         protected abstract void handleDistantSnappedShapes(Shape snappingShape);
         protected abstract IEnumerable<Shape> getSnappableShapesOnBackgroundPage();
+
+        /// <summary>
+        /// Fragt den Nutzer, ob die gesnappte Shape wirklich getrennt werden soll
+        /// (Ja = Snap beibehalten und Position/Groesse nachziehen, Nein = trennen).
+        /// Pro Shape ist maximal ein Dialog gleichzeitig offen.
+        /// </summary>
+        protected void showMaintenanceDialog(Shape snappingShape)
+        {
+            if (shapesWithOpenMaintenanceDialog.Contains(snappingShape)) return;
+            shapesWithOpenMaintenanceDialog.Add(snappingShape);
+
+            WindowSnapMaintenance snapMain = new WindowSnapMaintenance(this, snappingShape, snappedShapes[snappingShape]);
+            snapMain.Closed += (sender, args) => shapesWithOpenMaintenanceDialog.Remove(snappingShape);
+            snapMain.Show();
+        }
+
+        /// <summary>
+        /// Called from WindowSnapMaintenance (Ja-Button): der Snap bleibt bestehen,
+        /// die Shape wird wieder auf ihr Snap-Ziel ausgerichtet.
+        /// </summary>
+        public virtual void maintainSnap(Shape shape, Shape snapToShape)
+        {
+            adjustSize(shape, snapToShape);
+        }
 
         public abstract void snap(Shape snappingShape, string backgroundReferenceShapeName);
         public abstract void unsnap(Shape shape);

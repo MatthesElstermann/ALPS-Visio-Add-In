@@ -46,8 +46,7 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         protected override void handleDistantSnappedShapes(Shape snappingShape)
         {
-            WindowSnapMaintenance snapMain = new WindowSnapMaintenance(this, snappingShape, snappedShapes[snappingShape]);
-            snapMain.Show();
+            showMaintenanceDialog(snappingShape);
         }
 
         protected override IEnumerable<Shape> getSnappableShapesOnBackgroundPage()
@@ -97,7 +96,7 @@ namespace ALPS_Visio_AddIn_rewrite
             }
         }
 
-        public void maintainSnap(Shape shape, Shape snapToShape)
+        public override void maintainSnap(Shape shape, Shape snapToShape)
         {
             if (!checkBorders(shape, snapToShape))
             {
