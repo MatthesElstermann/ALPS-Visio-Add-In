@@ -97,32 +97,45 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             var diag = new StringBuilder();
             try
             {
-                string addinDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                diag.AppendLine("Add-In-Ordner: " + (addinDir ?? "<unbekannt>"));
                 diag.AppendLine("Prozess: " + (Environment.Is64BitProcess ? "64-Bit" : "32-Bit"));
-                if (string.IsNullOrEmpty(addinDir)) return;
+
+                // VSTO laedt Add-In-Assemblies shadow-copied aus
+                // %LOCALAPPDATA%\assembly\dl3\... -- Content-Dateien wie die Natives
+                // werden dorthin NICHT mitkopiert. Assembly.Location zeigt auf den
+                // Cache und ist daher nutzlos; CodeBase zeigt auf den urspruenglichen
+                // Ablageort (Build-Output bzw. Installationsordner).
+                Assembly asm = Assembly.GetExecutingAssembly();
+                var baseDirs = new System.Collections.Generic.List<string>();
+                try { baseDirs.Add(Path.GetDirectoryName(new Uri(asm.CodeBase).LocalPath)); }
+                catch (Exception ex) { diag.AppendLine("CodeBase nicht lesbar: " + ex.Message); }
+                baseDirs.Add(AppDomain.CurrentDomain.BaseDirectory?.TrimEnd('\\'));
+                baseDirs.Add(Path.GetDirectoryName(asm.Location));
 
                 string arch = Environment.Is64BitProcess ? "x64" : "x86";
-                string[] candidates =
+                foreach (string baseDir in baseDirs.Distinct())
                 {
-                    Path.Combine(addinDir, "NativeAssets", arch, "CpuMathNative.dll"),
-                    Path.Combine(addinDir, "CpuMathNative.dll"),
-                    Path.Combine(addinDir, "runtimes", "win-" + arch, "nativeassets", "netstandard2.0", "CpuMathNative.dll"),
-                };
-                foreach (string candidate in candidates)
-                {
-                    if (!File.Exists(candidate))
+                    if (string.IsNullOrEmpty(baseDir)) continue;
+                    string[] candidates =
                     {
-                        diag.AppendLine("fehlt:  " + candidate);
-                        continue;
-                    }
-                    if (LoadLibrary(candidate) != IntPtr.Zero)
+                        Path.Combine(baseDir, "NativeAssets", arch, "CpuMathNative.dll"),
+                        Path.Combine(baseDir, "CpuMathNative.dll"),
+                        Path.Combine(baseDir, "runtimes", "win-" + arch, "nativeassets", "netstandard2.0", "CpuMathNative.dll"),
+                    };
+                    foreach (string candidate in candidates)
                     {
-                        SetDllDirectory(Path.GetDirectoryName(candidate));
-                        diag.AppendLine("geladen: " + candidate);
-                        return;
+                        if (!File.Exists(candidate))
+                        {
+                            diag.AppendLine("fehlt:  " + candidate);
+                            continue;
+                        }
+                        if (LoadLibrary(candidate) != IntPtr.Zero)
+                        {
+                            SetDllDirectory(Path.GetDirectoryName(candidate));
+                            diag.AppendLine("geladen: " + candidate);
+                            return;
+                        }
+                        diag.AppendLine("Ladefehler (Win32 " + Marshal.GetLastWin32Error() + "): " + candidate);
                     }
-                    diag.AppendLine("Ladefehler (Win32 " + Marshal.GetLastWin32Error() + "): " + candidate);
                 }
             }
             catch (Exception ex)
