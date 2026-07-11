@@ -5,15 +5,14 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 {
     /// <summary>
     /// Einstellungs-Dialog des PASS NL Checkers (Nachfolger des reinen API-Key-Dialogs):
-    /// Pruefmethode (lokales ML-Modell oder LLM), LLM-Provider (UniGPT/OpenAI/Anthropic)
-    /// sowie Modell und API-Key je Provider. DPI-fest per AutoSize-Layout-Containern.
+    /// LLM-Provider (UniGPT/OpenAI/Anthropic) sowie Modell und API-Key je Provider fuer
+    /// die Label-Vorschlaege. Die Gueltigkeitspruefung selbst laeuft immer ueber das
+    /// lokale ML-Modell. DPI-fest per AutoSize-Layout-Containern.
     /// </summary>
     public class NlCheckerSettingsDialog : Form
     {
         private readonly NlCheckerSettings _settings;
 
-        private RadioButton rbLocalMl;
-        private RadioButton rbLlm;
         private ComboBox cmbProvider;
         private TextBox txtModel;
         private TextBox txtApiKey;
@@ -41,9 +40,6 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         {
             _settings = settings;
             InitializeComponent();
-
-            rbLlm.Checked = settings.CheckMethod == NlCheckerSettings.MethodLlm;
-            rbLocalMl.Checked = !rbLlm.Checked;
 
             int providerIndex = Array.IndexOf(ProviderIds, settings.Provider);
             cmbProvider.SelectedIndex = providerIndex >= 0 ? providerIndex : 0;
@@ -74,7 +70,6 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         private void btnOK_Click(object sender, EventArgs e)
         {
             StoreShownProvider();
-            _settings.CheckMethod = rbLlm.Checked ? NlCheckerSettings.MethodLlm : NlCheckerSettings.MethodLocalMl;
             _settings.Provider = ProviderIds[cmbProvider.SelectedIndex];
             _settings.Save();
 
@@ -84,30 +79,6 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
         private void InitializeComponent()
         {
-            rbLocalMl = new RadioButton
-            {
-                AutoSize = true,
-                Text = "Lokales ML-Modell (Microsoft ML.NET, offline)",
-                Checked = true,
-            };
-            rbLlm = new RadioButton
-            {
-                AutoSize = true,
-                Text = "LLM (Sprachmodell des unten gewählten Providers)",
-            };
-
-            FlowLayoutPanel methodPanel = new FlowLayoutPanel
-            {
-                FlowDirection = FlowDirection.TopDown,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                WrapContents = false,
-                Margin = new Padding(0, 0, 0, 10),
-            };
-            methodPanel.Controls.Add(rbLocalMl);
-            methodPanel.Controls.Add(rbLlm);
-
-            Label lblMethod = MakeLabel("Prüfmethode:");
             Label lblProvider = MakeLabel("Provider:");
             Label lblModel = MakeLabel("Modell:");
             Label lblApiKey = MakeLabel("API-Key:");
@@ -137,9 +108,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                 MaximumSize = new System.Drawing.Size(420, 0),
                 ForeColor = System.Drawing.SystemColors.GrayText,
                 Margin = new Padding(0, 8, 0, 0),
-                Text = "Der API-Key des gewählten Providers wird für die Label-Vorschläge benötigt — " +
-                       "und bei Prüfmethode „LLM“ auch für die Gültigkeitsprüfung selbst. " +
-                       "Modell und Key werden je Provider gespeichert.",
+                Text = "Geprüft wird immer mit dem lokalen ML-Modell (offline). Der API-Key des " +
+                       "gewählten Providers wird nur für die Label-Vorschläge zu ungültigen Namen " +
+                       "benötigt. Modell und Key werden je Provider gespeichert.",
             };
 
             btnOK = MakeButton("OK");
@@ -164,23 +135,21 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                 AutoSize = true,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 ColumnCount = 2,
-                RowCount = 6,
+                RowCount = 5,
                 Dock = DockStyle.Fill,
                 Padding = new Padding(12),
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
 
-            layout.Controls.Add(lblMethod, 0, 0);
-            layout.Controls.Add(methodPanel, 1, 0);
-            layout.Controls.Add(lblProvider, 0, 1);
-            layout.Controls.Add(cmbProvider, 1, 1);
-            layout.Controls.Add(lblModel, 0, 2);
-            layout.Controls.Add(txtModel, 1, 2);
-            layout.Controls.Add(lblApiKey, 0, 3);
-            layout.Controls.Add(txtApiKey, 1, 3);
-            layout.Controls.Add(lblHint, 1, 4);
-            layout.Controls.Add(buttonRow, 1, 5);
+            layout.Controls.Add(lblProvider, 0, 0);
+            layout.Controls.Add(cmbProvider, 1, 0);
+            layout.Controls.Add(lblModel, 0, 1);
+            layout.Controls.Add(txtModel, 1, 1);
+            layout.Controls.Add(lblApiKey, 0, 2);
+            layout.Controls.Add(txtApiKey, 1, 2);
+            layout.Controls.Add(lblHint, 1, 3);
+            layout.Controls.Add(buttonRow, 1, 4);
 
             this.AutoScaleMode = AutoScaleMode.Font;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

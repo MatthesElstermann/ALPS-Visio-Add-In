@@ -103,29 +103,6 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             return await CompleteAsync(prompt);
         }
 
-        /// <summary>
-        /// LLM-basierte Gueltigkeitspruefung eines Labels — die Alternative zur lokalen
-        /// ML.NET-Klassifikation (Pruefmethode "LLM" in den NL-Checker-Einstellungen).
-        /// </summary>
-        public async Task<bool> CheckLabel(ShapeType shapeType, string currentLabel)
-        {
-            string prompt = $@"
-        In an S-BPM (PASS) diagram, you are evaluating a {shapeType}.
-        {GetShapeDescription(shapeType)}
-        The current label for this {shapeType} is: '{currentLabel}'.
-
-        Decide whether this label is a valid, well-formed name for a {shapeType} in an S-BPM (PASS) diagram
-        (appropriate grammatical form, meaningful, and specific enough to describe its purpose).
-        Answer with exactly one word: VALID or INVALID.
-    ";
-            string answer = (await CompleteAsync(prompt)).Trim().ToUpperInvariant();
-
-            // Reihenfolge wichtig: "INVALID" enthaelt "VALID" als Teilstring.
-            if (answer.Contains("INVALID")) return false;
-            if (answer.Contains("VALID")) return true;
-            throw new Exception("Unerwartete LLM-Antwort (weder VALID noch INVALID): " + answer);
-        }
-
         private async Task<string> CompleteAsync(string prompt)
         {
             if (string.IsNullOrWhiteSpace(_apiKey))

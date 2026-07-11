@@ -18,7 +18,8 @@ namespace ALPS_Visio_AddIn_rewrite
             alpsTab.Label = "ALPS/PASS ADDIN";
             this.Tabs.Add(alpsTab);
 
-            // Group order and labels mirror the original add-in (upstream/main).
+            // Group order and labels mirror the original add-in (upstream/main);
+            // the "PASS NL Checker" group is new (ported NLPPASSChecking features).
 
             // --- Group 1: Standard Functions ---
             RibbonGroup standardGroup = this.Factory.CreateRibbonGroup();
@@ -76,16 +77,23 @@ namespace ALPS_Visio_AddIn_rewrite
             verificationButton.Click += new RibbonControlEventHandler(this.AlpsVerification);
             owlGroup.Items.Add(verificationButton);
 
+            // --- Group 4: PASS NL Checker ---
+            // Eigener Ribbon-Abschnitt fuer die NL-Pruefung: Pruefung immer per lokalem
+            // ML-Modell; das LLM (Provider waehlbar) liefert nur die Label-Vorschlaege.
+            RibbonGroup nlGroup = this.Factory.CreateRibbonGroup();
+            nlGroup.Label = "PASS NL Checker";
+            alpsTab.Groups.Add(nlGroup);
+
             // PASS NL Checker (ML.NET label validity + LLM suggestions), ported from NLPPASSChecking.
             RibbonButton naturalLanguageButton = this.Factory.CreateRibbonButton();
             naturalLanguageButton.Name = "naturalLanguageButton";
             naturalLanguageButton.Label = "PASS NL Checker";
-            naturalLanguageButton.SuperTip = "Check every shape label for its type (ML) and get LLM suggestions for weak labels.";
+            naturalLanguageButton.SuperTip = "Check every shape label for its type (local ML model) and get LLM suggestions for weak labels.";
             naturalLanguageButton.OfficeImageId = "Spelling";
             naturalLanguageButton.ShowImage = true;
             naturalLanguageButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
             naturalLanguageButton.Click += new RibbonControlEventHandler(this.PassNlChecker);
-            owlGroup.Items.Add(naturalLanguageButton);
+            nlGroup.Items.Add(naturalLanguageButton);
 
             // Lokales NL-Modell (neu) trainieren -- entspricht dem Retrain-Button des
             // Original-Add-Ins (NLPPASSChecking), der im Port bisher fehlte.
@@ -97,19 +105,19 @@ namespace ALPS_Visio_AddIn_rewrite
             retrainButton.ShowImage = true;
             retrainButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
             retrainButton.Click += new RibbonControlEventHandler(this.RetrainNlModel);
-            owlGroup.Items.Add(retrainButton);
+            nlGroup.Items.Add(retrainButton);
 
-            // NL-Checker-Einstellungen: Pruefmethode (lokales ML-Modell oder LLM), Provider
-            // (UniGPT/OpenAI/Anthropic) sowie Modell + API-Key je Provider (%APPDATA%-JSON).
+            // NL-Checker-Einstellungen: LLM-Provider (UniGPT/OpenAI/Anthropic) sowie
+            // Modell + API-Key je Provider (%APPDATA%-JSON) fuer die Label-Vorschlaege.
             RibbonButton nlSettingsButton = this.Factory.CreateRibbonButton();
             nlSettingsButton.Name = "nlSettingsButton";
             nlSettingsButton.Label = "NL-Checker Einstellungen";
-            nlSettingsButton.SuperTip = "Prüfmethode (lokales ML-Modell oder LLM), LLM-Provider (UniGPT/OpenAI/Anthropic) sowie Modell und API-Key für den PASS NL Checker festlegen.";
+            nlSettingsButton.SuperTip = "LLM-Provider (UniGPT/OpenAI/Anthropic) sowie Modell und API-Key für die Label-Vorschläge des PASS NL Checkers festlegen. Geprüft wird immer mit dem lokalen ML-Modell.";
             nlSettingsButton.OfficeImageId = "Lock";
             nlSettingsButton.ShowImage = true;
             nlSettingsButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
             nlSettingsButton.Click += new RibbonControlEventHandler(this.OpenNlCheckerSettings);
-            owlGroup.Items.Add(nlSettingsButton);
+            nlGroup.Items.Add(nlSettingsButton);
 
             // Carried over from the original add-in; not implemented yet (stub).
             RibbonButton bpmnButton = this.Factory.CreateRibbonButton();

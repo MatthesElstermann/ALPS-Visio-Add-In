@@ -6,24 +6,19 @@ using Newtonsoft.Json;
 namespace ALPS_Visio_AddIn_rewrite.NLChecker
 {
     /// <summary>
-    /// Persistente Einstellungen des PASS NL Checkers: Pruefmethode (lokales ML-Modell oder
-    /// LLM), gewaehlter LLM-Provider sowie API-Key und Modellname je Provider. Liegt als
+    /// Persistente Einstellungen des PASS NL Checkers: gewaehlter LLM-Provider sowie
+    /// API-Key und Modellname je Provider. Die Gueltigkeitspruefung laeuft immer ueber
+    /// das lokale ML-Modell; das LLM liefert nur die Label-Vorschlaege. Liegt als
     /// JSON unter %APPDATA%\ALPS_Visio_AddIn; der alte Einzel-Key aus llm_api_key.txt
     /// (damals nur UniGPT) wird beim ersten Laden migriert.
     /// </summary>
     public class NlCheckerSettings
     {
-        public const string MethodLocalMl = "LocalML";
-        public const string MethodLlm = "LLM";
-
         public const string ProviderUniGpt = "UniGPT";
         public const string ProviderOpenAi = "OpenAI";
         public const string ProviderAnthropic = "Anthropic";
 
-        /// <summary>Wie die Labels geprueft werden: MethodLocalMl oder MethodLlm.</summary>
-        public string CheckMethod { get; set; } = MethodLocalMl;
-
-        /// <summary>Aktiver LLM-Provider (fuer Vorschlaege und ggf. die LLM-Pruefung).</summary>
+        /// <summary>Aktiver LLM-Provider (fuer die Label-Vorschlaege).</summary>
         public string Provider { get; set; } = ProviderUniGpt;
 
         /// <summary>API-Key je Provider.</summary>

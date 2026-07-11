@@ -35,7 +35,7 @@ Two diagram types are produced and managed:
 
 ## The ribbon at a glance
 
-After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with three groups:
+After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with four groups:
 
 | Group | Button | Action |
 | --- | --- | --- |
@@ -43,11 +43,11 @@ After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with three gro
 | ALPS Layer Editing | **Show layer Explorer** | Opens the layer/model explorer (tree view of models, SID layers and SBD pages). |
 | OWL PASS Tools | **Import OWL** | Imports a PASS/ALPS model from an `.owl` file and draws it. |
 | OWL PASS Tools | **ALPS Verification** | Checks an implementation model against a specification model and shows a report with an overall verdict. |
-| OWL PASS Tools | **PASS NL Checker** | Checks every shape label — via a local ML model or an LLM (selectable) — and asks an LLM for better labels. |
-| OWL PASS Tools | **NL-Modell trainieren** | Retrains the NL Checker's local ML model from the bundled training data. |
-| OWL PASS Tools | **NL-Checker Einstellungen** | Choose the check method (local ML vs. LLM), the LLM provider (UniGPT/OpenAI/Anthropic) and per-provider model + API key. |
 | OWL PASS Tools | **PASS BPMN Converter** | *Not implemented yet* (placeholder carried over from the original add-in). |
 | OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
+| PASS NL Checker | **PASS NL Checker** | Checks every shape label with the local ML model and asks an LLM for better labels where invalid. |
+| PASS NL Checker | **NL-Modell trainieren** | Retrains the NL Checker's local ML model from the bundled training data. |
+| PASS NL Checker | **NL-Checker Einstellungen** | Choose the LLM provider (UniGPT/OpenAI/Anthropic) and per-provider model + API key for the label suggestions. |
 
 The features in detail:
 
@@ -88,26 +88,23 @@ implemented yet; the verdict covers the SID level only.
 
 ### PASS NL Checker
 
-Checks every relevant shape label in the active document. The **check method is
-selectable** (button *NL-Checker Einstellungen*):
+Checks every relevant shape label in the active document with the **local ML model**
+(offline): an **ML.NET binary classifier** predicts whether the label is a valid name
+for its shape type (do/send/receive states, subjects, messages, …). The model is
+trained on first use from a bundled training set and cached under
+`%APPDATA%\ALPS_Visio_AddIn\nl_model.zip`. It can be retrained (replacing the cached
+model) at any time via the **NL-Modell trainieren** button.
 
-- **Local ML model** (default, offline): an **ML.NET binary classifier** predicts
-  whether the label is a valid name for its shape type (do/send/receive states,
-  subjects, messages, …). The model is trained on first use from a bundled training set
-  and cached under `%APPDATA%\ALPS_Visio_AddIn\nl_model.zip`. It can be retrained
-  (replacing the cached model) at any time via the **NL-Modell trainieren** button.
-- **LLM**: the label validity is judged by a language model instead — useful when the
-  local classifier is too coarse for your naming conventions.
-
-For labels judged invalid, the **LLM** is asked for two improved label suggestions
-(regardless of the check method). The LLM side supports **three providers** — the
+For labels judged invalid, an **LLM** is asked for two improved label suggestions.
+The LLM is used **only for these suggestions** — the validity check itself always runs
+locally. Three providers are supported (button *NL-Checker Einstellungen*) — the
 **UniGPT endpoint of the University of Münster** (OpenAI-compatible,
 default model `Llama-3.3-70B`), **OpenAI** (`gpt-4o-mini` by default) and
 **Anthropic** (`claude-opus-4-8` by default; consider `claude-haiku-4-5` for lower
 cost). Model name and API key are stored **per provider** in
 `%APPDATA%\ALPS_Visio_AddIn\nl_checker_settings.json` (plain text; an old
 `llm_api_key.txt` from earlier versions is migrated automatically). Without an API key
-the local ML check still runs — only the suggestions are skipped.
+the check still runs — only the suggestions are skipped.
 
 ### Layer editing & snapping
 
