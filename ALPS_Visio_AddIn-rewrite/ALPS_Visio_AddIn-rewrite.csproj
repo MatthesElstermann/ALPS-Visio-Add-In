@@ -311,12 +311,12 @@
   -->
   <ItemGroup>
     <Compile Include="AutoArranger.cs" />
-    <Compile Include="NLChecker\ApiKeyDialog.cs">
+    <Compile Include="NLChecker\LlmClient.cs" />
+    <Compile Include="NLChecker\NlChecker.cs" />
+    <Compile Include="NLChecker\NlCheckerSettings.cs" />
+    <Compile Include="NLChecker\NlCheckerSettingsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NLChecker\ApiKeyManager.cs" />
-    <Compile Include="NLChecker\LabelImprover.cs" />
-    <Compile Include="NLChecker\NlChecker.cs" />
     <Compile Include="NLChecker\ProcessingForm.cs">
       <SubType>Form</SubType>
     </Compile>

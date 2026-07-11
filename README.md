@@ -43,9 +43,9 @@ After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with three gro
 | ALPS Layer Editing | **Show layer Explorer** | Opens the layer/model explorer (tree view of models, SID layers and SBD pages). |
 | OWL PASS Tools | **Import OWL** | Imports a PASS/ALPS model from an `.owl` file and draws it. |
 | OWL PASS Tools | **ALPS Verification** | Checks an implementation model against a specification model and shows a report with an overall verdict. |
-| OWL PASS Tools | **PASS NL Checker** | Classifies every shape label as valid/invalid (ML) and asks an LLM for better labels. |
+| OWL PASS Tools | **PASS NL Checker** | Checks every shape label — via a local ML model or an LLM (selectable) — and asks an LLM for better labels. |
 | OWL PASS Tools | **NL-Modell trainieren** | Retrains the NL Checker's local ML model from the bundled training data. |
-| OWL PASS Tools | **LLM API-Key** | Sets or replaces the API key the NL Checker uses for LLM suggestions. |
+| OWL PASS Tools | **NL-Checker Einstellungen** | Choose the check method (local ML vs. LLM), the LLM provider (UniGPT/OpenAI/Anthropic) and per-provider model + API key. |
 | OWL PASS Tools | **PASS BPMN Converter** | *Not implemented yet* (placeholder carried over from the original add-in). |
 | OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
 
@@ -88,19 +88,26 @@ implemented yet; the verdict covers the SID level only.
 
 ### PASS NL Checker
 
-Checks every relevant shape label in the active document:
+Checks every relevant shape label in the active document. The **check method is
+selectable** (button *NL-Checker Einstellungen*):
 
-1. An **ML.NET binary classifier** predicts whether the label is a valid name for its
-   shape type (do/send/receive states, subjects, messages, …). The model is trained on
-   first use from a bundled training set and cached under
-   `%APPDATA%\ALPS_Visio_AddIn\nl_model.zip`.
-2. For labels classified as invalid, an **LLM** (Uni Münster GPT endpoint) is asked for
-   two improved label suggestions.
+- **Local ML model** (default, offline): an **ML.NET binary classifier** predicts
+  whether the label is a valid name for its shape type (do/send/receive states,
+  subjects, messages, …). The model is trained on first use from a bundled training set
+  and cached under `%APPDATA%\ALPS_Visio_AddIn\nl_model.zip`. It can be retrained
+  (replacing the cached model) at any time via the **NL-Modell trainieren** button.
+- **LLM**: the label validity is judged by a language model instead — useful when the
+  local classifier is too coarse for your naming conventions.
 
-The LLM step needs an API key — you are prompted on first use, and the **LLM API-Key**
-button changes it later. The key is stored as plain text under
-`%APPDATA%\ALPS_Visio_AddIn\llm_api_key.txt`; without a key the ML classification still
-runs, only the suggestions are skipped.
+For labels judged invalid, the **LLM** is asked for two improved label suggestions
+(regardless of the check method). The LLM side supports **three providers** — the
+**UniGPT endpoint of the University of Münster** (OpenAI-compatible,
+default model `Llama-3.3-70B`), **OpenAI** (`gpt-4o-mini` by default) and
+**Anthropic** (`claude-opus-4-8` by default; consider `claude-haiku-4-5` for lower
+cost). Model name and API key are stored **per provider** in
+`%APPDATA%\ALPS_Visio_AddIn\nl_checker_settings.json` (plain text; an old
+`llm_api_key.txt` from earlier versions is migrated automatically). Without an API key
+the local ML check still runs — only the suggestions are skipped.
 
 ### Layer editing & snapping
 
@@ -267,8 +274,8 @@ authoritative overview of the architecture and the open tasks. Highlights:
   rendered, partly because the API does not always match the ontology.
 - The **PASS BPMN Converter** button is a placeholder — the feature does not exist yet.
 - The **ALPS Verification** is a prototype: SID checks only, SBD checks are empty.
-- The NL Checker's LLM step targets the Uni Münster GPT endpoint; other OpenAI-style
-  endpoints require a code change.
+- The NL Checker's LLM side supports UniGPT (Uni Münster), OpenAI and Anthropic;
+  other providers require a code change in `NLChecker/LlmClient.cs`.
 - Performance during import is dominated by Visio itself.
 
 Additional notes and a deeper code walk-through live in

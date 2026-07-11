@@ -12,18 +12,20 @@ using Visio = Microsoft.Office.Interop.Visio;
 namespace ALPS_Visio_AddIn_rewrite.NLChecker
 {
     /// <summary>
-    /// PASS Natural-Language checker. For each relevant shape it predicts (via an ML.NET binary
-    /// classifier trained on the bundled training data) whether the label is a valid name for its
-    /// shape type, and for invalid labels asks an LLM (<see cref="LabelImprover"/>) for suggestions.
-    /// Ported from the standalone NLPPASSChecking add-in; the former hard-coded model/training paths
-    /// are replaced by a bundled training set that is trained on first use.
+    /// PASS Natural-Language checker. Prueft fuer jedes relevante Shape, ob das Label ein
+    /// gueltiger Name fuer seinen Typ ist — wahlweise per lokalem ML.NET-Klassifikator
+    /// (Default, offline) oder per LLM (<see cref="LlmClient"/>, Provider waehlbar:
+    /// UniGPT/OpenAI/Anthropic). Fuer ungueltige Labels liefert das LLM Vorschlaege.
+    /// Methode, Provider, Modell und API-Keys kommen aus <see cref="NlCheckerSettings"/>.
     /// </summary>
     public class NlChecker
     {
         private readonly MLContext _mlContext = new MLContext(seed: 0);
         private ITransformer _model;
         private PredictionEngine<ShapeName, ShapeNamePrediction> _predEngine;
-        private LabelImprover _labelImprover;
+
+        private NlCheckerSettings _settings;
+        private LlmClient _llm;
 
         private const string TrainingResourceName = "ALPS_Visio_AddIn_rewrite.NLChecker.training.tsv";
 
@@ -32,18 +34,32 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
         private static string ModelFilePath => Path.Combine(AppDataDir, "nl_model.zip");
 
+        private bool UseLlmCheck => _settings.CheckMethod == NlCheckerSettings.MethodLlm;
+
         /// <summary>
-        /// Prepares the checker: obtains the LLM API key (prompting once if missing) and loads or, on
-        /// first use, trains the classifier. Returns false with a message when the model can't be built.
+        /// Prepares the checker: laedt die Einstellungen und je nach Pruefmethode das lokale
+        /// ML-Modell (Erstlauf: Training) bzw. den LLM-Client. Returns false with a message
+        /// when the chosen method cannot run.
         /// </summary>
         public bool Initialize(out string error)
         {
             error = null;
 
-            string apiKey = ApiKeyManager.GetApiKey();
-            if (string.IsNullOrEmpty(apiKey) && ApiKeyManager.UpdateApiKey())
-                apiKey = ApiKeyManager.GetApiKey();
-            _labelImprover = string.IsNullOrEmpty(apiKey) ? null : new LabelImprover(apiKey);
+            _settings = NlCheckerSettings.Load();
+            _llm = string.IsNullOrWhiteSpace(_settings.ActiveApiKey) ? null : new LlmClient(_settings);
+
+            if (UseLlmCheck)
+            {
+                if (_llm == null)
+                {
+                    error = "Prüfmethode „LLM“ ist gewählt, aber für den Provider " + _settings.Provider +
+                            " ist kein API-Key hinterlegt.\nBitte über den Ribbon-Button " +
+                            "„NL-Checker Einstellungen“ setzen (oder auf das lokale ML-Modell umstellen).";
+                    return false;
+                }
+                // Kein ML-Modell noetig -- die Pruefung laeuft komplett ueber das LLM.
+                return true;
+            }
 
             try
             {
@@ -230,6 +246,12 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             var document = application.ActiveDocument;
             var result = new StringBuilder();
 
+            result.AppendLine("Prüfmethode: " + (UseLlmCheck
+                ? "LLM (" + _llm.Describe() + ")"
+                : "Lokales ML-Modell (ML.NET)"));
+            result.AppendLine("Vorschläge: " + (_llm != null ? _llm.Describe() : "deaktiviert (kein API-Key)"));
+            result.AppendLine();
+
             int totalShapes = document.Pages.Cast<Visio.Page>().Sum(p => p.Shapes.Count);
             int processed = 0;
 
@@ -264,10 +286,28 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                 return string.Empty;
 
             bool? isValid = null;
+            string checkError = null;
             if (ShouldValidate(componentType))
             {
-                isValid = await Task.Run(() =>
-                    _predEngine?.Predict(new ShapeName { Name = label, ShapeType = componentType })?.IsValid);
+                if (UseLlmCheck)
+                {
+                    if (Enum.TryParse(componentType, out LlmClient.ShapeType shapeTypeEnum))
+                    {
+                        try
+                        {
+                            isValid = await _llm.CheckLabel(shapeTypeEnum, label);
+                        }
+                        catch (Exception ex)
+                        {
+                            checkError = ex.Message;
+                        }
+                    }
+                }
+                else
+                {
+                    isValid = await Task.Run(() =>
+                        _predEngine?.Predict(new ShapeName { Name = label, ShapeType = componentType })?.IsValid);
+                }
             }
 
             sb.AppendLine($"Shape ID: {shape.ID}");
@@ -277,6 +317,8 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
             if (isValid.HasValue)
                 sb.AppendLine($"  ValidName: {(isValid.Value ? "VALID" : "INVALID")}");
+            else if (checkError != null)
+                sb.AppendLine($"  ValidName: FEHLER ({checkError})");
 
             if (isValid.HasValue && !isValid.Value)
             {
@@ -314,11 +356,11 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
         private async Task<string> GetSuggestionsAsync(string componentType, string currentLabel)
         {
-            if (_labelImprover == null || !Enum.TryParse(componentType, out LabelImprover.ShapeType shapeTypeEnum))
+            if (_llm == null || !Enum.TryParse(componentType, out LlmClient.ShapeType shapeTypeEnum))
                 return "Suggestions unavailable (no API key or unsupported type).";
             try
             {
-                return await _labelImprover.ImproveLabel(shapeTypeEnum, currentLabel);
+                return await _llm.ImproveLabel(shapeTypeEnum, currentLabel);
             }
             catch (Exception ex)
             {
