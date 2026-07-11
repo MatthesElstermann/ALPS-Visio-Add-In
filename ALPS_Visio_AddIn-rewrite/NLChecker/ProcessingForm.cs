@@ -34,7 +34,7 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             this.progressBar = new ProgressBar();
             this.SuspendLayout();
 
-            // DPI-festes Layout wie beim NlCheckerSettingsDialog: AutoSize-Container statt fester
+            // DPI-festes Layout wie beim ApiKeyDialog: AutoSize-Container statt fester
             // Pixelpositionen, sonst schneidet hohe Bildschirmskalierung den Text ab.
             this.lblProgress.AutoSize = true;
             this.lblProgress.Margin = new Padding(0, 0, 0, 8);

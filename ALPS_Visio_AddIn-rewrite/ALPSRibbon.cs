@@ -87,17 +87,16 @@ namespace ALPS_Visio_AddIn_rewrite
             naturalLanguageButton.Click += new RibbonControlEventHandler(this.PassNlChecker);
             owlGroup.Items.Add(naturalLanguageButton);
 
-            // NL-Checker-Einstellungen: Pruefmethode (lokales ML-Modell oder LLM), Provider
-            // (UniGPT/OpenAI/Anthropic) sowie Modell + API-Key je Provider (%APPDATA%-JSON).
-            RibbonButton nlSettingsButton = this.Factory.CreateRibbonButton();
-            nlSettingsButton.Name = "nlSettingsButton";
-            nlSettingsButton.Label = "NL-Checker Einstellungen";
-            nlSettingsButton.SuperTip = "Prüfmethode (lokales ML-Modell oder LLM), LLM-Provider (UniGPT/OpenAI/Anthropic) sowie Modell und API-Key für den PASS NL Checker festlegen.";
-            nlSettingsButton.OfficeImageId = "Lock";
-            nlSettingsButton.ShowImage = true;
-            nlSettingsButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            nlSettingsButton.Click += new RibbonControlEventHandler(this.OpenNlCheckerSettings);
-            owlGroup.Items.Add(nlSettingsButton);
+            // Set/replace the LLM API key used by the PASS NL Checker (stored under %APPDATA%).
+            RibbonButton apiKeyButton = this.Factory.CreateRibbonButton();
+            apiKeyButton.Name = "apiKeyButton";
+            apiKeyButton.Label = "LLM API-Key";
+            apiKeyButton.SuperTip = "Set or replace the LLM API key used by the PASS NL Checker for label suggestions.";
+            apiKeyButton.OfficeImageId = "Lock";
+            apiKeyButton.ShowImage = true;
+            apiKeyButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            apiKeyButton.Click += new RibbonControlEventHandler(this.SetApiKey);
+            owlGroup.Items.Add(apiKeyButton);
 
             // Carried over from the original add-in; not implemented yet (stub).
             RibbonButton bpmnButton = this.Factory.CreateRibbonButton();
@@ -312,18 +311,14 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Opens the NL-checker settings dialog: check method (local ML model vs. LLM),
-        /// LLM provider (UniGPT/OpenAI/Anthropic) and per-provider model + API key.
+        /// Opens the API-key dialog (pre-filled with the current key) so the LLM API key used by the
+        /// PASS NL Checker can be set or replaced at any time.
         /// </summary>
-        private void OpenNlCheckerSettings(object sender, RibbonControlEventArgs e)
+        private void SetApiKey(object sender, RibbonControlEventArgs e)
         {
-            var settings = NLChecker.NlCheckerSettings.Load();
-            using (var dialog = new NLChecker.NlCheckerSettingsDialog(settings))
-            {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                    MessageBox.Show("NL-Checker-Einstellungen gespeichert.", "PASS NL Checker",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            if (NLChecker.ApiKeyManager.UpdateApiKey())
+                MessageBox.Show("LLM API-Key gespeichert.", "PASS NL Checker",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
