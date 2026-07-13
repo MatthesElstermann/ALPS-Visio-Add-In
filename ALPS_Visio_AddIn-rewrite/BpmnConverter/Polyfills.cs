@@ -1,10 +1,44 @@
-// Compiler-Polyfills fuer den portierten pass-bpmn-converter (net9 → net48):
-// Der Roslyn-Compiler von VS 2022 unterstuetzt C#-12-Sprachfeatures auch auf
-// .NET Framework, verlangt fuer "required"-Member aber diese Attribut-Typen,
-// die es erst ab .NET 7 in der BCL gibt. Die Definitionen sind intern und
-// wirken nur zur Compilezeit.
+// Polyfills fuer den portierten pass-bpmn-converter (net9 → net48):
+// 1. Compiler-Attribute: Der Roslyn-Compiler von VS 2022 unterstuetzt C#-12-
+//    Sprachfeatures auch auf .NET Framework, verlangt fuer "required"-Member aber
+//    Attribut-Typen, die es erst ab .NET 7 in der BCL gibt (compile-only).
+// 2. Collection-Erweiterungen: Queue<T>.TryDequeue/Stack<T>.TryPop existieren
+//    erst ab .NET Core 2.0 — auf net48 liefern Extension-Methoden den Ersatz.
+//    Sie liegen im Namespace PassBpmnConverter und sind damit in allen
+//    Unter-Namespaces des Ports ohne using-Direktive sichtbar.
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+
+namespace PassBpmnConverter
+{
+    internal static class CollectionPolyfills
+    {
+        /// <summary>net48-Ersatz fuer Queue&lt;T&gt;.TryDequeue (ab .NET Core 2.0 eingebaut).</summary>
+        public static bool TryDequeue<T>(this Queue<T> queue, out T result)
+        {
+            if (queue.Count == 0)
+            {
+                result = default!;
+                return false;
+            }
+            result = queue.Dequeue();
+            return true;
+        }
+
+        /// <summary>net48-Ersatz fuer Stack&lt;T&gt;.TryPop (ab .NET Core 2.0 eingebaut).</summary>
+        public static bool TryPop<T>(this Stack<T> stack, out T result)
+        {
+            if (stack.Count == 0)
+            {
+                result = default!;
+                return false;
+            }
+            result = stack.Pop();
+            return true;
+        }
+    }
+}
 
 namespace System.Runtime.CompilerServices
 {
