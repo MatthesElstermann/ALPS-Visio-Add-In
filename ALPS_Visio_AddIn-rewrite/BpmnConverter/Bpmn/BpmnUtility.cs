@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Text;
 namespace PassBpmnConverter.Bpmn;
 
 public static class BpmnUtility
@@ -8,6 +9,26 @@ public static class BpmnUtility
     public static string GenerateUniqueIdentifier()
     {
         return '_' + Guid.NewGuid().ToString();
+    }
+
+    /// <summary>
+    /// Macht aus freiem Text eine gueltige XML-ID (NCName): BPMN-ids muessen mit
+    /// Buchstabe/Unterstrich beginnen und duerfen nur Buchstaben, Ziffern, '.', '-'
+    /// und '_' enthalten. Der Modellname landet als Definitions-id in der Datei —
+    /// Namen wie "[Test]_Escaping_Quotes" liessen bpmn.io sonst mit
+    /// "illegal ID" beim Parsen aussteigen.
+    /// </summary>
+    public static string SanitizeNcName(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return GenerateUniqueIdentifier();
+
+        var sb = new StringBuilder(value!.Length + 1);
+        if (!(char.IsLetter(value[0]) || value[0] == '_'))
+            sb.Append('_');
+        foreach (char c in value)
+            sb.Append(char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == '.' ? c : '_');
+        return sb.ToString();
     }
 
     public static IBpmnModel CreateModel(string? id = null)
@@ -23,7 +44,7 @@ public static class BpmnUtility
     {
         IDefinitions definitions = new Definitions()
         {
-            Id = id ?? GenerateUniqueIdentifier(),
+            Id = id == null ? GenerateUniqueIdentifier() : SanitizeNcName(id),
             // TODO: change TargetNamespace to something useful
             TargetNamespace = "PassBpmnConverter",
         };
