@@ -406,6 +406,17 @@ public class BpmnDiagramGenerator
     {
         double angle = DegToRad(angleInDegrees);
         double diag = Math.Atan2(height, width);
+
+        // Upstream-Bug: DegToRad normalisiert auf (0, 2π], die Seitenwahl unten stammt
+        // aber aus der Atan2-Konvention (-π, π]. Winkel im Bereich (2π-diag, 2π] —
+        // z. B. exakt 360° bei horizontalen Rechts-nach-links-Kanten (Ziel-Offset =
+        // Atan2 von 180° plus 180°) — gehoeren zur RECHTEN Rechteckseite, fielen aber
+        // in den else-Zweig (Unterseite) und dividierten dort durch tan(2π) ≈ -2e-16:
+        // das erzeugte Wegpunkte bei x ≈ 1.6e17. Zuruueckfalten nach (-diag, 0] laesst
+        // sie im ersten Zweig landen.
+        if (angle > 2 * Math.PI - diag)
+            angle -= 2 * Math.PI;
+
         double tangent = Math.Tan(angle);
 
         double x;
