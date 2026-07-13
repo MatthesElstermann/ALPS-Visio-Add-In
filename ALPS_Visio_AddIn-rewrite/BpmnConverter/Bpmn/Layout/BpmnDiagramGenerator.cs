@@ -147,6 +147,8 @@ public class BpmnDiagramGenerator
             {
                 List<IDiagramElement> diagramElements = GenerateDiagram(grid);
 
+                ImproveEdgeRouting(diagramElements);
+
                 IEnumerable<IBpmnShape> bpmnShapes = diagramElements.OfType<IBpmnShape>();
                 double minX = bpmnShapes.Min(bpmnShape => bpmnShape.Bounds.X);
                 double minY = bpmnShapes.Min(bpmnShape => bpmnShape.Bounds.Y);
@@ -345,6 +347,242 @@ public class BpmnDiagramGenerator
     private static IPoint GetBoundsCenter(IBounds bounds)
     {
         return new Point { X = bounds.X + bounds.Width / 2, Y = bounds.Y + bounds.Height / 2 };
+    }
+
+    private const double DetourMargin = 20;
+    private const double DockSpreadMargin = 10;
+
+    /// <summary>
+    /// Entschaerft die groebsten Schwaechen der geraden Mittelpunkt-zu-Mittelpunkt-
+    /// Kanten: (1) Kanten, die quer durch fremde Shapes laufen, werden mit
+    /// Zwischen-Wegpunkten um das Hindernis herumgefuehrt; (2) teilen sich mehrere
+    /// Kanten dieselbe Seite einer Shape, werden ihre Andockpunkte entlang der
+    /// Seite aufgefaechert. Vorher lagen z. B. die beiden Kanten vom Event-Gateway
+    /// zu untereinander angeordneten Zielen exakt uebereinander, und die laengere
+    /// lief mitten durch die dazwischenliegende Box.
+    /// </summary>
+    private static void ImproveEdgeRouting(List<IDiagramElement> diagramElements)
+    {
+        List<IBpmnShape> shapes = diagramElements.OfType<IBpmnShape>().ToList();
+        List<IBpmnEdge> edges = diagramElements.OfType<IBpmnEdge>().ToList();
+
+        // Zaehlt Umleitungen je (Hindernis, Seite): weitere Kanten um dasselbe
+        // Hindernis bekommen einen groesseren Abstand, sonst laegen die
+        // Umleitungssegmente wieder exakt uebereinander.
+        var detourCounts = new Dictionary<(IBpmnShape blocker, bool lowSide), int>();
+
+        foreach (IBpmnEdge edge in edges)
+        {
+            AddObstacleDetours(edge, shapes, detourCounts);
+        }
+
+        SpreadDockingPoints(edges);
+    }
+
+    private static void AddObstacleDetours(IBpmnEdge edge, List<IBpmnShape> shapes,
+        Dictionary<(IBpmnShape blocker, bool lowSide), int> detourCounts)
+    {
+        int insertions = 0;
+
+        for (int i = 0; i + 1 < edge.Waypoints.Count && insertions < 4; i++)
+        {
+            IPoint a = edge.Waypoints[i];
+            IPoint b = edge.Waypoints[i + 1];
+
+            IBpmnShape? blocker = null;
+            double blockerEnter = double.MaxValue;
+            double blockerExit = 0;
+
+            foreach (IBpmnShape shape in shapes)
+            {
+                if (shape == edge.SourceElement || shape == edge.TargetElement)
+                    continue;
+                if (!TrySegmentRectIntersection(a, b, shape.Bounds, DetourMargin, out double tEnter, out double tExit))
+                    continue;
+                // Nur echte Durchquerungen umleiten: liegt ein Segment-Endpunkt in
+                // unmittelbarer Naehe (z. B. Andockpunkte direkt benachbarter Shapes)
+                // oder das Segment komplett innerhalb (Kanten in einem SubProcess,
+                // dessen Container-Shape hier ebenfalls in der Liste steht), nicht.
+                if (tEnter < 0.02 || tExit > 0.98)
+                    continue;
+                if (tEnter < blockerEnter)
+                {
+                    blocker = shape;
+                    blockerEnter = tEnter;
+                    blockerExit = tExit;
+                }
+            }
+
+            if (blocker == null)
+                continue;
+
+            IBounds bounds = blocker.Bounds;
+            double enterX = a.X + (b.X - a.X) * blockerEnter;
+            double enterY = a.Y + (b.Y - a.Y) * blockerEnter;
+            double exitX = a.X + (b.X - a.X) * blockerExit;
+            double exitY = a.Y + (b.Y - a.Y) * blockerExit;
+
+            bool mostlyVertical = Math.Abs(b.Y - a.Y) >= Math.Abs(b.X - a.X);
+            if (mostlyVertical)
+            {
+                bool useLeft = Math.Abs(enterX - (bounds.X - DetourMargin))
+                    <= Math.Abs(enterX - (bounds.X + bounds.Width + DetourMargin));
+                double offset = NextDetourOffset(detourCounts, blocker, useLeft);
+                double detourX = useLeft ? bounds.X - offset : bounds.X + bounds.Width + offset;
+                edge.Waypoints.Insert(i + 1, new Point { X = detourX, Y = enterY });
+                edge.Waypoints.Insert(i + 2, new Point { X = detourX, Y = exitY });
+            }
+            else
+            {
+                bool useTop = Math.Abs(enterY - (bounds.Y - DetourMargin))
+                    <= Math.Abs(enterY - (bounds.Y + bounds.Height + DetourMargin));
+                double offset = NextDetourOffset(detourCounts, blocker, useTop);
+                double detourY = useTop ? bounds.Y - offset : bounds.Y + bounds.Height + offset;
+                edge.Waypoints.Insert(i + 1, new Point { X = enterX, Y = detourY });
+                edge.Waypoints.Insert(i + 2, new Point { X = exitX, Y = detourY });
+            }
+
+            insertions++;
+            i--; // das verkuerzte Anfangssegment gegen weitere Hindernisse pruefen
+        }
+    }
+
+    /// <summary>Abstand fuer die naechste Umleitung an dieser Hindernis-Seite (gestaffelt je 12px).</summary>
+    private static double NextDetourOffset(
+        Dictionary<(IBpmnShape blocker, bool lowSide), int> detourCounts, IBpmnShape blocker, bool lowSide)
+    {
+        detourCounts.TryGetValue((blocker, lowSide), out int count);
+        detourCounts[(blocker, lowSide)] = count + 1;
+        return DetourMargin + count * 12;
+    }
+
+    /// <summary>Liang-Barsky-Clipping des Segments a→b gegen die um margin vergroesserten Bounds.</summary>
+    private static bool TrySegmentRectIntersection(IPoint a, IPoint b, IBounds bounds, double margin, out double tEnter, out double tExit)
+    {
+        double minX = bounds.X - margin;
+        double maxX = bounds.X + bounds.Width + margin;
+        double minY = bounds.Y - margin;
+        double maxY = bounds.Y + bounds.Height + margin;
+
+        double dx = b.X - a.X;
+        double dy = b.Y - a.Y;
+
+        double[] p = { -dx, dx, -dy, dy };
+        double[] q = { a.X - minX, maxX - a.X, a.Y - minY, maxY - a.Y };
+
+        tEnter = 0;
+        tExit = 1;
+
+        for (int k = 0; k < 4; k++)
+        {
+            if (p[k] == 0)
+            {
+                if (q[k] < 0)
+                    return false;
+                continue;
+            }
+
+            double r = q[k] / p[k];
+            if (p[k] < 0)
+            {
+                if (r > tExit) return false;
+                if (r > tEnter) tEnter = r;
+            }
+            else
+            {
+                if (r < tEnter) return false;
+                if (r < tExit) tExit = r;
+            }
+        }
+
+        return tEnter < tExit;
+    }
+
+    private static void SpreadDockingPoints(List<IBpmnEdge> edges)
+    {
+        var dockGroups = new Dictionary<(IBpmnShape shape, int side), List<(IPoint dock, IPoint neighbor)>>();
+
+        foreach (IBpmnEdge edge in edges)
+        {
+            if (edge.Waypoints.Count < 2)
+                continue;
+            RegisterDock(dockGroups, edge.SourceElement as IBpmnShape, edge.Waypoints[0], edge.Waypoints[1]);
+            RegisterDock(dockGroups, edge.TargetElement as IBpmnShape, edge.Waypoints[edge.Waypoints.Count - 1], edge.Waypoints[edge.Waypoints.Count - 2]);
+        }
+
+        foreach (KeyValuePair<(IBpmnShape shape, int side), List<(IPoint dock, IPoint neighbor)>> group in dockGroups)
+        {
+            List<(IPoint dock, IPoint neighbor)> docks = group.Value;
+            if (docks.Count < 2)
+                continue;
+
+            IBounds bounds = group.Key.shape.Bounds;
+            int side = group.Key.side;
+            bool horizontalSide = side == 0 || side == 2; // oben/unten -> entlang X faechern
+
+            // Gateways sind Rauten: weit verteilte Punkte laegen sichtbar neben der
+            // Kontur, deshalb dort nur eng um die Spitze faechern.
+            double halfRange = group.Key.shape.BpmnElement is IGateway
+                ? Math.Min(bounds.Width, bounds.Height) / 4
+                : (horizontalSide ? bounds.Width : bounds.Height) / 2 - DockSpreadMargin;
+
+            double center = horizontalSide ? bounds.X + bounds.Width / 2 : bounds.Y + bounds.Height / 2;
+            double sideCoordinate = side switch
+            {
+                0 => bounds.Y,
+                2 => bounds.Y + bounds.Height,
+                3 => bounds.X,
+                _ => bounds.X + bounds.Width,
+            };
+
+            // Nach Lage des Nachbar-Wegpunkts sortieren, damit sich die Linien am
+            // Knoten nicht zusaetzlich kreuzen.
+            docks.Sort((l, r) => horizontalSide ? l.neighbor.X.CompareTo(r.neighbor.X) : l.neighbor.Y.CompareTo(r.neighbor.Y));
+
+            for (int k = 0; k < docks.Count; k++)
+            {
+                double fraction = (k + 1) / (double)(docks.Count + 1);
+                double position = center + (fraction - 0.5) * 2 * halfRange;
+                if (horizontalSide)
+                {
+                    docks[k].dock.X = position;
+                    docks[k].dock.Y = sideCoordinate;
+                }
+                else
+                {
+                    docks[k].dock.X = sideCoordinate;
+                    docks[k].dock.Y = position;
+                }
+            }
+        }
+    }
+
+    /// <summary>Ordnet einen Andockpunkt der naechstgelegenen Seite seiner Shape zu (0=oben, 1=rechts, 2=unten, 3=links).</summary>
+    private static void RegisterDock(
+        Dictionary<(IBpmnShape shape, int side), List<(IPoint dock, IPoint neighbor)>> dockGroups,
+        IBpmnShape? shape, IPoint dock, IPoint neighbor)
+    {
+        // Events (Kreise, 36px) nicht auffaechern -- verteilte Punkte woerden die
+        // Kreiskontur verlassen, und mehr als eine Kante pro Seite ist dort selten.
+        if (shape == null || shape.BpmnElement is IEvent)
+            return;
+
+        IBounds b = shape.Bounds;
+        double dTop = Math.Abs(dock.Y - b.Y);
+        double dBottom = Math.Abs(dock.Y - (b.Y + b.Height));
+        double dLeft = Math.Abs(dock.X - b.X);
+        double dRight = Math.Abs(dock.X - (b.X + b.Width));
+
+        double min = Math.Min(Math.Min(dTop, dBottom), Math.Min(dLeft, dRight));
+        int side = min == dTop ? 0 : min == dBottom ? 2 : min == dLeft ? 3 : 1;
+
+        var key = (shape, side);
+        if (!dockGroups.TryGetValue(key, out List<(IPoint dock, IPoint neighbor)>? docks))
+        {
+            docks = new List<(IPoint dock, IPoint neighbor)>();
+            dockGroups[key] = docks;
+        }
+        docks.Add((dock, neighbor));
     }
 
     private static void FixEdgeDockingPoints(IBpmnEdge bpmnEdge, IFlowNode source, IFlowNode target)
