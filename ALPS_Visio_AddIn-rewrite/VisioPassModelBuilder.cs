@@ -406,7 +406,9 @@ namespace ALPS_Visio_AddIn_rewrite
         // Helfer
         // -------------------------------------------------------------------------
 
-        private void SafeParse(Visio.Shape shape, Action parse)
+        // System.Action ausschreiben: alps.net.api.StandardPASS bringt eine eigene
+        // "Action"-Klasse mit (PASS-Ontologie) -- der kurze Name waere mehrdeutig.
+        private void SafeParse(Visio.Shape shape, System.Action parse)
         {
             try
             {
