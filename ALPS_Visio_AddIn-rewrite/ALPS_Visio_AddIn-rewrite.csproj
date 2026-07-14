@@ -383,6 +383,7 @@
     </Compile>
     <Compile Include="ShapeFinder.cs" />
     <Compile Include="VisioHelper.cs" />
+    <Compile Include="VbaOwlExporter.cs" />
     <Compile Include="PageManagement\DiagramPage.cs" />
     <Compile Include="PageManagement\SIDPage.cs" />
     <Compile Include="PageManagement\SBDPage.cs" />

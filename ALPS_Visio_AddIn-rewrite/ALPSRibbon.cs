@@ -257,7 +257,11 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             string specPath = PickOwlFile("Spezifikation wählen (abstraktes Modell)");
             if (specPath == null) return;
-            string implPath = PickOwlFile("Implementierung wählen (implementierendes Modell)");
+            string implPath = ResolveModelSource(
+                "Soll das aktuell geöffnete Modell als Implementierung geprüft werden?\n\n" +
+                "Ja = aktuelles Dokument exportieren und verwenden (die Erfolgsmeldung des " +
+                "Stencil-Makros bitte mit OK bestätigen)\nNein = OWL-Datei wählen",
+                "Implementierung wählen (implementierendes Modell)");
             if (implPath == null) return;
 
             try
@@ -286,22 +290,48 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
+        /// Liefert den Pfad einer OWL-Modellquelle: Ist das aktuell geöffnete Dokument
+        /// ein exportierbares ALPS-Modell, kann es direkt verwendet werden (Export über
+        /// das VBA-Makro des SID-Stencils, siehe <see cref="VbaOwlExporter"/>) — sonst
+        /// bzw. auf Wunsch öffnet sich der Datei-Dialog. Null = abgebrochen.
+        /// </summary>
+        private static string ResolveModelSource(string questionForActiveDocument, string filePickerTitle)
+        {
+            if (VbaOwlExporter.CanExportActiveDocument(Globals.ThisAddIn.Application))
+            {
+                DialogResult choice = MessageBox.Show(questionForActiveDocument, "Modellquelle",
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (choice == DialogResult.Cancel) return null;
+                if (choice == DialogResult.Yes)
+                {
+                    try
+                    {
+                        return VbaOwlExporter.ExportActiveModel(Globals.ThisAddIn.Application);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Der Export des aktuellen Modells ist fehlgeschlagen:\n\n" + ex.Message,
+                            "Modellquelle", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return null;
+                    }
+                }
+            }
+            return PickOwlFile(filePickerTitle);
+        }
+
+        /// <summary>
         /// Konvertiert ein PASS-Modell (OWL-Datei) in ein BPMN-2.0-Modell und speichert es als
         /// .bpmn-Datei (portierter pass-bpmn-converter, siehe BpmnConverter/). Die Warnungen des
         /// Konverters (Console.WriteLine im Original) werden eingefangen und mit angezeigt.
         /// </summary>
         private void ConvertPassToBpmn(object sender, RibbonControlEventArgs e)
         {
-            string inputPath;
-            using (var openDialog = new OpenFileDialog
-            {
-                Title = "PASS-Modell (OWL) wählen",
-                Filter = "Ontology Files (*.owl)|*.owl|RDF Files (*.rdf)|*.rdf|Alle Dateien (*.*)|*.*"
-            })
-            {
-                if (openDialog.ShowDialog() != DialogResult.OK) return;
-                inputPath = openDialog.FileName;
-            }
+            string inputPath = ResolveModelSource(
+                "Soll das aktuell geöffnete Modell nach BPMN konvertiert werden?\n\n" +
+                "Ja = aktuelles Dokument exportieren und konvertieren (die Erfolgsmeldung des " +
+                "Stencil-Makros bitte mit OK bestätigen)\nNein = OWL-Datei wählen",
+                "PASS-Modell (OWL) wählen");
+            if (inputPath == null) return;
 
             string outputPath;
             using (var saveDialog = new SaveFileDialog
