@@ -44,6 +44,24 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             }
         }
 
+        /// <summary>
+        /// Statische Modell-Vorschlaege je Provider fuer die Dropdown-Liste im
+        /// Einstellungs-Dialog — als Startpunkt ohne API-Aufruf. Die tatsaechlich
+        /// verfuegbaren Modelle liefert <see cref="LlmClient.ListModelsAsync"/>.
+        /// </summary>
+        public static string[] SuggestedModelsFor(string provider)
+        {
+            switch (provider)
+            {
+                case ProviderOpenAi:
+                    return new[] { "gpt-4o-mini", "gpt-4o" };
+                case ProviderAnthropic:
+                    return new[] { "claude-opus-4-8", "claude-sonnet-5", "claude-haiku-4-5" };
+                default:
+                    return new[] { "Llama-3.3-70B", "gemma-3", "mistral-small" };
+            }
+        }
+
         public string GetApiKey(string provider)
         {
             return ApiKeys.TryGetValue(provider, out string key) ? (key ?? "") : "";

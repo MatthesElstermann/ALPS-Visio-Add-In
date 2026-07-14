@@ -29,6 +29,10 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         private const string AnthropicUrl = "https://api.anthropic.com/v1/messages";
         private const string AnthropicVersion = "2023-06-01";
 
+        private const string UniGptModelsUrl = "https://gpt.uni-muenster.de/v1/models";
+        private const string OpenAiModelsUrl = "https://api.openai.com/v1/models";
+        private const string AnthropicModelsUrl = "https://api.anthropic.com/v1/models";
+
         private readonly string _provider;
         private readonly string _apiKey;
         private readonly string _model;
@@ -101,6 +105,63 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         2. Suggestion 2
     ";
             return await CompleteAsync(prompt);
+        }
+
+        /// <summary>
+        /// Fragt die beim Provider tatsaechlich verfuegbaren Modelle ab (GET /v1/models —
+        /// bei allen drei Providern vorhanden; OpenAI-kompatibel mit Bearer-Token,
+        /// Anthropic mit x-api-key-Header). Fuer die Modell-Auswahl im Einstellungs-Dialog.
+        /// </summary>
+        public static async Task<System.Collections.Generic.IList<string>> ListModelsAsync(string provider, string apiKey)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new InvalidOperationException("Kein API-Key für Provider " + provider + " eingetragen.");
+
+            string url = provider == NlCheckerSettings.ProviderAnthropic ? AnthropicModelsUrl
+                : provider == NlCheckerSettings.ProviderOpenAi ? OpenAiModelsUrl
+                : UniGptModelsUrl;
+
+            using (var request = new HttpRequestMessage(HttpMethod.Get, url))
+            {
+                if (provider == NlCheckerSettings.ProviderAnthropic)
+                {
+                    request.Headers.Add("x-api-key", apiKey);
+                    request.Headers.Add("anthropic-version", AnthropicVersion);
+                }
+                else
+                {
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+                }
+
+                var response = await _httpClient.SendAsync(request);
+                string responseString = await response.Content.ReadAsStringAsync();
+
+                JObject json = JObject.Parse(responseString);
+                if (json["error"] != null)
+                    throw new Exception("API Error (" + provider + "): " + json["error"]["message"]);
+                if (json["type"]?.ToString() == "error")
+                    throw new Exception("API Error (" + provider + "): " + json["error"]?["message"]);
+
+                var models = new System.Collections.Generic.List<string>();
+                foreach (JToken entry in json["data"] ?? new JArray())
+                {
+                    string id = entry["id"]?.ToString();
+                    if (string.IsNullOrWhiteSpace(id))
+                        continue;
+                    // OpenAI listet auch Embedding-/Audio-/Bild-Modelle -- fuer den
+                    // Checker sind nur die Chat-Modelle sinnvoll.
+                    if (provider == NlCheckerSettings.ProviderOpenAi
+                        && !(id.StartsWith("gpt-") || id.StartsWith("chatgpt-")
+                             || (id.Length > 1 && id[0] == 'o' && char.IsDigit(id[1]))))
+                        continue;
+                    models.Add(id);
+                }
+
+                if (models.Count == 0)
+                    throw new Exception("Der Provider " + provider + " hat keine (passenden) Modelle gemeldet.");
+                models.Sort(StringComparer.OrdinalIgnoreCase);
+                return models;
+            }
         }
 
         private async Task<string> CompleteAsync(string prompt)

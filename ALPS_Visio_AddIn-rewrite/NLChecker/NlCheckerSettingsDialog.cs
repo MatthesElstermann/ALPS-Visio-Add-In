@@ -14,7 +14,8 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         private readonly NlCheckerSettings _settings;
 
         private ComboBox cmbProvider;
-        private TextBox txtModel;
+        private ComboBox cmbModel;
+        private Button btnLoadModels;
         private TextBox txtApiKey;
         private Button btnOK;
         private Button btnCancel;
@@ -46,25 +47,65 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             ShowProvider(ProviderIds[cmbProvider.SelectedIndex]);
         }
 
-        /// <summary>Textfeld-Werte in die Settings des aktuell angezeigten Providers sichern.</summary>
+        /// <summary>Feld-Werte in die Settings des aktuell angezeigten Providers sichern.</summary>
         private void StoreShownProvider()
         {
             if (_shownProvider == null) return;
             _settings.SetApiKey(_shownProvider, txtApiKey.Text.Trim());
-            _settings.SetModel(_shownProvider, txtModel.Text.Trim());
+            _settings.SetModel(_shownProvider, cmbModel.Text.Trim());
         }
 
         private void ShowProvider(string provider)
         {
             _shownProvider = provider;
             txtApiKey.Text = _settings.GetApiKey(provider);
-            txtModel.Text = _settings.GetModel(provider);
+
+            // Statische Vorschlaege als Startpunkt; "Abrufen" ersetzt sie durch die
+            // tatsaechlich verfuegbaren Modelle des Providers. Die ComboBox bleibt
+            // editierbar, damit auch ungelistete Modellnamen eingetragen werden koennen.
+            cmbModel.Items.Clear();
+            cmbModel.Items.AddRange(NlCheckerSettings.SuggestedModelsFor(provider));
+            cmbModel.Text = _settings.GetModel(provider);
         }
 
         private void cmbProvider_SelectedIndexChanged(object sender, EventArgs e)
         {
             StoreShownProvider();
             ShowProvider(ProviderIds[cmbProvider.SelectedIndex]);
+        }
+
+        /// <summary>
+        /// Holt die verfuegbaren Modelle des angezeigten Providers ueber dessen
+        /// /v1/models-Endpoint (braucht den eingetragenen API-Key) und fuellt die Liste.
+        /// </summary>
+        private async void btnLoadModels_Click(object sender, EventArgs e)
+        {
+            string provider = _shownProvider;
+            string apiKey = txtApiKey.Text.Trim();
+
+            btnLoadModels.Enabled = false;
+            try
+            {
+                var models = await LlmClient.ListModelsAsync(provider, apiKey);
+
+                // Provider koennte waehrend des Abrufs gewechselt worden sein.
+                if (_shownProvider != provider) return;
+
+                string current = cmbModel.Text;
+                cmbModel.Items.Clear();
+                cmbModel.Items.AddRange(System.Linq.Enumerable.ToArray(models));
+                cmbModel.Text = current;
+                cmbModel.DroppedDown = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Modelle konnten nicht abgerufen werden:\n\n" + ex.Message,
+                    "PASS NL Checker", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                btnLoadModels.Enabled = true;
+            }
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -91,11 +132,40 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             cmbProvider.Items.AddRange(ProviderLabels);
             cmbProvider.SelectedIndexChanged += cmbProvider_SelectedIndexChanged;
 
-            txtModel = new TextBox
+            // Editierbare Dropdown-Liste: Vorschlaege/abgerufene Modelle waehlbar,
+            // freie Eingabe fuer ungelistete Modellnamen bleibt moeglich.
+            cmbModel = new ComboBox
             {
+                DropDownStyle = ComboBoxStyle.DropDown,
                 Anchor = AnchorStyles.Left | AnchorStyles.Right,
-                MinimumSize = new System.Drawing.Size(280, 0),
+                MinimumSize = new System.Drawing.Size(200, 0),
             };
+
+            btnLoadModels = new Button
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Padding = new Padding(6, 1, 6, 1),
+                Margin = new Padding(6, 0, 0, 0),
+                Text = "Abrufen",
+                UseVisualStyleBackColor = true,
+            };
+            btnLoadModels.Click += btnLoadModels_Click;
+
+            TableLayoutPanel modelRow = new TableLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ColumnCount = 2,
+                RowCount = 1,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right,
+                Margin = new Padding(0),
+            };
+            modelRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            modelRow.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            modelRow.Controls.Add(cmbModel, 0, 0);
+            modelRow.Controls.Add(btnLoadModels, 1, 0);
+
             txtApiKey = new TextBox
             {
                 Anchor = AnchorStyles.Left | AnchorStyles.Right,
@@ -110,7 +180,8 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                 Margin = new Padding(0, 8, 0, 0),
                 Text = "Geprüft wird immer mit dem lokalen ML-Modell (offline). Der API-Key des " +
                        "gewählten Providers wird nur für die Label-Vorschläge zu ungültigen Namen " +
-                       "benötigt. Modell und Key werden je Provider gespeichert.",
+                       "benötigt. Modell und Key werden je Provider gespeichert. " +
+                       "„Abrufen“ lädt die beim Provider verfügbaren Modelle (API-Key nötig).",
             };
 
             btnOK = MakeButton("OK");
@@ -145,7 +216,7 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             layout.Controls.Add(lblProvider, 0, 0);
             layout.Controls.Add(cmbProvider, 1, 0);
             layout.Controls.Add(lblModel, 0, 1);
-            layout.Controls.Add(txtModel, 1, 1);
+            layout.Controls.Add(modelRow, 1, 1);
             layout.Controls.Add(lblApiKey, 0, 2);
             layout.Controls.Add(txtApiKey, 1, 2);
             layout.Controls.Add(lblHint, 1, 3);
