@@ -23,6 +23,26 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
         /// <summary>Runs the verification of <paramref name="implPath"/> against <paramref name="specPath"/>.</summary>
         public static string Verify(string specPath, string implPath)
         {
+            IList<IPASSProcessModel> models = LoadModels(new List<string> { specPath, implPath });
+            return VerifyCore(models);
+        }
+
+        /// <summary>
+        /// Prueft ein bereits im Speicher gebautes Implementierungs-Modell (aus dem aktuell
+        /// geoeffneten Visio-Dokument, siehe VisioPassModelBuilder) gegen eine
+        /// Spezifikations-OWL-Datei.
+        /// </summary>
+        public static string Verify(string specPath, IPASSProcessModel implModel)
+        {
+            IList<IPASSProcessModel> models = LoadModels(new List<string> { specPath });
+            if (models.Count < 1)
+                return "Die Spezifikations-Datei konnte nicht als ALPS-Modell geladen werden: " + specPath;
+            return VerifyCore(new List<IPASSProcessModel> { models[0], implModel });
+        }
+
+        /// <summary>Laedt OWL-Modelle mit den PLAIN alps.net.api-Klassen (nicht der VisioClassFactory).</summary>
+        private static IList<IPASSProcessModel> LoadModels(List<string> paths)
+        {
             // Gemeinsamer CWD-Workaround fuer den PASSReaderWriter-Ctor-Bug in alps.net.api 0.9.1.6
             // (siehe AlpsReaderWriterFactory). Der Singleton wird nur einmal erzeugt -- egal, ob
             // Import oder Verification ihn zuerst anfordert.
@@ -39,7 +59,11 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                 ExtractOntology("ALPS_ont_v_0.8.0.owl", Properties.Resources.ALPS_ont_v_0_8_0)
             });
 
-            IList<IPASSProcessModel> models = parser.loadModels(new List<string> { specPath, implPath });
+            return parser.loadModels(paths);
+        }
+
+        private static string VerifyCore(IList<IPASSProcessModel> models)
+        {
 
             var output = new StringWriter();
             TextWriter original = Console.Out;

@@ -67,16 +67,31 @@ namespace ALPS_Visio_AddIn_rewrite
             owlImporterButton.Click += new RibbonControlEventHandler(this.LoadOWLFile);
             owlGroup.Items.Add(owlImporterButton);
 
-            // Carried over from the original add-in; not implemented yet (stub).
-            RibbonButton verificationButton = this.Factory.CreateRibbonButton();
-            verificationButton.Name = "verificationButton";
-            verificationButton.Label = "ALPS Verification";
-            verificationButton.SuperTip = "Open the verification tool to check if a given model adheres to a given specification (abstract) model.";
-            verificationButton.OfficeImageId = "AdpDiagramArrangeTables";
-            verificationButton.ShowImage = true;
-            verificationButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            verificationButton.Click += new RibbonControlEventHandler(this.AlpsVerification);
-            owlGroup.Items.Add(verificationButton);
+            // Split-Button wie beim Auto Arrange: Klick = Standardaktion (aktuell
+            // geoeffnetes Modell als Implementierung pruefen), Pfeil = Variante waehlen.
+            RibbonSplitButton verificationSplitButton = this.Factory.CreateRibbonSplitButton();
+            verificationSplitButton.Name = "verificationSplitButton";
+            verificationSplitButton.Label = "ALPS Verification";
+            verificationSplitButton.SuperTip = "Prüft das aktuell geöffnete Modell (Implementierung) gegen ein Spezifikationsmodell (OWL-Datei). Über den Pfeil lassen sich stattdessen beide Modelle als Dateien wählen.";
+            verificationSplitButton.OfficeImageId = "AdpDiagramArrangeTables";
+            verificationSplitButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            verificationSplitButton.Click += new RibbonControlEventHandler(this.VerifyCurrentModel);
+
+            RibbonButton verifyCurrentItem = this.Factory.CreateRibbonButton();
+            verifyCurrentItem.Name = "verifyCurrentItem";
+            verifyCurrentItem.Label = "Aktuelles Modell prüfen";
+            verifyCurrentItem.SuperTip = "Spezifikation als OWL-Datei wählen; das aktuell geöffnete Modell ist die Implementierung.";
+            verifyCurrentItem.Click += new RibbonControlEventHandler(this.VerifyCurrentModel);
+            verificationSplitButton.Items.Add(verifyCurrentItem);
+
+            RibbonButton verifyFilesItem = this.Factory.CreateRibbonButton();
+            verifyFilesItem.Name = "verifyFilesItem";
+            verifyFilesItem.Label = "OWL-Dateien prüfen…";
+            verifyFilesItem.SuperTip = "Spezifikation und Implementierung als OWL-Dateien wählen.";
+            verifyFilesItem.Click += new RibbonControlEventHandler(this.AlpsVerification);
+            verificationSplitButton.Items.Add(verifyFilesItem);
+
+            owlGroup.Items.Add(verificationSplitButton);
 
             // --- Group 4: PASS NL Checker ---
             // Eigener Ribbon-Abschnitt fuer die NL-Pruefung: Pruefung immer per lokalem
@@ -121,15 +136,31 @@ namespace ALPS_Visio_AddIn_rewrite
             nlGroup.Items.Add(nlSettingsButton);
 
             // PASS→BPMN-Konverter (portiert von github.com/pass-bpmn-converter).
-            RibbonButton bpmnButton = this.Factory.CreateRibbonButton();
-            bpmnButton.Name = "bpmnButton";
-            bpmnButton.Label = "PASS BPMN Converter";
-            bpmnButton.SuperTip = "Konvertiert ein PASS-Modell (OWL-Datei) in ein BPMN-2.0-Modell (.bpmn, z. B. für bpmn.io oder Camunda).";
-            bpmnButton.OfficeImageId = "FileSaveAsOtherFormats";
-            bpmnButton.ShowImage = true;
-            bpmnButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
-            bpmnButton.Click += new RibbonControlEventHandler(this.ConvertPassToBpmn);
-            owlGroup.Items.Add(bpmnButton);
+            // Split-Button: Klick = aktuell geoeffnetes Modell konvertieren,
+            // Pfeil = stattdessen eine OWL-Datei als Quelle waehlen.
+            RibbonSplitButton bpmnSplitButton = this.Factory.CreateRibbonSplitButton();
+            bpmnSplitButton.Name = "bpmnSplitButton";
+            bpmnSplitButton.Label = "PASS BPMN Converter";
+            bpmnSplitButton.SuperTip = "Konvertiert das aktuell geöffnete PASS-Modell in ein BPMN-2.0-Modell (.bpmn, z. B. für bpmn.io oder Camunda). Über den Pfeil lässt sich stattdessen eine OWL-Datei konvertieren.";
+            bpmnSplitButton.OfficeImageId = "FileSaveAsOtherFormats";
+            bpmnSplitButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            bpmnSplitButton.Click += new RibbonControlEventHandler(this.ConvertCurrentModelToBpmn);
+
+            RibbonButton bpmnCurrentItem = this.Factory.CreateRibbonButton();
+            bpmnCurrentItem.Name = "bpmnCurrentItem";
+            bpmnCurrentItem.Label = "Aktuelles Modell konvertieren";
+            bpmnCurrentItem.SuperTip = "Konvertiert das aktuell geöffnete Modell direkt (ohne OWL-Zwischendatei).";
+            bpmnCurrentItem.Click += new RibbonControlEventHandler(this.ConvertCurrentModelToBpmn);
+            bpmnSplitButton.Items.Add(bpmnCurrentItem);
+
+            RibbonButton bpmnFileItem = this.Factory.CreateRibbonButton();
+            bpmnFileItem.Name = "bpmnFileItem";
+            bpmnFileItem.Label = "OWL-Datei konvertieren…";
+            bpmnFileItem.SuperTip = "Wählt eine PASS-OWL-Datei und konvertiert sie nach BPMN.";
+            bpmnFileItem.Click += new RibbonControlEventHandler(this.ConvertOwlFileToBpmn);
+            bpmnSplitButton.Items.Add(bpmnFileItem);
+
+            owlGroup.Items.Add(bpmnSplitButton);
 
             // Split button: clicking the button portion runs the default arrange immediately,
             // the lower arrow opens the dropdown with both directions. On a RibbonSplitButton
@@ -253,15 +284,45 @@ namespace ALPS_Visio_AddIn_rewrite
         /// the KIT master-thesis prototype (andikra/ALPS-Verification-Thesis) — a limited set of SID
         /// checks with raw textual output.
         /// </summary>
+        /// <summary>Standardaktion: aktuelles Modell als Implementierung gegen eine Spezifikations-Datei prüfen.</summary>
+        private void VerifyCurrentModel(object sender, RibbonControlEventArgs e)
+        {
+            if (!VisioPassModelBuilder.CanBuildFromActiveDocument(Globals.ThisAddIn.Application))
+            {
+                MessageBox.Show(
+                    "Das aktuell geöffnete Dokument enthält kein ALPS/PASS-Modell (keine SID-Seite mit Modell-URI).\n" +
+                    "Über den Pfeil des Buttons lassen sich stattdessen zwei OWL-Dateien prüfen.",
+                    "ALPS Verification", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string specPath = PickOwlFile("Spezifikation wählen (abstraktes Modell)");
+            if (specPath == null) return;
+
+            try
+            {
+                var builder = new VisioPassModelBuilder();
+                var implModel = builder.BuildFromActiveDocument(Globals.ThisAddIn.Application);
+
+                string report = Verification.Verifier.Verify(specPath, implModel);
+                if (builder.Warnings.Count > 0)
+                    report = "Hinweise beim Lesen des aktuellen Modells:\n- "
+                        + string.Join("\n- ", builder.Warnings) + "\n\n" + report;
+                new Verification.VerificationResultsForm(report).ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Fehler bei der ALPS Verification:\n" + DescribeException(ex), "ALPS Verification",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>Datei-Variante (Dropdown): Spezifikation und Implementierung als OWL-Dateien wählen.</summary>
         private void AlpsVerification(object sender, RibbonControlEventArgs e)
         {
             string specPath = PickOwlFile("Spezifikation wählen (abstraktes Modell)");
             if (specPath == null) return;
-            string implPath = ResolveModelSource(
-                "Soll das aktuell geöffnete Modell als Implementierung geprüft werden?\n\n" +
-                "Ja = aktuelles Dokument exportieren und verwenden (die Erfolgsmeldung des " +
-                "Stencil-Makros bitte mit OK bestätigen)\nNein = OWL-Datei wählen",
-                "Implementierung wählen (implementierendes Modell)");
+            string implPath = PickOwlFile("Implementierung wählen (implementierendes Modell)");
             if (implPath == null) return;
 
             try
@@ -289,57 +350,74 @@ namespace ALPS_Visio_AddIn_rewrite
             }
         }
 
-        /// <summary>
-        /// Liefert den Pfad einer OWL-Modellquelle: Ist das aktuell geöffnete Dokument
-        /// ein exportierbares ALPS-Modell, kann es direkt verwendet werden (Export über
-        /// das VBA-Makro des SID-Stencils, siehe <see cref="VbaOwlExporter"/>) — sonst
-        /// bzw. auf Wunsch öffnet sich der Datei-Dialog. Null = abgebrochen.
-        /// </summary>
-        private static string ResolveModelSource(string questionForActiveDocument, string filePickerTitle)
-        {
-            if (VbaOwlExporter.CanExportActiveDocument(Globals.ThisAddIn.Application))
-            {
-                DialogResult choice = MessageBox.Show(questionForActiveDocument, "Modellquelle",
-                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                if (choice == DialogResult.Cancel) return null;
-                if (choice == DialogResult.Yes)
-                {
-                    try
-                    {
-                        return VbaOwlExporter.ExportActiveModel(Globals.ThisAddIn.Application);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Der Export des aktuellen Modells ist fehlgeschlagen:\n\n" + ex.Message,
-                            "Modellquelle", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return null;
-                    }
-                }
-            }
-            return PickOwlFile(filePickerTitle);
-        }
 
         /// <summary>
         /// Konvertiert ein PASS-Modell (OWL-Datei) in ein BPMN-2.0-Modell und speichert es als
         /// .bpmn-Datei (portierter pass-bpmn-converter, siehe BpmnConverter/). Die Warnungen des
         /// Konverters (Console.WriteLine im Original) werden eingefangen und mit angezeigt.
         /// </summary>
-        private void ConvertPassToBpmn(object sender, RibbonControlEventArgs e)
+        /// <summary>Standardaktion: das aktuell geöffnete Modell direkt (in-memory) nach BPMN konvertieren.</summary>
+        private void ConvertCurrentModelToBpmn(object sender, RibbonControlEventArgs e)
         {
-            string inputPath = ResolveModelSource(
-                "Soll das aktuell geöffnete Modell nach BPMN konvertiert werden?\n\n" +
-                "Ja = aktuelles Dokument exportieren und konvertieren (die Erfolgsmeldung des " +
-                "Stencil-Makros bitte mit OK bestätigen)\nNein = OWL-Datei wählen",
-                "PASS-Modell (OWL) wählen");
+            if (!VisioPassModelBuilder.CanBuildFromActiveDocument(Globals.ThisAddIn.Application))
+            {
+                MessageBox.Show(
+                    "Das aktuell geöffnete Dokument enthält kein ALPS/PASS-Modell (keine SID-Seite mit Modell-URI).\n" +
+                    "Über den Pfeil des Buttons lässt sich stattdessen eine OWL-Datei konvertieren.",
+                    "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                var builder = new VisioPassModelBuilder();
+                var passModel = builder.BuildFromActiveDocument(Globals.ThisAddIn.Application);
+                RunBpmnConversion(passModel, builder.ModelName, builder.Warnings);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Die BPMN-Konvertierung ist fehlgeschlagen:\n\n" + DescribeException(ex),
+                    "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>Datei-Variante (Dropdown): eine PASS-OWL-Datei nach BPMN konvertieren.</summary>
+        private void ConvertOwlFileToBpmn(object sender, RibbonControlEventArgs e)
+        {
+            string inputPath = PickOwlFile("PASS-Modell (OWL) wählen");
             if (inputPath == null) return;
 
+            try
+            {
+                var models = PassBpmnConverter.Pass.PassParser.LoadModels(
+                    new System.Collections.Generic.List<string> { inputPath });
+                if (models == null || models.Count < 1)
+                    throw new Exception("Aus der gewählten Datei konnte kein PASS-Modell geladen werden.");
+
+                RunBpmnConversion(models[0], System.IO.Path.GetFileNameWithoutExtension(inputPath), null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Die BPMN-Konvertierung ist fehlgeschlagen:\n\n" + DescribeException(ex),
+                    "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Gemeinsamer Konvertierungskern: Ziel-Datei erfragen, Konverter + Layouter +
+        /// Serializer laufen lassen, Warnungen (Konverter-Konsole + optional Builder)
+        /// im Ergebnisdialog buendeln.
+        /// </summary>
+        private static void RunBpmnConversion(alps.net.api.StandardPASS.IPASSProcessModel passModel,
+            string defaultFileName, System.Collections.Generic.IList<string> builderWarnings)
+        {
             string outputPath;
             using (var saveDialog = new SaveFileDialog
             {
                 Title = "BPMN-Ausgabedatei wählen",
                 Filter = "BPMN Files (*.bpmn)|*.bpmn",
                 DefaultExt = "bpmn",
-                FileName = System.IO.Path.GetFileNameWithoutExtension(inputPath) + ".bpmn"
+                FileName = (string.IsNullOrWhiteSpace(defaultFileName) ? "model" : defaultFileName) + ".bpmn"
             })
             {
                 if (saveDialog.ShowDialog() != DialogResult.OK) return;
@@ -355,36 +433,31 @@ namespace ALPS_Visio_AddIn_rewrite
                 System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
                 Console.SetOut(consoleBuffer);
 
-                var models = PassBpmnConverter.Pass.PassParser.LoadModels(
-                    new System.Collections.Generic.List<string> { inputPath });
-                if (models == null || models.Count < 1)
-                    throw new Exception("Aus der gewählten Datei konnte kein PASS-Modell geladen werden.");
-
-                var bpmnModel = PassBpmnConverter.Conversion.Converter.ConvertPassToBpmn(models[0]);
+                var bpmnModel = PassBpmnConverter.Conversion.Converter.ConvertPassToBpmn(passModel);
                 PassBpmnConverter.Bpmn.BpmnDiagramGenerator.GenerateDiagram(bpmnModel);
                 PassBpmnConverter.Bpmn.BpmnSerializer.Serialize(bpmnModel, outputPath);
 
-                // Die Konsole faengt auch das Parser-Grundrauschen von alps.net.api ein
-                // ("Reading input owl files...Done." usw.) -- fuer den Nutzer irrelevant.
-                // Echte Konverter-Hinweise (nicht/unvollstaendig konvertierbare Elemente)
-                // beginnen alle mit "Warning:" bzw. "Error:" -- nur die anzeigen.
-                string[] warnings = consoleBuffer.ToString()
+                // Nur echte Konverter-Hinweise anzeigen ("Warning:"/"Error:"-Praefix),
+                // nicht das Parser-Grundrauschen von alps.net.api.
+                var warnings = new System.Collections.Generic.List<string>();
+                if (builderWarnings != null)
+                    warnings.AddRange(builderWarnings);
+                warnings.AddRange(consoleBuffer.ToString()
                     .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Where(line => line.StartsWith("Warning:") || line.StartsWith("Error:"))
-                    .ToArray();
+                    .Where(line => line.StartsWith("Warning:") || line.StartsWith("Error:")));
 
                 string message = "BPMN-Modell erfolgreich gespeichert:\n" + outputPath;
-                if (warnings.Length > 0)
+                if (warnings.Count > 0)
                     message += "\n\nNicht (vollständig) konvertierbare Elemente:\n" + string.Join("\n", warnings);
                 MessageBox.Show(message, "PASS BPMN Converter", MessageBoxButtons.OK,
-                    warnings.Length > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+                    warnings.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                string warnings = consoleBuffer.ToString().Trim();
+                string consoleText = consoleBuffer.ToString().Trim();
                 string message = "Die BPMN-Konvertierung ist fehlgeschlagen:\n\n" + DescribeException(ex);
-                if (warnings.Length > 0)
-                    message += "\n\nHinweise des Konverters:\n" + warnings;
+                if (consoleText.Length > 0)
+                    message += "\n\nHinweise des Konverters:\n" + consoleText;
                 MessageBox.Show(message, "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally

@@ -42,8 +42,8 @@ After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with four grou
 | Standard Functions | **Open ALPS/PASS Stencils** | Opens the ALPS/PASS shape stencils from the *My Shapes* folder. |
 | ALPS Layer Editing | **Show layer Explorer** | Opens the layer/model explorer (tree view of models, SID layers and SBD pages). |
 | OWL PASS Tools | **Import OWL** | Imports a PASS/ALPS model from an `.owl` file and draws it. |
-| OWL PASS Tools | **ALPS Verification** | Checks an implementation model (OWL file or the currently open model) against a specification model and shows a report with an overall verdict. |
-| OWL PASS Tools | **PASS BPMN Converter** | Converts a PASS model (`.owl` file or the currently open model) into a BPMN 2.0 model (`.bpmn`), viewable e.g. in bpmn.io or Camunda. |
+| OWL PASS Tools | **ALPS Verification** | Split button: checks the currently open model (default) or two OWL files against a specification model; shows a report with an overall verdict. |
+| OWL PASS Tools | **PASS BPMN Converter** | Split button: converts the currently open model (default) or an `.owl` file into a BPMN 2.0 model (`.bpmn`), viewable e.g. in bpmn.io or Camunda. |
 | OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
 | PASS NL Checker | **PASS NL Checker** | Checks every shape label with the local ML model and asks an LLM for better labels where invalid. |
 | PASS NL Checker | **NL-Modell trainieren** | Retrains the NL Checker's local ML model from the bundled training data. |
@@ -109,11 +109,12 @@ the check still runs — only the suggestions are skipped.
 ### PASS BPMN Converter
 
 Converts a PASS model into a **BPMN 2.0** model, preserving as much of the
-executional semantics as possible: pick the OWL input — or convert the **currently
-open model** directly (the add-in then runs the SID stencil's VBA OWL export
-`ALPS_RDFOWLExporter.createProcessRDFOWL` on the active document and feeds the
-resulting file into the converter; the same option exists for the ALPS
-Verification's implementation model) — and a `.bpmn` output path, done. Subject Interaction Diagrams and Subject Behavior Diagrams (Base, Macro and
+executional semantics as possible. The button is a split button: clicking it
+converts the **currently open model** directly — the add-in reads the Visio
+shapes into an in-memory PASS model (`VisioPassModelBuilder`, no OWL round-trip,
+no need to save the document); the dropdown arrow offers converting an OWL file
+instead. The ALPS Verification button works the same way (current model as the
+implementation, specification picked as an OWL file; dropdown = both from files). Subject Interaction Diagrams and Subject Behavior Diagrams (Base, Macro and
 Guard behaviors) are supported; diagram elements (BPMN DI) are generated and arranged
 automatically, so the result can be opened directly in [bpmn.io](https://bpmn.io/),
 Camunda Modeler and similar tools. Warnings about elements that cannot be converted
