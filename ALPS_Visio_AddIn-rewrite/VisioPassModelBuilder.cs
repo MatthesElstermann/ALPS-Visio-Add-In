@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using alps.net.api.ALPS;
 using alps.net.api.StandardPASS;
@@ -34,6 +34,23 @@ namespace ALPS_Visio_AddIn_rewrite
 
         /// <summary>Kurzname des Modells (Dokumentname wie im VBA-Export aufbereitet).</summary>
         public string ModelName { get; private set; }
+
+        // Zaehler fuer die Ergebnis-Zusammenfassung — macht sofort sichtbar, wenn der
+        // Builder nichts (oder zu wenig) aus dem Dokument gelesen hat.
+        private int _subjectCount;
+        private int _messageCount;
+        private int _exchangeCount;
+        private int _behaviorCount;
+        private int _stateCount;
+        private int _transitionCount;
+
+        /// <summary>Eine Zeile Statistik fuer den Ergebnisdialog.</summary>
+        public string DescribeSummary()
+        {
+            return "Aus dem Dokument gelesen: " + _subjectCount + " Subjekte, " + _messageCount +
+                   " Nachrichten (" + _exchangeCount + " Exchanges), " + _behaviorCount +
+                   " Verhalten mit " + _stateCount + " Zuständen und " + _transitionCount + " Transitionen.";
+        }
 
         /// <summary>Prueft ohne Seiteneffekte, ob das aktive Dokument ein ALPS-Modell traegt.</summary>
         public static bool CanBuildFromActiveDocument(Visio.Application app)
@@ -107,6 +124,31 @@ namespace ALPS_Visio_AddIn_rewrite
                     SafeParse(shape, () => ParseSubjectBehavior(layer, shape, doc));
             }
 
+            // Nichts gefunden? Dann die tatsaechlichen Shape-Kategorien der SID-Seiten
+            // in die Warnungen kippen — das macht die Ursache (falsche Seite aktiv,
+            // unerwartete Kategorien, leeres Dokument) ohne Debugger sichtbar.
+            if (_subjectCount == 0)
+            {
+                _warnings.Add("Keine Subjekte gefunden! Shapes auf den SID-Seiten (" + sidPages.Count + " Seite(n)):");
+                int listed = 0;
+                foreach (Visio.Page sidPage in sidPages)
+                {
+                    foreach (Visio.Shape shape in sidPage.Shapes)
+                    {
+                        if (listed++ >= 15) { _warnings.Add("…"); break; }
+                        string categories = "";
+                        try
+                        {
+                            if (shape.CellExistsU["User.msvShapeCategories", 0] != 0)
+                                categories = shape.CellsU["User.msvShapeCategories"].ResultStr[""];
+                        }
+                        catch { }
+                        _warnings.Add("  " + shape.NameU + " [Kategorien: " + categories + "]");
+                    }
+                    if (listed >= 15) break;
+                }
+            }
+
             return model;
         }
 
@@ -167,6 +209,7 @@ namespace ALPS_Visio_AddIn_rewrite
 
         private void RegisterSubject(string visioId, string label, ISubject subject)
         {
+            _subjectCount++;
             if (!string.IsNullOrWhiteSpace(visioId) && !_subjectsByVisioId.ContainsKey(visioId))
                 _subjectsByVisioId[visioId] = subject;
             // Die Send-/Receive-Transitions referenzieren den Partner teils ueber das
@@ -205,6 +248,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 if (!_messagesByVisioId.TryGetValue(msgId ?? "", out IMessageSpecification spec))
                 {
                     spec = new MessageSpecification(layer, msgLabel);
+                    _messageCount++;
                     if (!string.IsNullOrWhiteSpace(msgId))
                         _messagesByVisioId[msgId] = spec;
                     if (!string.IsNullOrWhiteSpace(msgLabel) && !_messagesByLabel.ContainsKey(msgLabel))
@@ -216,6 +260,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 exchange.setMessageType(spec);
                 exchange.setSender(sender);
                 exchange.setReceiver(receiver);
+                _exchangeCount++;
             }
         }
 
@@ -274,6 +319,7 @@ namespace ALPS_Visio_AddIn_rewrite
             string behaviorLabel = sbdPage.NameU.Replace(":", "_");
             var behavior = new SubjectBaseBehavior(layer, behaviorLabel, subject);
             fullSubject.setBaseBehavior(behavior);
+            _behaviorCount++;
 
             _statesByVisioId.Clear();
 
@@ -330,6 +376,7 @@ namespace ALPS_Visio_AddIn_rewrite
             if (GetPropBool(shape, "isEndState"))
                 state.setIsStateType(IState.StateType.EndState);
 
+            _stateCount++;
             if (!string.IsNullOrWhiteSpace(id))
                 _statesByVisioId[id] = state;
         }
@@ -365,6 +412,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 else
                     _warnings.Add("Send-Transition „" + label + "“: Nachricht nicht auflösbar.");
                 transition.setTransitionCondition(condition);
+                _transitionCount++;
             }
             else if (type.Contains("ReceiveTransition"))
             {
@@ -376,19 +424,23 @@ namespace ALPS_Visio_AddIn_rewrite
                 else
                     _warnings.Add("Receive-Transition „" + label + "“: Nachricht nicht auflösbar.");
                 transition.setTransitionCondition(condition);
+                _transitionCount++;
             }
             else if (type.Contains("SendingFailed"))
             {
                 new SendingFailedTransition(source, target, label);
+                _transitionCount++;
             }
             else if (type.Contains("Time"))
             {
                 new TimeTransition(source, target, label);
+                _transitionCount++;
                 _warnings.Add("Time-Transition „" + label + "“: Zeitbedingung wird vom Direkt-Export noch nicht übernommen.");
             }
             else
             {
                 new DoTransition(source, target, label);
+                _transitionCount++;
             }
         }
 

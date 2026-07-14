@@ -305,9 +305,11 @@ namespace ALPS_Visio_AddIn_rewrite
                 var implModel = builder.BuildFromActiveDocument(Globals.ThisAddIn.Application);
 
                 string report = Verification.Verifier.Verify(specPath, implModel);
-                if (builder.Warnings.Count > 0)
-                    report = "Hinweise beim Lesen des aktuellen Modells:\n- "
-                        + string.Join("\n- ", builder.Warnings) + "\n\n" + report;
+                report = builder.DescribeSummary()
+                    + (builder.Warnings.Count > 0
+                        ? "\nHinweise beim Lesen des aktuellen Modells:\n- " + string.Join("\n- ", builder.Warnings)
+                        : "")
+                    + "\n\n" + report;
                 new Verification.VerificationResultsForm(report).ShowDialog();
             }
             catch (Exception ex)
@@ -372,7 +374,12 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 var builder = new VisioPassModelBuilder();
                 var passModel = builder.BuildFromActiveDocument(Globals.ThisAddIn.Application);
-                RunBpmnConversion(passModel, builder.ModelName, builder.Warnings);
+
+                // Zusammenfassung immer mit anzeigen — macht sofort sichtbar, wenn der
+                // Builder weniger gelesen hat als erwartet (z. B. falsches Dokument aktiv).
+                var notes = new System.Collections.Generic.List<string> { builder.DescribeSummary() };
+                notes.AddRange(builder.Warnings);
+                RunBpmnConversion(passModel, builder.ModelName, notes);
             }
             catch (Exception ex)
             {
