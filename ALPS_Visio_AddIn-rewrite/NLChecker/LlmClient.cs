@@ -233,13 +233,26 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         /// </summary>
         private async Task<string> CompleteOpenAiCompatibleAsync(string prompt)
         {
-            var requestBody = new
-            {
-                model = _model,
-                messages = new[] { new { role = "user", content = prompt } },
-                temperature = 0.7,
-                max_tokens = 300
-            };
+            // Neuere OpenAI-Modelle (gpt-5, o-Serie) lehnen das klassische "max_tokens"
+            // ab (verlangen "max_completion_tokens") und akzeptieren auch keine
+            // temperature != 1 mehr. Zudem sind es Reasoning-Modelle: das interne
+            // Denken zaehlt mit ins Budget, deshalb deutlich mehr Tokens erlauben,
+            // sonst kommt eine leere Antwort zurueck. UniGPT (Llama & Co.) bleibt
+            // beim klassischen Parametersatz.
+            object requestBody = _provider == NlCheckerSettings.ProviderOpenAi
+                ? (object)new
+                {
+                    model = _model,
+                    messages = new[] { new { role = "user", content = prompt } },
+                    max_completion_tokens = 2000
+                }
+                : new
+                {
+                    model = _model,
+                    messages = new[] { new { role = "user", content = prompt } },
+                    temperature = 0.7,
+                    max_tokens = 300
+                };
 
             string url = _provider == NlCheckerSettings.ProviderOpenAi ? OpenAiUrl : UniGptUrl;
             using (var request = new HttpRequestMessage(HttpMethod.Post, url)
