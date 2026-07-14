@@ -24,6 +24,60 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             Timeout = TimeSpan.FromSeconds(60)
         };
 
+        static LlmClient()
+        {
+            // .NET Framework 4.8 im Office-Host: je nach Windows-/Registry-Konfiguration
+            // fehlt TLS 1.2 im Default-Protokollsatz -- HTTPS-Aufrufe scheitern dann mit
+            // einer generischen HttpRequestException. TLS 1.2 explizit zuschalten,
+            // TLS 1.3 best effort (erst ab neueren Windows-Versionen vorhanden).
+            try { System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12; }
+            catch { }
+            try { System.Net.ServicePointManager.SecurityProtocol |= (System.Net.SecurityProtocolType)12288; }
+            catch { }
+        }
+
+        /// <summary>
+        /// Fuehrt den HTTP-Aufruf aus und uebersetzt Netzwerkfehler in verstaendliche
+        /// Meldungen: HttpRequestException traegt die eigentliche Ursache (DNS,
+        /// Verbindung, TLS) unsichtbar in der InnerException; bei UniGPT kommt der
+        /// Hinweis dazu, dass der Endpoint nur aus dem Uni-Netz/VPN erreichbar ist.
+        /// </summary>
+        private static async Task<string> SendWithDiagnosticsAsync(HttpRequestMessage request, string provider)
+        {
+            try
+            {
+                var response = await _httpClient.SendAsync(request);
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (HttpRequestException ex)
+            {
+                string reason = ex.GetBaseException().Message;
+                string hint = provider == NlCheckerSettings.ProviderUniGpt
+                    ? "\nHinweis: gpt.uni-muenster.de ist in der Regel nur aus dem Universitätsnetz bzw. per VPN erreichbar."
+                    : "";
+                throw new Exception("Der Provider " + provider + " ist nicht erreichbar: " + reason + hint, ex);
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new Exception("Zeitüberschreitung beim Aufruf von " + provider + " (60 s).", ex);
+            }
+        }
+
+        /// <summary>Parst die API-Antwort; nicht-JSON (Proxy-/Fehlerseiten) wird lesbar gemeldet.</summary>
+        private static JObject ParseResponse(string responseString, string provider)
+        {
+            try
+            {
+                return JObject.Parse(responseString);
+            }
+            catch
+            {
+                string preview = responseString == null ? "<leer>"
+                    : responseString.Length > 300 ? responseString.Substring(0, 300) + "…" : responseString;
+                throw new Exception("Unerwartete (Nicht-JSON-)Antwort von " + provider + ": " + preview);
+            }
+        }
+
         private const string UniGptUrl = "https://gpt.uni-muenster.de/v1/chat/completions";
         private const string OpenAiUrl = "https://api.openai.com/v1/chat/completions";
         private const string AnthropicUrl = "https://api.anthropic.com/v1/messages";
@@ -133,10 +187,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
                 }
 
-                var response = await _httpClient.SendAsync(request);
-                string responseString = await response.Content.ReadAsStringAsync();
+                string responseString = await SendWithDiagnosticsAsync(request, provider);
 
-                JObject json = JObject.Parse(responseString);
+                JObject json = ParseResponse(responseString, provider);
                 if (json["error"] != null)
                     throw new Exception("API Error (" + provider + "): " + json["error"]["message"]);
                 if (json["type"]?.ToString() == "error")
@@ -195,10 +248,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             })
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
-                var response = await _httpClient.SendAsync(request);
-                string responseString = await response.Content.ReadAsStringAsync();
+                string responseString = await SendWithDiagnosticsAsync(request, _provider);
 
-                JObject json = JObject.Parse(responseString);
+                JObject json = ParseResponse(responseString, _provider);
                 if (json["error"] != null)
                     throw new Exception("API Error (" + _provider + "): " + json["error"]["message"]);
 
@@ -230,10 +282,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             {
                 request.Headers.Add("x-api-key", _apiKey);
                 request.Headers.Add("anthropic-version", AnthropicVersion);
-                var response = await _httpClient.SendAsync(request);
-                string responseString = await response.Content.ReadAsStringAsync();
+                string responseString = await SendWithDiagnosticsAsync(request, _provider);
 
-                JObject json = JObject.Parse(responseString);
+                JObject json = ParseResponse(responseString, _provider);
                 if (json["type"]?.ToString() == "error")
                     throw new Exception("API Error (Anthropic): " + json["error"]?["message"]);
 

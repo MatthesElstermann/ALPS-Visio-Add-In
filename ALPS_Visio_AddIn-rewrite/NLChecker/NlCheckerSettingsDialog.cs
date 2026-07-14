@@ -99,7 +99,12 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Modelle konnten nicht abgerufen werden:\n\n" + ex.Message,
+                // Ursachenkette ausgeben: bei Netzwerkfehlern steckt der eigentliche
+                // Grund (DNS/Verbindung/TLS) in den InnerExceptions.
+                var messages = new System.Text.StringBuilder();
+                for (Exception e = ex; e != null; e = e.InnerException)
+                    messages.AppendLine(e.Message);
+                MessageBox.Show("Modelle konnten nicht abgerufen werden:\n\n" + messages,
                     "PASS NL Checker", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
