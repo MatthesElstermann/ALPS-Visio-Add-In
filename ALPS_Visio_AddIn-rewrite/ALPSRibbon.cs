@@ -1,6 +1,7 @@
 ﻿using Microsoft.Office.Tools.Ribbon;
 using Microsoft.Office.Core;
 using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ALPS_Visio_AddIn_rewrite
@@ -333,10 +334,18 @@ namespace ALPS_Visio_AddIn_rewrite
                 PassBpmnConverter.Bpmn.BpmnDiagramGenerator.GenerateDiagram(bpmnModel);
                 PassBpmnConverter.Bpmn.BpmnSerializer.Serialize(bpmnModel, outputPath);
 
-                string warnings = consoleBuffer.ToString().Trim();
+                // Die Konsole faengt auch das Parser-Grundrauschen von alps.net.api ein
+                // ("Reading input owl files...Done." usw.) -- fuer den Nutzer irrelevant.
+                // Echte Konverter-Hinweise (nicht/unvollstaendig konvertierbare Elemente)
+                // beginnen alle mit "Warning:" bzw. "Error:" -- nur die anzeigen.
+                string[] warnings = consoleBuffer.ToString()
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Where(line => line.StartsWith("Warning:") || line.StartsWith("Error:"))
+                    .ToArray();
+
                 string message = "BPMN-Modell erfolgreich gespeichert:\n" + outputPath;
                 if (warnings.Length > 0)
-                    message += "\n\nHinweise des Konverters:\n" + warnings;
+                    message += "\n\nNicht (vollständig) konvertierbare Elemente:\n" + string.Join("\n", warnings);
                 MessageBox.Show(message, "PASS BPMN Converter", MessageBoxButtons.OK,
                     warnings.Length > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
             }
