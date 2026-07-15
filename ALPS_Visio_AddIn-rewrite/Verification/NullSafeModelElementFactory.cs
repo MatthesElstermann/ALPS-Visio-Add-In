@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using alps.net.api;          // ITreeNode
 using alps.net.api.parsing;
 using alps.net.api.StandardPASS;
-using alps.net.api.util;
 
 namespace ALPS_Visio_AddIn_rewrite.Verification
 {
