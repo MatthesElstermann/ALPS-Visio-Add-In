@@ -111,6 +111,7 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             // lieferten die Werte schon immer zurueck, sie wurden nur nie ausgewertet).
             bool checksRan = false;
             bool restrictionsValid = false, subjectsValid = false, connectorsValid = false;
+            int notPairable = 0;
 
             try
             {
@@ -131,11 +132,21 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                     // im Report nennt (samt Stacktrace) statt alles abzubrechen.
                     GetCorrespondingElementsALL getAll = new GetCorrespondingElementsALL();
                     var subjects = RunCheck("GetSubjects", () => getAll.GetSubjects(models));
-                    RunCheck("GetMessages", () => { getAll.GetMessages(models); return 0; });
+                    var messagePairs = RunCheck("GetMessages", () => getAll.GetMessages(models));
                     var transitions = RunCheck("GetMessageTransitions", () => getAll.GetMessageTransitions(models));
-                    RunCheck("GetMessageRestriction", () => { getAll.GetMessageRestriction(models); return 0; });
+                    var restrictionPairs = RunCheck("GetMessageRestriction", () => getAll.GetMessageRestriction(models));
                     RunCheck("GetStates", () => { getAll.GetStates(models); return 0; });
                     RunCheck("GetTransitions", () => { getAll.GetTransitions(models); return 0; });
+
+                    // Nachrichten-, Message-Transition- und Restriktions-Paarungen sind mit
+                    // alps.net.api 0.9.1.6 PRINZIPBEDINGT unerfuellbar: kein Element-Typ
+                    // implementiert IImplementingElement<IMessageExchange>, <ICommunicationAct>
+                    // oder <ICommunicationRestriction> (nur Subjekte, States und Transitionen
+                    // tragen implements-Verweise). Ein Check, den kein Modell je bestehen kann,
+                    // darf das Verdict nicht kippen — die fehlenden Paarungen werden gezaehlt,
+                    // ausgewiesen und aus dem Verdict herausgerechnet.
+                    notPairable = CountUnpaired(messagePairs) + CountUnpaired(transitions)
+                                + CountUnpaired(restrictionPairs);
 
                     // Implemented SID checks.
                     CheckSID checkSID = new CheckSID();
@@ -174,7 +185,7 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             string report = output.ToString();
             if (checksRan)
                 report += BuildVerdict(restrictionsValid, subjectsValid, connectorsValid,
-                    CountOccurrences(report, "Element not implemented!"));
+                    CountOccurrences(report, "Element not implemented!") - notPairable, notPairable);
 
             return string.IsNullOrWhiteSpace(report)
                 ? "Keine Ausgabe. Prüfe, ob beide OWL-Dateien gültige ALPS-Modelle (Spezifikation + Implementierung) sind."
@@ -183,11 +194,13 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
 
         /// <summary>
         /// Baut das Gesamtergebnis am Report-Ende. "Nicht implementierte Elemente" zaehlt die
-        /// "Element not implemented!"-Zeilen der Paarungs-Laeufe (Subjekte, Messages,
-        /// Message-Transitionen, Restriktionen, States, Transitionen) — jedes Element der
-        /// Spezifikation, zu dem die Implementierung kein Gegenstueck referenziert.
+        /// "Element not implemented!"-Zeilen der PAARBAREN Laeufe (Subjekte, States,
+        /// Transitionen) — jedes Element der Spezifikation, zu dem die Implementierung kein
+        /// Gegenstueck referenziert. Nachrichten/Restriktionen (<paramref name="notPairable"/>)
+        /// werden gesondert ausgewiesen, aber nicht eingerechnet (siehe VerifyCore).
         /// </summary>
-        private static string BuildVerdict(bool restrictionsValid, bool subjectsValid, bool connectorsValid, int notImplemented)
+        private static string BuildVerdict(bool restrictionsValid, bool subjectsValid, bool connectorsValid,
+            int notImplemented, int notPairable)
         {
             bool passed = restrictionsValid && subjectsValid && connectorsValid && notImplemented == 0;
 
@@ -200,6 +213,11 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             sb.AppendLine("Subjekt-Typen korrekt implementiert:          " + (subjectsValid ? "ja" : "NEIN"));
             sb.AppendLine("Message-Connector-Typen korrekt implementiert: " + (connectorsValid ? "ja" : "NEIN"));
             sb.AppendLine("Nicht implementierte Spezifikations-Elemente:  " + notImplemented);
+            if (notPairable > 0)
+                sb.AppendLine("Nicht ins Verdict eingerechnet:                " + notPairable +
+                    " Nachricht(en)/Restriktion(en) — alps.net.api" + Environment.NewLine +
+                    "  kennt keine implements-Verweise auf diese Typen; die Paarung ist" + Environment.NewLine +
+                    "  prinzipbedingt unerfuellbar und sagt nichts ueber das Modell aus.");
             sb.AppendLine("------------------------------------------");
             sb.AppendLine(passed
                 ? "VERDICT: BESTANDEN — die Implementierung erfuellt alle geprueften SID-Regeln."
@@ -207,6 +225,17 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             sb.AppendLine("(Hinweis: Der Pruefer ist ein Prototyp — SBD-Checks sind noch nicht implementiert,");
             sb.AppendLine(" das Verdict deckt nur die SID-Ebene ab.)");
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Zaehlt die Paarungen ohne Implementierungs-Partner (Item2 == null). Die
+        /// Get*-Laeufe legen fuer jedes Spezifikations-Element ein Tupel an; bleibt die
+        /// Paarung aus, ist der Partner null (Subjekte ausgenommen — dort zaehlt der
+        /// Report-Marker, denn Subjekt-Paarungen SIND erfuellbar).
+        /// </summary>
+        private static int CountUnpaired<TSpec, TImpl>(List<Tuple<TSpec, TImpl>> pairs) where TImpl : class
+        {
+            return pairs == null ? 0 : pairs.Count(t => t.Item2 == null);
         }
 
         /// <summary>Zaehlt nicht-ueberlappende Vorkommen von <paramref name="marker"/> in <paramref name="text"/>.</summary>
