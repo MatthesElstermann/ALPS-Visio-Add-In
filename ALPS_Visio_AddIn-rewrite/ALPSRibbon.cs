@@ -463,6 +463,11 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 string consoleText = consoleBuffer.ToString().Trim();
                 string message = "Die BPMN-Konvertierung ist fehlgeschlagen:\n\n" + DescribeException(ex);
+                // Auch im Fehlerfall die Builder-Notizen zeigen -- sie enthalten die
+                // Lese-Zusammenfassung und sind fuer die Diagnose oft entscheidender
+                // als die Exception selbst.
+                if (builderWarnings != null && builderWarnings.Count > 0)
+                    message += "\n\nHinweise beim Lesen des Modells:\n" + string.Join("\n", builderWarnings);
                 if (consoleText.Length > 0)
                     message += "\n\nHinweise des Konverters:\n" + consoleText;
                 MessageBox.Show(message, "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Error);

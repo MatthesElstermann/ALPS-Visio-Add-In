@@ -66,7 +66,13 @@ public class BpmnDiagramGenerator
 
         IEnumerable<IFlowNode> initialFlowNodes = flowElementsContainer.FlowElements.OfType<IFlowNode>().Where(flowNode => flowNode.Incoming.Count == 0 && flowNode is not IBoundaryEvent);
 
-        // make sure event sub processes are added below base process 
+        // Zyklische Prozesse ohne Startknoten (kein StartEvent erzeugt, jeder Knoten
+        // hat eingehende Kanten): sonst bliebe das Grid trotz vorhandener Elemente
+        // leer und die Bounds-Berechnung stuerzt auf der leeren Sequenz ab.
+        if (!initialFlowNodes.Any())
+            initialFlowNodes = flowElementsContainer.FlowElements.OfType<IFlowNode>().Where(flowNode => flowNode is not IBoundaryEvent).Take(1);
+
+        // make sure event sub processes are added below base process
         initialFlowNodes = initialFlowNodes.OrderBy(flowNode => flowNode is ISubProcess);
 
         foreach (IFlowNode flowNode in initialFlowNodes)
@@ -143,13 +149,23 @@ public class BpmnDiagramGenerator
         {
             IBounds participantBounds;
 
+            List<IBpmnShape>? participantShapes = null;
+            List<IDiagramElement>? diagramElements = null;
             if (participant.ProcessRef != null && _grids.TryGetValue(participant.ProcessRef, out Grid? grid) && grid != null)
             {
-                List<IDiagramElement> diagramElements = GenerateDiagram(grid);
+                diagramElements = GenerateDiagram(grid);
 
                 ImproveEdgeRouting(diagramElements);
 
-                IEnumerable<IBpmnShape> bpmnShapes = diagramElements.OfType<IBpmnShape>();
+                participantShapes = diagramElements.OfType<IBpmnShape>().ToList();
+            }
+
+            // Leere Prozesse (z. B. Behavior ohne konvertierbare Zustaende) duerfen die
+            // Bounds-Berechnung nicht auf einer leeren Sequenz abstuerzen lassen --
+            // solche Participants bekommen die Default-Groesse.
+            if (participantShapes != null && participantShapes.Count > 0)
+            {
+                IEnumerable<IBpmnShape> bpmnShapes = participantShapes;
                 double minX = bpmnShapes.Min(bpmnShape => bpmnShape.Bounds.X);
                 double minY = bpmnShapes.Min(bpmnShape => bpmnShape.Bounds.Y);
                 double maxX = bpmnShapes.Max(bpmnShape => bpmnShape.Bounds.X + bpmnShape.Bounds.Width);

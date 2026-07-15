@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using alps.net.api.ALPS;
 using alps.net.api.StandardPASS;
 using Visio = Microsoft.Office.Interop.Visio;
@@ -29,6 +30,7 @@ namespace ALPS_Visio_AddIn_rewrite
         private readonly Dictionary<string, IMessageSpecification> _messagesByVisioId = new Dictionary<string, IMessageSpecification>();
         private readonly Dictionary<string, IMessageSpecification> _messagesByLabel = new Dictionary<string, IMessageSpecification>();
         private readonly Dictionary<string, IState> _statesByVisioId = new Dictionary<string, IState>();
+        private readonly HashSet<string> _stateIdsWithIncoming = new HashSet<string>();
 
         public IList<string> Warnings => _warnings;
 
@@ -317,17 +319,59 @@ namespace ALPS_Visio_AddIn_rewrite
             }
 
             string behaviorLabel = sbdPage.NameU.Replace(":", "_");
+
+            // Der FullySpecifiedSubject-Ctor legt automatisch ein leeres
+            // "defaultBehavior" an. Nach dem Ersetzen entfernen -- es bliebe sonst als
+            // nicht unterstuetztes Rumpf-Behavior im Modell und der BPMN-Konverter
+            // warnt bei jedem Lauf darueber.
+            var defaultBehavior = fullSubject.getSubjectBaseBehavior();
+
             var behavior = new SubjectBaseBehavior(layer, behaviorLabel, subject);
             fullSubject.setBaseBehavior(behavior);
+            if (defaultBehavior != null && !ReferenceEquals(defaultBehavior, behavior))
+            {
+                fullSubject.removeBehavior(defaultBehavior.getModelComponentID());
+                layer.removeContainedElement(defaultBehavior.getModelComponentID());
+            }
             _behaviorCount++;
 
             _statesByVisioId.Clear();
+            _stateIdsWithIncoming.Clear();
 
             // Erst alle Zustaende, dann die Transitionen (brauchen Quell-/Zielzustand).
             foreach (Visio.Shape shape in sbdPage.Shapes)
                 SafeParse(shape, () => ParseState(behavior, shape));
             foreach (Visio.Shape shape in sbdPage.Shapes)
                 SafeParse(shape, () => ParseTransition(shape));
+
+            EnsureInitialState(behaviorLabel);
+        }
+
+        /// <summary>
+        /// Stellt sicher, dass das Verhalten einen Startzustand traegt: ohne
+        /// InitialStateOfBehavior erzeugt der BPMN-Konverter kein StartEvent, und bei
+        /// zyklischen SBDs findet der Diagramm-Layouter dann keinen Einstieg (der
+        /// Prozess bliebe leer). Fallback: erster Zustand ohne eingehende Transition,
+        /// sonst der erste Zustand der Seite.
+        /// </summary>
+        private void EnsureInitialState(string behaviorLabel)
+        {
+            if (_statesByVisioId.Count == 0)
+                return;
+            if (_statesByVisioId.Values.Any(s => s.isStateType(IState.StateType.InitialStateOfBehavior)))
+                return;
+
+            IState fallback = _statesByVisioId.FirstOrDefault(p => !_stateIdsWithIncoming.Contains(p.Key)).Value
+                ?? _statesByVisioId.Values.First();
+            fallback.setIsStateType(IState.StateType.InitialStateOfBehavior);
+            _warnings.Add("Verhalten „" + behaviorLabel + "“: kein Zustand als Start markiert — „"
+                + FirstLabelOf(fallback) + "“ wurde als Startzustand angenommen.");
+        }
+
+        private static string FirstLabelOf(IState state)
+        {
+            IList<string> labels = state.getModelComponentLabelsAsStrings();
+            return labels.Count > 0 ? labels[0] : state.getModelComponentID();
         }
 
         private Visio.Page GetLinkedSbdPage(Visio.Shape subjectShape, Visio.Document doc)
@@ -401,6 +445,7 @@ namespace ALPS_Visio_AddIn_rewrite
                               "“: Quell- oder Zielzustand nicht auflösbar — übersprungen.");
                 return;
             }
+            _stateIdsWithIncoming.Add(targetId);
 
             if (type.Contains("SendTransition"))
             {
