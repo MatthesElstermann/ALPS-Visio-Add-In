@@ -171,12 +171,12 @@ namespace ALPS_Visio_AddIn_rewrite
                 ISubjectBehavior baseBehavior = full.getSubjectBaseBehavior();
                 if (baseBehavior == null)
                 {
-                    _warnings.Add("Subjekt „" + FirstLabelOf(subject) + "“ hat kein Basisverhalten — sein Verhalten fehlt im BPMN.");
+                    _warnings.Add("Subjekt „" + FirstLabelOf(subject) + "“ hat kein Basisverhalten.");
                     continue;
                 }
                 int states = baseBehavior.getBehaviorDescribingComponents().Values.OfType<IState>().Count();
                 if (states == 0)
-                    _warnings.Add("Subjekt „" + FirstLabelOf(subject) + "“: keine Zustände im Basisverhalten — der BPMN-Prozess bleibt leer.");
+                    _warnings.Add("Subjekt „" + FirstLabelOf(subject) + "“: keine Zustände im Basisverhalten.");
             }
         }
 
