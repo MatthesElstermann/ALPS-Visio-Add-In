@@ -177,10 +177,12 @@ namespace ALPS_Visio_AddIn_rewrite
                 var components = baseBehavior.getBehaviorDescribingComponents().Values;
                 int states = components.OfType<IState>().Count();
                 int transitions = components.OfType<ITransition>().Count();
-                _warnings.Add("Prüfung: Subjekt „" + FirstLabelOf(subject) + "“ → Basisverhalten „"
-                    + baseBehavior.getModelComponentID() + "“ enthält " + states + " Zustände und "
-                    + transitions + " Transitionen.");
+                _warnings.Add("Prüfung: Subjekt „" + FirstLabelOf(subject) + "“ → Basisverhalten enthält "
+                    + states + " Zustände und " + transitions + " Transitionen.");
             }
+
+            int modelStates = model.getAllElements().Values.OfType<IState>().Count();
+            _warnings.Add("Prüfung: Modell kennt insgesamt " + modelStates + " Zustände.");
         }
 
         private IModelLayer BuildLayer(IPASSProcessModel model, Visio.Page sidPage, bool isFirst)
@@ -353,18 +355,24 @@ namespace ALPS_Visio_AddIn_rewrite
 
             string behaviorLabel = sbdPage.NameU.Replace(":", "_");
 
-            // Der FullySpecifiedSubject-Ctor legt automatisch ein leeres
-            // "defaultBehavior" an. Nach dem Ersetzen entfernen -- es bliebe sonst als
-            // nicht unterstuetztes Rumpf-Behavior im Modell und der BPMN-Konverter
-            // warnt bei jedem Lauf darueber.
-            var defaultBehavior = fullSubject.getSubjectBaseBehavior();
-
-            var behavior = new SubjectBaseBehavior(layer, behaviorLabel, subject);
-            fullSubject.setBaseBehavior(behavior);
-            if (defaultBehavior != null && !ReferenceEquals(defaultBehavior, behavior))
+            // Das vom FullySpecifiedSubject-Ctor automatisch erzeugte Basisverhalten
+            // WIEDERVERWENDEN statt ein neues zu erzeugen und zu tauschen: der Tausch
+            // (neues Behavior + setBaseBehavior + removeBehavior des alten) hinterliess
+            // das Behavior in einem Zustand, in dem die States sich nicht mehr
+            // registrieren liessen (subjectBehavior gesetzt, aber nicht in
+            // getBehaviorDescribingComponents) -- die States kamen so nie beim
+            // BPMN-Konverter an. Das Original-Behavior ist sauber verdrahtet.
+            ISubjectBehavior behavior = fullSubject.getSubjectBaseBehavior();
+            if (behavior == null)
             {
-                fullSubject.removeBehavior(defaultBehavior.getModelComponentID());
-                layer.removeContainedElement(defaultBehavior.getModelComponentID());
+                behavior = new SubjectBaseBehavior(layer, behaviorLabel, subject);
+                fullSubject.setBaseBehavior(behavior);
+            }
+            else
+            {
+                // Aussagekraeftiges Label statt "defaultBehavior" (der Konverter nutzt
+                // es als Namen des Ereignis-/Basis-Prozesses).
+                behavior.setModelComponentLabels(new List<string> { behaviorLabel });
             }
             _behaviorCount++;
 
