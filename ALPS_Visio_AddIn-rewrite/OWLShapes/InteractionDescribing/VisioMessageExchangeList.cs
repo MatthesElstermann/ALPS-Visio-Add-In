@@ -33,6 +33,18 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                         break;
                     }
 
+                // Die Message-Box legt die STENCIL-VBA per EventDrop an, wenn der
+                // Connector gedroppt wird. Ist der VBA-Zustand kaputt (typisch: vorher
+                // ein VBA-Laufzeitfehler, z. B. nach Modell-Erstellen + -Loeschen in
+                // derselben Sitzung), entsteht keine Box -- dann hier mit klarer
+                // Handlungsanweisung abbrechen statt mit NullReferenceException.
+                if (messageBox == null)
+                    throw new System.InvalidOperationException(
+                        "Die Message-Box wurde beim Import nicht erzeugt. Das passiert, wenn die " +
+                        "VBA-Makros des SID-Stencils nicht (mehr) laufen — typischerweise nach einem " +
+                        "vorherigen VBA-Fehler in dieser Visio-Sitzung. Bitte Visio neu starten und " +
+                        "den Import wiederholen.");
+
                 // delete wrong shapes
                 // alternative idea: delete messages with default label (or label == id)
                 foreach (Visio.Shape shape in page.Shapes)
