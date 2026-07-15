@@ -143,8 +143,8 @@ namespace ALPS_Visio_AddIn_rewrite
             else
             {
                 ALPS_Visio_AddIn_rewrite.UI.ResultDialog.ShowWarning("Eingabe nicht gefunden",
-                    string.Format("„{0}" konnte nicht aufgelöst werden.", userInput),
-                    string.Format("Ort der fehlerhaften Eingabe: „{0}"", modifiedC.getNameU()));
+                    "„" + userInput + "“ konnte nicht aufgelöst werden.",
+                    "Ort der fehlerhaften Eingabe: „" + modifiedC.getNameU() + "“");
             }
         }
 
