@@ -45,8 +45,8 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
                 if (modelElement is ISubject subject)
                 {
-                    importable.ImportToVisio(page);
-                    importedSubjects.Add(subject);
+                    if (SafeImportToVisio(importable, page))
+                        importedSubjects.Add(subject);
                 }
                 else if (modelElement is IMessageExchangeList)
                 {
@@ -73,10 +73,31 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // Second pass: now that subjects are placed, draw the message exchange lists
             // and the remaining SID-level drawables (their connectors glue to the subjects).
             foreach (IVisioImportable messageExchangeList in messageExchangeLists)
-                messageExchangeList.ImportToVisio(page);
+                SafeImportToVisio(messageExchangeList, page);
 
             foreach (IVisioImportable drawable in otherDrawables)
-                drawable.ImportToVisio(page);
+                SafeImportToVisio(drawable, page);
+        }
+
+        /// <summary>
+        /// Zeichnet ein Element und faengt Fehler ab, damit ein einzelnes problematisches
+        /// Element (z. B. ein Message-Connector, dessen Stencil-VBA nicht laeuft) nicht den
+        /// gesamten Import abbricht. Die Log-Zeile nennt das schuldige Element samt Fehler,
+        /// sodass die Ursache ohne Debugger sichtbar wird. Rueckgabe: true bei Erfolg.
+        /// </summary>
+        private static bool SafeImportToVisio(IVisioImportable importable, Visio.Page page)
+        {
+            try
+            {
+                importable.ImportToVisio(page);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                string id = importable is IPASSProcessModelElement element ? element.getModelComponentID() : importable.GetType().Name;
+                System.Diagnostics.Debug.WriteLine("Import des Elements \"" + id + "\" fehlgeschlagen: " + ex);
+                return false;
+            }
         }
 
         /// <summary>
