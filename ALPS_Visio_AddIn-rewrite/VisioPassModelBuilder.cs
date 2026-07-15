@@ -157,10 +157,10 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Kontrolliert am fertigen Modell, was der BPMN-Konverter tatsaechlich sieht:
-        /// je Subjekt das Basisverhalten und dessen Komponenten (States/Transitionen).
-        /// Findet der Konverter leere Prozesse, liegt es fast immer daran, dass die
-        /// States nicht im Behavior registriert sind -- das macht diese Zeile sichtbar.
+        /// Stille Selbstpruefung am fertigen Modell: Meldet nur, wenn ein Subjekt
+        /// gelesene Zustaende hat, diese aber nicht im Basisverhalten registriert sind
+        /// (dann erzeugt der BPMN-Konverter einen leeren Prozess). Im Normalfall
+        /// bleibt der Ergebnisdialog dadurch sauber.
         /// </summary>
         private void VerifyModelComposition(IPASSProcessModel model)
         {
@@ -171,18 +171,13 @@ namespace ALPS_Visio_AddIn_rewrite
                 ISubjectBehavior baseBehavior = full.getSubjectBaseBehavior();
                 if (baseBehavior == null)
                 {
-                    _warnings.Add("Prüfung: Subjekt „" + FirstLabelOf(subject) + "“ hat kein Basisverhalten.");
+                    _warnings.Add("Subjekt „" + FirstLabelOf(subject) + "“ hat kein Basisverhalten — sein Verhalten fehlt im BPMN.");
                     continue;
                 }
-                var components = baseBehavior.getBehaviorDescribingComponents().Values;
-                int states = components.OfType<IState>().Count();
-                int transitions = components.OfType<ITransition>().Count();
-                _warnings.Add("Prüfung: Subjekt „" + FirstLabelOf(subject) + "“ → Basisverhalten enthält "
-                    + states + " Zustände und " + transitions + " Transitionen.");
+                int states = baseBehavior.getBehaviorDescribingComponents().Values.OfType<IState>().Count();
+                if (states == 0)
+                    _warnings.Add("Subjekt „" + FirstLabelOf(subject) + "“: keine Zustände im Basisverhalten — der BPMN-Prozess bleibt leer.");
             }
-
-            int modelStates = model.getAllElements().Values.OfType<IState>().Count();
-            _warnings.Add("Prüfung: Modell kennt insgesamt " + modelStates + " Zustände.");
         }
 
         private IModelLayer BuildLayer(IPASSProcessModel model, Visio.Page sidPage, bool isFirst)
