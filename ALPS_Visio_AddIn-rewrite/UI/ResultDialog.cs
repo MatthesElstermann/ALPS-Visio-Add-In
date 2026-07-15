@@ -17,6 +17,10 @@ namespace ALPS_Visio_AddIn_rewrite.UI
     /// - Kurzmeldung (z. B. Erfolg): Header + kurze, umbrechende Nachricht.
     /// - Report (z. B. Verifikations-Ausgabe): Header + scrollbarer Monospace-Bereich.
     /// Zusaetzliche Aktions-Buttons (z. B. „Ordner oeffnen") lassen sich vor dem Anzeigen ergaenzen.
+    ///
+    /// Layout-Regeln: Die Fensterbreite steht je Darstellungsform fest; Titel (eine Zeile,
+    /// Ellipsis) und Untertitel (umbrechend, Hoehe wird gemessen) richten sich danach — so
+    /// laeuft kein Text mehr aus dem Fenster (frueher schnitt der AutoSize-Untertitel rechts ab).
     /// </summary>
     public class ResultDialog : Form
     {
@@ -29,15 +33,15 @@ namespace ALPS_Visio_AddIn_rewrite.UI
             string symbol;
             SymbolAndColors(status, out symbol, out accent, out headerBack);
 
+            bool hasBody = !string.IsNullOrEmpty(body);
+            // Feste Breite je Darstellungsform — Grundlage fuer Umbruch/Ellipsis im Header.
+            int clientWidth = hasBody ? (bodyIsReport ? 860 : 580) : 480;
+            const int textLeft = 70;
+            int textWidth = clientWidth - textLeft - 20;
+
             SuspendLayout();
 
             // --- Kopf-Bereich: Statusfarbe + Symbol + Titel/Untertitel -------------------------
-            var header = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = string.IsNullOrEmpty(subtitle) ? 62 : 78,
-                BackColor = headerBack
-            };
             var symbolLabel = new Label
             {
                 Text = symbol,
@@ -45,7 +49,7 @@ namespace ALPS_Visio_AddIn_rewrite.UI
                 ForeColor = accent,
                 AutoSize = false,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location = new Point(16, 8),
+                Location = new Point(16, 10),
                 Size = new Size(44, 44)
             };
             var titleLabel = new Label
@@ -53,23 +57,35 @@ namespace ALPS_Visio_AddIn_rewrite.UI
                 Text = title ?? "",
                 Font = new Font("Segoe UI", 12F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(33, 33, 33),
-                AutoSize = true,
-                Location = new Point(70, string.IsNullOrEmpty(subtitle) ? 18 : 14)
+                AutoSize = false,
+                AutoEllipsis = true,
+                Bounds = new Rectangle(textLeft, 14, textWidth, 24)
             };
-            header.Controls.Add(titleLabel);
-            header.Controls.Add(symbolLabel);
+
+            // Untertitel bricht um; seine gemessene Hoehe bestimmt die Header-Hoehe.
+            int headerHeight = 62;
+            Label subtitleLabel = null;
             if (!string.IsNullOrEmpty(subtitle))
             {
-                var subtitleLabel = new Label
+                subtitleLabel = new Label
                 {
                     Text = subtitle,
                     Font = new Font("Segoe UI", 9F, FontStyle.Regular),
                     ForeColor = Color.FromArgb(97, 97, 97),
-                    AutoSize = true,
-                    Location = new Point(72, 44)
+                    AutoSize = false,
+                    Location = new Point(textLeft + 1, 42)
                 };
-                header.Controls.Add(subtitleLabel);
+                int subtitleHeight = TextRenderer.MeasureText(subtitle, subtitleLabel.Font,
+                    new Size(textWidth, int.MaxValue), TextFormatFlags.WordBreak).Height;
+                subtitleLabel.Size = new Size(textWidth, subtitleHeight);
+                headerHeight = Math.Max(headerHeight, 42 + subtitleHeight + 12);
             }
+
+            var header = new Panel { Dock = DockStyle.Top, Height = headerHeight, BackColor = headerBack };
+            header.Controls.Add(titleLabel);
+            header.Controls.Add(symbolLabel);
+            if (subtitleLabel != null)
+                header.Controls.Add(subtitleLabel);
 
             // --- Button-Zeile unten ------------------------------------------------------------
             var buttonBar = new Panel { Dock = DockStyle.Bottom, Height = 52, BackColor = SystemColors.Control };
@@ -92,7 +108,7 @@ namespace ALPS_Visio_AddIn_rewrite.UI
             buttonBar.Controls.Add(_buttonRow);
 
             // --- Inhalts-Bereich (nur wenn body vorhanden) -------------------------------------
-            bool hasBody = !string.IsNullOrEmpty(body);
+            int bodyHeight = 0;
             if (hasBody)
             {
                 var content = new RichTextBox
@@ -111,6 +127,19 @@ namespace ALPS_Visio_AddIn_rewrite.UI
                 var pad = new Panel { Dock = DockStyle.Fill, Padding = new Padding(16, 12, 12, 4), BackColor = Color.White };
                 pad.Controls.Add(content);
                 Controls.Add(pad);      // Fill zuerst hinzufuegen (innerster Docking-Bereich)
+
+                if (bodyIsReport)
+                {
+                    bodyHeight = 520;
+                }
+                else
+                {
+                    // Kurztext: Hoehe am Inhalt ausrichten (mit Ober-/Untergrenze), damit
+                    // weder Leerraum bleibt noch unnoetig gescrollt werden muss.
+                    int measured = TextRenderer.MeasureText(body, content.Font,
+                        new Size(clientWidth - 16 - 12 - 8, int.MaxValue), TextFormatFlags.WordBreak).Height;
+                    bodyHeight = Math.Max(90, Math.Min(measured + 28, 420));
+                }
             }
             Controls.Add(header);
             Controls.Add(buttonBar);
@@ -129,20 +158,14 @@ namespace ALPS_Visio_AddIn_rewrite.UI
             {
                 MaximizeBox = true;
                 FormBorderStyle = FormBorderStyle.Sizable;
-                ClientSize = new Size(860, 640);
+                ClientSize = new Size(clientWidth, headerHeight + bodyHeight + buttonBar.Height);
                 MinimumSize = new Size(520, 320);
-            }
-            else if (hasBody)
-            {
-                MaximizeBox = false;
-                FormBorderStyle = FormBorderStyle.FixedDialog;
-                ClientSize = new Size(500, 250);
             }
             else
             {
                 MaximizeBox = false;
                 FormBorderStyle = FormBorderStyle.FixedDialog;
-                ClientSize = new Size(460, header.Height + buttonBar.Height + 24);
+                ClientSize = new Size(clientWidth, headerHeight + bodyHeight + buttonBar.Height + (hasBody ? 0 : 12));
             }
 
             ResumeLayout(false);
