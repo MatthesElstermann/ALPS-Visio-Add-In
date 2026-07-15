@@ -151,7 +151,36 @@ namespace ALPS_Visio_AddIn_rewrite
                 }
             }
 
+            VerifyModelComposition(model);
+
             return model;
+        }
+
+        /// <summary>
+        /// Kontrolliert am fertigen Modell, was der BPMN-Konverter tatsaechlich sieht:
+        /// je Subjekt das Basisverhalten und dessen Komponenten (States/Transitionen).
+        /// Findet der Konverter leere Prozesse, liegt es fast immer daran, dass die
+        /// States nicht im Behavior registriert sind -- das macht diese Zeile sichtbar.
+        /// </summary>
+        private void VerifyModelComposition(IPASSProcessModel model)
+        {
+            foreach (ISubject subject in model.getBaseLayer().getElements().Values.OfType<ISubject>())
+            {
+                if (!(subject is IFullySpecifiedSubject full))
+                    continue;
+                ISubjectBehavior baseBehavior = full.getSubjectBaseBehavior();
+                if (baseBehavior == null)
+                {
+                    _warnings.Add("Prüfung: Subjekt „" + FirstLabelOf(subject) + "“ hat kein Basisverhalten.");
+                    continue;
+                }
+                var components = baseBehavior.getBehaviorDescribingComponents().Values;
+                int states = components.OfType<IState>().Count();
+                int transitions = components.OfType<ITransition>().Count();
+                _warnings.Add("Prüfung: Subjekt „" + FirstLabelOf(subject) + "“ → Basisverhalten „"
+                    + baseBehavior.getModelComponentID() + "“ enthält " + states + " Zustände und "
+                    + transitions + " Transitionen.");
+            }
         }
 
         private IModelLayer BuildLayer(IPASSProcessModel model, Visio.Page sidPage, bool isFirst)
