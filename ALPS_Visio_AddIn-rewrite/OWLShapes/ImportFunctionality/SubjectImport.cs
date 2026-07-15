@@ -31,7 +31,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // getImplementedInterfacesIDReferences() liefert die reinen URIs; das frueher
             // hier genutzte getImplementedInterfaces() (ein Dictionary) erzeugte ueber
             // string.Join eine "[key, value]"-Zeichenkette, die nicht wieder einlesbar war.
-            VH.SetProp(shape, Constants.Properties.Subject.Implements, string.Join(";", subject.getImplementedInterfacesIDReferences()));
+            // Defensiv: ein Fehler beim Auslesen der implements darf den Import nicht abbrechen.
+            try { VH.SetProp(shape, Constants.Properties.Subject.Implements, string.Join(";", subject.getImplementedInterfacesIDReferences())); }
+            catch (System.Exception ex) { System.Diagnostics.Debug.WriteLine("SubjectImport implements failed: " + ex); }
             // TODO: final -> ont
 
             // MultiSubject

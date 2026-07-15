@@ -87,10 +87,14 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // rohen URI-Verweise auf Spezifikations-Elemente in anderen Modellen/Dateien
             // (getImplementedInterfaces().Keys enthaelt nur die im selben Modell
             // aufgeloesten) — fuer die ALPS-Verifikation sind gerade die Cross-Model-
-            // Verweise entscheidend.
-            var implementedRefs = transition.getImplementedInterfacesIDReferences();
-            if (implementedRefs.Count > 0)
-                VH.SetProp(shape, Constants.Properties.Transition.Implements, string.Join(";", implementedRefs));
+            // Verweise entscheidend. Defensiv: darf den Import nicht abbrechen.
+            try
+            {
+                var implementedRefs = transition.getImplementedInterfacesIDReferences();
+                if (implementedRefs.Count > 0)
+                    VH.SetProp(shape, Constants.Properties.Transition.Implements, string.Join(";", implementedRefs));
+            }
+            catch (System.Exception ex) { System.Diagnostics.Debug.WriteLine("TransitionImport implements failed: " + ex); }
 
             // set the transition type dropdown (Standard/Trigger/Precedence/Finalized/Advice)
             int typeIndex;
