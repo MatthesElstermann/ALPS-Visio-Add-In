@@ -34,7 +34,20 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
         /// </summary>
         public static string Verify(string specPath, IPASSProcessModel implModel)
         {
-            IList<IPASSProcessModel> models = LoadModels(new List<string> { specPath });
+            IList<IPASSProcessModel> models;
+            try
+            {
+                models = LoadModels(new List<string> { specPath });
+            }
+            catch (Exception ex)
+            {
+                // Das Parsen der Spezifikations-Datei ist in der API fehlgeschlagen
+                // (z. B. NullReferenceException in BasicPASSProcessModelElementFactory.
+                // createInstance) — die volle Ursache samt Stacktrace zurueckgeben,
+                // statt den Aufrufer abstuerzen zu lassen.
+                return "Die Spezifikations-Datei konnte nicht geparst werden:\n" + specPath +
+                    "\n\n" + ex;
+            }
             if (models.Count < 1)
                 return "Die Spezifikations-Datei konnte nicht als ALPS-Modell geladen werden: " + specPath;
             return VerifyCore(new List<IPASSProcessModel> { models[0], implModel });
