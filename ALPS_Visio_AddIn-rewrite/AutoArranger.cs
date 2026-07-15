@@ -84,8 +84,8 @@ namespace ALPS_Visio_AddIn_rewrite
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show(
-                        "Die aktive Seite ist kein SID- oder SBD-Diagramm.", "Auto Arrange");
+                    UI.ResultDialog.ShowWarning("Auto Arrange nicht möglich",
+                        "Die aktive Seite ist kein SID- oder SBD-Diagramm.");
                 }
             }
             finally

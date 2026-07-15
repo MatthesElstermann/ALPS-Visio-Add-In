@@ -73,11 +73,12 @@ namespace ALPS_Visio_AddIn_rewrite
             // Make a missing model visible instead of silently doing nothing.
             if (passProcessModels.Count == 0 || !(passProcessModels[0] is IVisioImportable importable))
             {
-                System.Windows.Forms.MessageBox.Show(
-                    "Keine importierbaren PASS-/ALPS-Modelle in der Datei gefunden:\n" + fileName +
-                    "\n\nHinweis: Ontologie-Dateien (Schema) enthalten keine Modelle und können " +
-                    "nicht importiert werden.",
-                    "OWL-Import");
+                UI.ResultDialog.ShowWarning(
+                    "Kein importierbares Modell gefunden",
+                    "Die Datei enthält kein PASS-/ALPS-Modell zum Importieren.",
+                    "Datei:\n" + fileName +
+                    "\n\nHinweis: Reine Ontologie-Dateien (Schema) enthalten keine Modelle und " +
+                    "können nicht importiert werden.");
                 return;
             }
 

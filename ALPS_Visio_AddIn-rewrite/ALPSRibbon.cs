@@ -214,11 +214,8 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Der OWL-Import ist fehlgeschlagen:\n\n" + DescribeException(ex),
-                    "OWL-Import fehlgeschlagen",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                UI.ResultDialog.ShowError("OWL-Import fehlgeschlagen",
+                    "Die gewählte Datei konnte nicht importiert werden.", DescribeException(ex));
             }
         }
 
@@ -289,10 +286,10 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             if (!VisioPassModelBuilder.CanBuildFromActiveDocument(Globals.ThisAddIn.Application))
             {
-                MessageBox.Show(
-                    "Das aktuell geöffnete Dokument enthält kein ALPS/PASS-Modell (keine SID-Seite mit Modell-URI).\n" +
-                    "Über den Pfeil des Buttons lassen sich stattdessen zwei OWL-Dateien prüfen.",
-                    "ALPS Verification", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                UI.ResultDialog.ShowWarning(
+                    "Kein ALPS/PASS-Modell geöffnet",
+                    "Das aktive Dokument trägt kein Modell (keine SID-Seite mit Modell-URI).",
+                    "Über den Pfeil des Buttons lassen sich stattdessen zwei OWL-Dateien prüfen.");
                 return;
             }
 
@@ -310,13 +307,43 @@ namespace ALPS_Visio_AddIn_rewrite
                         ? "\nHinweise beim Lesen des aktuellen Modells:\n- " + string.Join("\n- ", builder.Warnings)
                         : "")
                     + "\n\n" + report;
-                new Verification.VerificationResultsForm(report).ShowDialog();
+                ShowVerificationReport(report);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Fehler bei der ALPS Verification:\n" + DescribeException(ex), "ALPS Verification",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.ResultDialog.ShowError("Verifikation fehlgeschlagen",
+                    "Bei der ALPS-Verifikation ist ein Fehler aufgetreten.", DescribeException(ex));
             }
+        }
+
+        /// <summary>
+        /// Zeigt einen Verifikations-Report im einheitlichen Ergebnisdialog. Titel, Statusfarbe und
+        /// Untertitel werden aus dem VERDICT am Report-Ende abgeleitet; der vollständige Report bleibt
+        /// als Detailtext erhalten.
+        /// </summary>
+        private static void ShowVerificationReport(string report)
+        {
+            UI.ResultStatus status;
+            string title, subtitle;
+            if (report.IndexOf("VERDICT: BESTANDEN", StringComparison.Ordinal) >= 0)
+            {
+                status = UI.ResultStatus.Success;
+                title = "Verifikation bestanden";
+                subtitle = "Die Implementierung erfüllt alle geprüften SID-Regeln.";
+            }
+            else if (report.IndexOf("VERDICT: NICHT BESTANDEN", StringComparison.Ordinal) >= 0)
+            {
+                status = UI.ResultStatus.Warning;
+                title = "Verifikation: nicht bestanden";
+                subtitle = "Nicht alle geprüften SID-Regeln sind erfüllt — Details unten.";
+            }
+            else
+            {
+                status = UI.ResultStatus.Error;
+                title = "Verifikation nicht durchführbar";
+                subtitle = "Die Prüfung konnte nicht abgeschlossen werden — Details unten.";
+            }
+            new UI.ResultDialog(status, title, subtitle, report, bodyIsReport: true).ShowDialog();
         }
 
         /// <summary>Datei-Variante (Dropdown): Spezifikation und Implementierung als OWL-Dateien wählen.</summary>
@@ -330,12 +357,12 @@ namespace ALPS_Visio_AddIn_rewrite
             try
             {
                 string report = Verification.Verifier.Verify(specPath, implPath);
-                new Verification.VerificationResultsForm(report).ShowDialog();
+                ShowVerificationReport(report);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Fehler bei der ALPS Verification:\n" + ex.Message, "ALPS Verification",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.ResultDialog.ShowError("Verifikation fehlgeschlagen",
+                    "Bei der ALPS-Verifikation ist ein Fehler aufgetreten.", DescribeException(ex));
             }
         }
 
@@ -363,10 +390,10 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             if (!VisioPassModelBuilder.CanBuildFromActiveDocument(Globals.ThisAddIn.Application))
             {
-                MessageBox.Show(
-                    "Das aktuell geöffnete Dokument enthält kein ALPS/PASS-Modell (keine SID-Seite mit Modell-URI).\n" +
-                    "Über den Pfeil des Buttons lässt sich stattdessen eine OWL-Datei konvertieren.",
-                    "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                UI.ResultDialog.ShowWarning(
+                    "Kein ALPS/PASS-Modell geöffnet",
+                    "Das aktive Dokument trägt kein Modell (keine SID-Seite mit Modell-URI).",
+                    "Über den Pfeil des Buttons lässt sich stattdessen eine OWL-Datei konvertieren.");
                 return;
             }
 
@@ -374,17 +401,12 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 var builder = new VisioPassModelBuilder();
                 var passModel = builder.BuildFromActiveDocument(Globals.ThisAddIn.Application);
-
-                // Zusammenfassung immer mit anzeigen — macht sofort sichtbar, wenn der
-                // Builder weniger gelesen hat als erwartet (z. B. falsches Dokument aktiv).
-                var notes = new System.Collections.Generic.List<string> { builder.DescribeSummary() };
-                notes.AddRange(builder.Warnings);
-                RunBpmnConversion(passModel, builder.ModelName, notes);
+                RunBpmnConversion(passModel, builder.ModelName, builder.Warnings);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Die BPMN-Konvertierung ist fehlgeschlagen:\n\n" + DescribeException(ex),
-                    "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.ResultDialog.ShowError("BPMN-Konvertierung fehlgeschlagen",
+                    "Das aktuelle Modell konnte nicht nach BPMN konvertiert werden.", DescribeException(ex));
             }
         }
 
@@ -405,9 +427,23 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Die BPMN-Konvertierung ist fehlgeschlagen:\n\n" + DescribeException(ex),
-                    "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.ResultDialog.ShowError("BPMN-Konvertierung fehlgeschlagen",
+                    "Die gewählte OWL-Datei konnte nicht nach BPMN konvertiert werden.", DescribeException(ex));
             }
+        }
+
+        /// <summary>
+        /// Ergaenzt am Ergebnisdialog einen „Ordner öffnen"-Button, der den Explorer oeffnet und die
+        /// erzeugte Datei markiert. Fehlschlaege (Pfad weg, Explorer nicht verfuegbar) werden still
+        /// ignoriert — der Button ist ein Komfort, kein Muss.
+        /// </summary>
+        private static void AddOpenFolderButton(UI.ResultDialog dialog, string filePath)
+        {
+            dialog.AddActionButton("Ordner öffnen", () =>
+            {
+                try { System.Diagnostics.Process.Start("explorer.exe", "/select,\"" + filePath + "\""); }
+                catch { /* Komfortfunktion — Fehler bewusst schlucken */ }
+            });
         }
 
         /// <summary>
@@ -453,24 +489,29 @@ namespace ALPS_Visio_AddIn_rewrite
                     .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                     .Where(line => line.StartsWith("Warning:") || line.StartsWith("Error:")));
 
-                string message = "BPMN-Modell erfolgreich gespeichert:\n" + outputPath;
-                if (warnings.Count > 0)
-                    message += "\n\nNicht (vollständig) konvertierbare Elemente:\n" + string.Join("\n", warnings);
-                MessageBox.Show(message, "PASS BPMN Converter", MessageBoxButtons.OK,
-                    warnings.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+                // Kurzer, freundlicher Erfolgs-Header; die (optionalen) Hinweise erscheinen nur,
+                // wenn es welche gibt — dann als Warnung, sonst reine Erfolgsmeldung.
+                string fileName = System.IO.Path.GetFileName(outputPath);
+                UI.ResultDialog dialog = warnings.Count > 0
+                    ? new UI.ResultDialog(UI.ResultStatus.Warning,
+                        "BPMN-Modell gespeichert – mit Hinweisen",
+                        fileName + " wurde erstellt. Einige Elemente ließen sich nicht vollständig übernehmen.",
+                        "Nicht (vollständig) konvertierbare Elemente:\n• " + string.Join("\n• ", warnings), bodyIsReport: false)
+                    : new UI.ResultDialog(UI.ResultStatus.Success,
+                        "BPMN-Modell gespeichert",
+                        fileName + " wurde erfolgreich erstellt.",
+                        outputPath, bodyIsReport: false);
+                AddOpenFolderButton(dialog, outputPath);
+                dialog.ShowDialog();
             }
             catch (Exception ex)
             {
                 string consoleText = consoleBuffer.ToString().Trim();
-                string message = "Die BPMN-Konvertierung ist fehlgeschlagen:\n\n" + DescribeException(ex);
-                // Auch im Fehlerfall die Builder-Notizen zeigen -- sie enthalten die
-                // Lese-Zusammenfassung und sind fuer die Diagnose oft entscheidender
-                // als die Exception selbst.
-                if (builderWarnings != null && builderWarnings.Count > 0)
-                    message += "\n\nHinweise beim Lesen des Modells:\n" + string.Join("\n", builderWarnings);
+                string details = DescribeException(ex);
                 if (consoleText.Length > 0)
-                    message += "\n\nHinweise des Konverters:\n" + consoleText;
-                MessageBox.Show(message, "PASS BPMN Converter", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    details += "\n\nHinweise des Konverters:\n" + consoleText;
+                UI.ResultDialog.ShowError("BPMN-Konvertierung fehlgeschlagen",
+                    "Das Modell konnte nicht nach BPMN konvertiert werden.", details);
             }
             finally
             {
@@ -491,7 +532,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 var checker = new NLChecker.NlChecker();
                 if (!checker.Initialize(out string error))
                 {
-                    MessageBox.Show(error, "PASS NL Checker", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    UI.ResultDialog.ShowWarning("PASS NL Checker nicht bereit", null, error);
                     return;
                 }
 
@@ -508,12 +549,13 @@ namespace ALPS_Visio_AddIn_rewrite
                     progress.Close();
                 }
 
-                new NLChecker.ValidityCheckResultsForm(report).ShowDialog();
+                new UI.ResultDialog(UI.ResultStatus.Info, "NL-Prüfung – Ergebnis",
+                    "Model Integrity Check des aktiven Dokuments", report, bodyIsReport: true).ShowDialog();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Fehler im PASS NL Checker:\n" + ex.Message, "PASS NL Checker",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.ResultDialog.ShowError("PASS NL Checker fehlgeschlagen",
+                    "Die Prüfung konnte nicht abgeschlossen werden.", DescribeException(ex));
             }
         }
 
@@ -528,14 +570,14 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
                 new NLChecker.NlChecker().Retrain();
-                MessageBox.Show("NL-Modell erfolgreich trainiert und gespeichert.", "PASS NL Checker",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                UI.ResultDialog.ShowSuccess("NL-Modell trainiert",
+                    "Das lokale Prüfmodell wurde neu trainiert und gespeichert.");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Training des NL-Modells fehlgeschlagen:\n\n" + ex
-                        + "\n\n--- Native-DLL-Suche ---\n" + NLChecker.NlChecker.NativeDiagnostics,
-                    "PASS NL Checker", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.ResultDialog.ShowError("Training fehlgeschlagen",
+                    "Das NL-Modell konnte nicht trainiert werden.",
+                    DescribeException(ex) + "\n\n--- Native-DLL-Suche ---\n" + NLChecker.NlChecker.NativeDiagnostics);
             }
             finally
             {
@@ -553,8 +595,8 @@ namespace ALPS_Visio_AddIn_rewrite
             using (var dialog = new NLChecker.NlCheckerSettingsDialog(settings))
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
-                    MessageBox.Show("NL-Checker-Einstellungen gespeichert.", "PASS NL Checker",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    UI.ResultDialog.ShowSuccess("Einstellungen gespeichert",
+                        "Die NL-Checker-Einstellungen wurden übernommen.");
             }
         }
 

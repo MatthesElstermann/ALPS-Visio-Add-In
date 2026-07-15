@@ -142,10 +142,9 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             else
             {
-                MessageBox.Show(
-                    string.Format("Eingabe \"{0}\" wurde nicht gefunden. Ort der fehlerhaften Eingabe: \"{1}\"",
-                        userInput, modifiedC.getNameU()),
-                    "Error", MessageBoxButton.OK);
+                ALPS_Visio_AddIn_rewrite.UI.ResultDialog.ShowWarning("Eingabe nicht gefunden",
+                    string.Format("„{0}" konnte nicht aufgelöst werden.", userInput),
+                    string.Format("Ort der fehlerhaften Eingabe: „{0}"", modifiedC.getNameU()));
             }
         }
 

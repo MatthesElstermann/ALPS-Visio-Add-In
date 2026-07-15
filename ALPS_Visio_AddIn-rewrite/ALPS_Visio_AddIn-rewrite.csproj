@@ -323,18 +323,12 @@
     <Compile Include="NLChecker\ProcessingForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NLChecker\ValidityCheckResultsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Verification\CheckSBD.cs" />
     <Compile Include="Verification\CheckSID.cs" />
     <Compile Include="Verification\GetCorrespondingElementsALL.cs" />
     <Compile Include="Verification\NullSafeModelElementFactory.cs" />
     <Compile Include="Verification\LogWriter.cs" />
     <Compile Include="Verification\Verifier.cs" />
-    <Compile Include="Verification\VerificationResultsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="AlpsReaderWriterFactory.cs" />
     <Compile Include="OWLImporter.cs" />
     <Compile Include="ALPSRibbon.cs">
@@ -397,6 +391,7 @@
     <Compile Include="PageManagement\SIDSnapHandler.cs" />
     <Compile Include="PageManagement\SnapHandler.cs" />
     <Compile Include="UI\AnchorBarsUsage.cs" />
+    <Compile Include="UI\ResultDialog.cs" />
     <Compile Include="UI\DirectoryTreeViewItem.cs" />
     <Compile Include="UI\IDialogCallback.cs" />
     <Compile Include="UI\WindowChangeLayerName.xaml.cs">

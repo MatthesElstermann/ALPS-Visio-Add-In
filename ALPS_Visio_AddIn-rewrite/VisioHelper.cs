@@ -65,10 +65,11 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 string name = stencil == VisioStencils.SID_STENCIL ? ShapeFinder.getSIDName() : ShapeFinder.getSBDName();
                 string kind = stencil == VisioStencils.SID_STENCIL ? "SID" : "SBD";
-                string msg = "Failed to load " + kind + " Shapes. Expecting file \"" + name + "\" to exist in the \"My Shapes\" folder.\n"
-                           + "My Shapes path (Application.MyShapesPath): " + Globals.ThisAddIn.Application.MyShapesPath + "\n"
-                           + "Error: " + e.Message;
-                System.Windows.Forms.MessageBox.Show(msg);
+                UI.ResultDialog.ShowError(kind + "-Schablone nicht gefunden",
+                    "Die " + kind + "-Shapes konnten nicht geladen werden.",
+                    "Erwartete Datei \"" + name + "\" im Ordner \"Meine Shapes\".\n"
+                    + "Pfad (Application.MyShapesPath): " + Globals.ThisAddIn.Application.MyShapesPath + "\n\n"
+                    + "Fehler: " + e.Message);
             }
             return null;
         }
