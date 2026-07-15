@@ -64,7 +64,9 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             // Load with the plain alps.net.api classes, NOT our VisioClassFactory: the checks compare
             // against type names like "alps.net.api.StandardPASS.FullySpecifiedSubject", which would
             // never match the substituted Visio* classes. (OWLImporter re-sets its factory per import.)
-            parser.setModelElementFactory(new BasicPASSProcessModelElementFactory());
+            // NullSafe-Variante: faengt den createInstance-NRE bei unbekannten Typen ab, damit eine
+            // Spezifikation mit einem nicht auffloesbaren Typ nicht die ganze Verifikation abreisst.
+            parser.setModelElementFactory(new NullSafeModelElementFactory());
 
             parser.loadOWLParsingStructure(new List<string>
             {

@@ -329,6 +329,7 @@
     <Compile Include="Verification\CheckSBD.cs" />
     <Compile Include="Verification\CheckSID.cs" />
     <Compile Include="Verification\GetCorrespondingElementsALL.cs" />
+    <Compile Include="Verification\NullSafeModelElementFactory.cs" />
     <Compile Include="Verification\LogWriter.cs" />
     <Compile Include="Verification\Verifier.cs" />
     <Compile Include="Verification\VerificationResultsForm.cs">
