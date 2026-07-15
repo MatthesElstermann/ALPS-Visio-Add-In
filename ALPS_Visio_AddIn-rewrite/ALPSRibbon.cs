@@ -91,6 +91,15 @@ namespace ALPS_Visio_AddIn_rewrite
             verifyFilesItem.Click += new RibbonControlEventHandler(this.AlpsVerification);
             verificationSplitButton.Items.Add(verifyFilesItem);
 
+            // Umkehrung der Verifikation: aus einer abstrakten Spezifikation ein
+            // implementierendes Modell erzeugen (implements-Verweise gesetzt).
+            RibbonButton scaffoldItem = this.Factory.CreateRibbonButton();
+            scaffoldItem.Name = "scaffoldImplementationItem";
+            scaffoldItem.Label = "Implementierung erzeugen…";
+            scaffoldItem.SuperTip = "Erzeugt aus einer abstrakten Spezifikation (OWL-Datei) ein neues implementierendes Modell in Visio: je Spezifikations-Subjekt ein konkretes Subjekt mit gesetztem implements-Verweis und leerer SBD-Seite, dazu die Nachrichten-Struktur.";
+            scaffoldItem.Click += new RibbonControlEventHandler(this.ScaffoldImplementationFromSpec);
+            verificationSplitButton.Items.Add(scaffoldItem);
+
             owlGroup.Items.Add(verificationSplitButton);
 
             // --- Group 4: PASS NL Checker ---
@@ -363,6 +372,45 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 UI.ResultDialog.ShowError("Verifikation fehlgeschlagen",
                     "Bei der ALPS-Verifikation ist ein Fehler aufgetreten.", DescribeException(ex));
+            }
+        }
+
+        /// <summary>
+        /// Umkehrung der Verifikation: erzeugt aus einer abstrakten Spezifikation (OWL) ein
+        /// implementierendes Modell in Visio — Subjekte mit implements-Verweisen und leeren
+        /// SBD-Seiten, dazu die Nachrichten-Struktur (siehe ImplementationScaffolder).
+        /// </summary>
+        private void ScaffoldImplementationFromSpec(object sender, RibbonControlEventArgs e)
+        {
+            string specPath = PickOwlFile("Spezifikation wählen (abstraktes Modell)");
+            if (specPath == null) return;
+
+            try
+            {
+                System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
+                var scaffolder = new Verification.ImplementationScaffolder();
+                scaffolder.ScaffoldFromSpec(specPath, Globals.ThisAddIn.Application);
+
+                string subtitle = scaffolder.SubjectCount + " Subjekte und " + scaffolder.MessageCount +
+                    " Nachrichten aus der Spezifikation übernommen — implements-Verweise sind gesetzt.";
+                if (scaffolder.Notes.Count > 0)
+                    new UI.ResultDialog(UI.ResultStatus.Warning,
+                        "Implementierungs-Modell erzeugt – mit Hinweisen", subtitle,
+                        "Hinweise:\n• " + string.Join("\n• ", scaffolder.Notes), bodyIsReport: false).ShowDialog();
+                else
+                    UI.ResultDialog.ShowSuccess("Implementierungs-Modell erzeugt", subtitle,
+                        "Nächste Schritte: Verhalten in den (leeren) SBD-Seiten modellieren, dann über " +
+                        "„ALPS Verification“ gegen die Spezifikation prüfen.");
+            }
+            catch (Exception ex)
+            {
+                UI.ResultDialog.ShowError("Erzeugen fehlgeschlagen",
+                    "Aus der Spezifikation konnte kein Implementierungs-Modell erzeugt werden.",
+                    DescribeException(ex));
+            }
+            finally
+            {
+                System.Windows.Forms.Cursor.Current = Cursors.Default;
             }
         }
 

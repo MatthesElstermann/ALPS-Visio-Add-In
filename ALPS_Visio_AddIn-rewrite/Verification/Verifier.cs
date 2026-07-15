@@ -53,8 +53,12 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             return VerifyCore(new List<IPASSProcessModel> { models[0], implModel });
         }
 
-        /// <summary>Laedt OWL-Modelle mit den PLAIN alps.net.api-Klassen (nicht der VisioClassFactory).</summary>
-        private static IList<IPASSProcessModel> LoadModels(List<string> paths)
+        /// <summary>
+        /// Laedt OWL-Modelle mit den PLAIN alps.net.api-Klassen (nicht der VisioClassFactory).
+        /// Intern auch vom <see cref="ImplementationScaffolder"/> genutzt, damit dessen
+        /// implements-Verweise exakt die URIs tragen, die die Verifikation vergleicht.
+        /// </summary>
+        internal static IList<IPASSProcessModel> LoadModels(List<string> paths)
         {
             // Gemeinsamer CWD-Workaround fuer den PASSReaderWriter-Ctor-Bug in alps.net.api 0.9.1.6
             // (siehe AlpsReaderWriterFactory). Der Singleton wird nur einmal erzeugt -- egal, ob
