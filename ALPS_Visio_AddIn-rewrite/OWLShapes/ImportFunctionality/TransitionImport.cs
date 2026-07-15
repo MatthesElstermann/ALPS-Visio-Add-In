@@ -83,9 +83,14 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // set box movement
             VH.SetProp(shape, Constants.Properties.Transition.BoxCanBeMovedFreely, "FALSE");
 
-            // set implements
-            if (transition.getImplementedInterfaces().Count > 0)
-                VH.SetProp(shape, Constants.Properties.Transition.Implements, string.Join(";", transition.getImplementedInterfaces().Keys));
+            // set implements: getImplementedInterfacesIDReferences() liefert AUCH die
+            // rohen URI-Verweise auf Spezifikations-Elemente in anderen Modellen/Dateien
+            // (getImplementedInterfaces().Keys enthaelt nur die im selben Modell
+            // aufgeloesten) — fuer die ALPS-Verifikation sind gerade die Cross-Model-
+            // Verweise entscheidend.
+            var implementedRefs = transition.getImplementedInterfacesIDReferences();
+            if (implementedRefs.Count > 0)
+                VH.SetProp(shape, Constants.Properties.Transition.Implements, string.Join(";", implementedRefs));
 
             // set the transition type dropdown (Standard/Trigger/Precedence/Finalized/Advice)
             int typeIndex;

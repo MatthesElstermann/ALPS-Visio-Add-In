@@ -31,6 +31,10 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // FinalizedState
             VH.SetPropBool(shape, Constants.Properties.State.Finalized, state.isStateType(IState.StateType.Finalized));
 
+            // implements: URIs der umgesetzten Spezifikations-States (Grundlage der
+            // ALPS-Verifikation). Reine ID-Referenzen, semikolongetrennt.
+            VH.SetProp(shape, Constants.Properties.State.Implements, string.Join(";", state.getImplementedInterfacesIDReferences()));
+
             // TODO: hasFunctionSpecification max 1 FunctionSpecification (hasToolSpecificDefinition exactly 1 string)
             // -> ReceiveFunction (EnvironmentChoice, AutoReceiveEarliest), SendFunction (Default), DoFunction (EnvironmentChoice, AutomaticEvaluation)
 

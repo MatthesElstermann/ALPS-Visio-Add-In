@@ -189,6 +189,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 public const string Start = "isStartState";
                 public const string Abstract = "isAbstract";
                 public const string Finalized = "isFinalized";
+                public const string Implements = "implements";
                 public const string HasRefinement = "hasRefinement";
                 public const string InCycle = "inCycle";
                 public const string MultiplicityLowerBound = "multiplicityLowerBound";

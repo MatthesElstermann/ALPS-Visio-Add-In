@@ -219,6 +219,7 @@ namespace ALPS_Visio_AddIn_rewrite
                     maxInstances = parsedMax;
 
                 var subject = new FullySpecifiedSubject(layer, label, maxSubjectInstanceRestriction: maxInstances);
+                ApplyImplements(shape, subject);
                 RegisterSubject(id, label, subject);
             }
             else if (shape.HasCategory("InterfaceActor") || shape.HasCategory("SubjectGroup"))
@@ -450,6 +451,7 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             if (!string.IsNullOrWhiteSpace(label))
                 state.addModelComponentLabel(label);
+            ApplyImplements(shape, state);
 
             if (GetPropBool(shape, "isStartState"))
                 state.setIsStateType(IState.StateType.InitialStateOfBehavior);
@@ -493,46 +495,47 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             _stateIdsWithIncoming.Add(targetId);
 
+            ITransition transition;
             if (type.Contains("SendTransition"))
             {
-                var transition = new SendTransition(source, target, label);
-                var condition = new SendTransitionCondition(transition);
+                var sendTransition = new SendTransition(source, target, label);
+                var condition = new SendTransitionCondition(sendTransition);
                 IMessageSpecification spec = ResolveMessageOf(shape);
                 if (spec != null)
                     condition.setRequiresSendingOfMessage(spec);
                 else
                     _warnings.Add("Send-Transition „" + label + "“: Nachricht nicht auflösbar.");
-                transition.setTransitionCondition(condition);
-                _transitionCount++;
+                sendTransition.setTransitionCondition(condition);
+                transition = sendTransition;
             }
             else if (type.Contains("ReceiveTransition"))
             {
-                var transition = new ReceiveTransition(source, target, label);
-                var condition = new ReceiveTransitionCondition(transition);
+                var receiveTransition = new ReceiveTransition(source, target, label);
+                var condition = new ReceiveTransitionCondition(receiveTransition);
                 IMessageSpecification spec = ResolveMessageOf(shape);
                 if (spec != null)
                     condition.setReceptionOfMessage(spec);
                 else
                     _warnings.Add("Receive-Transition „" + label + "“: Nachricht nicht auflösbar.");
-                transition.setTransitionCondition(condition);
-                _transitionCount++;
+                receiveTransition.setTransitionCondition(condition);
+                transition = receiveTransition;
             }
             else if (type.Contains("SendingFailed"))
             {
-                new SendingFailedTransition(source, target, label);
-                _transitionCount++;
+                transition = new SendingFailedTransition(source, target, label);
             }
             else if (type.Contains("Time"))
             {
-                new TimeTransition(source, target, label);
-                _transitionCount++;
+                transition = new TimeTransition(source, target, label);
                 _warnings.Add("Time-Transition „" + label + "“: Zeitbedingung wird vom Direkt-Export noch nicht übernommen.");
             }
             else
             {
-                new DoTransition(source, target, label);
-                _transitionCount++;
+                transition = new DoTransition(source, target, label);
             }
+
+            ApplyImplements(shape, transition);
+            _transitionCount++;
         }
 
         /// <summary>Nachricht einer Send-/Receive-Transition: Prop.Message traegt das Nachrichten-LABEL.</summary>
@@ -560,6 +563,27 @@ namespace ALPS_Visio_AddIn_rewrite
             catch (Exception ex)
             {
                 _warnings.Add("Shape „" + shape.NameU + "“ konnte nicht übernommen werden: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Überträgt die „implements"-Verweise einer Shape auf das Modell-Element:
+        /// Prop.implements trägt die (semikolongetrennten) URIs der Spezifikations-
+        /// Elemente, die dieses Element umsetzt. Diese Verweise sind die Grundlage der
+        /// ALPS-Verifikation (Spec-Element ↔ Impl-Element werden darüber gepaart).
+        /// </summary>
+        private static void ApplyImplements(Visio.Shape shape, object element)
+        {
+            if (!(element is alps.net.api.StandardPASS.IImplementingElement implementing))
+                return;
+            string raw = GetProp(shape, "implements");
+            if (string.IsNullOrWhiteSpace(raw))
+                return;
+            foreach (string reference in raw.Split(';'))
+            {
+                string trimmed = reference.Trim();
+                if (trimmed.Length > 0)
+                    implementing.addImplementedInterfaceIDReference(trimmed);
             }
         }
 

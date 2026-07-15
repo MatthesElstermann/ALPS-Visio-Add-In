@@ -28,7 +28,10 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             // TODO: hasSubjectExecutionMapping
             // VH.SetProperty(shape, Constants.Properties.ExecutionMapping, subject.getSubjectExecutionMapping().getExecutionMappingDefinition())
-            VH.SetProp(shape, Constants.Properties.Subject.Implements, string.Join(";", subject.getImplementedInterfaces()));
+            // getImplementedInterfacesIDReferences() liefert die reinen URIs; das frueher
+            // hier genutzte getImplementedInterfaces() (ein Dictionary) erzeugte ueber
+            // string.Join eine "[key, value]"-Zeichenkette, die nicht wieder einlesbar war.
+            VH.SetProp(shape, Constants.Properties.Subject.Implements, string.Join(";", subject.getImplementedInterfacesIDReferences()));
             // TODO: final -> ont
 
             // MultiSubject

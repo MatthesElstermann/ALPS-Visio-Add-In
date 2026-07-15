@@ -119,10 +119,10 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                 Console.SetOut(original);
                 return "Die Verifikation konnte nicht vollständig durchlaufen.\n\n" + ex.Message +
                     "\n\nHinweis: Die Prüfung vergleicht ein Spezifikations- mit einem " +
-                    "Implementierungsmodell über deren „implements“-Verweise. Ein direkt aus dem " +
-                    "geöffneten Dokument gebautes Modell trägt diese Verweise noch nicht — für eine " +
-                    "vollständige Verifikation bitte über den Pfeil des Buttons zwei OWL-Dateien wählen " +
-                    "(Spezifikation + Implementierung).\n\nBisherige Ausgabe:\n" + output;
+                    "Implementierungsmodell über deren „implements“-Verweise. Enthält das " +
+                    "Implementierungsmodell keine solchen Verweise, gibt es nichts zu paaren. Für " +
+                    "eine vollständige Verifikation bitte ein Implementierungsmodell verwenden, das " +
+                    "„implements“-Beziehungen zur Spezifikation trägt.\n\nBisherige Ausgabe:\n" + output;
             }
             finally
             {
