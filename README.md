@@ -42,7 +42,8 @@ After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with four grou
 | Standard Functions | **Open ALPS/PASS Stencils** | Opens the ALPS/PASS shape stencils from the *My Shapes* folder. |
 | ALPS Layer Editing | **Show layer Explorer** | Opens the layer/model explorer (tree view of models, SID layers and SBD pages). |
 | OWL PASS Tools | **Import OWL** | Imports a PASS/ALPS model from an `.owl` file and draws it. |
-| OWL PASS Tools | **ALPS Verification** | Split button: checks the currently open model (default) or two OWL files against a specification model; shows a report with an overall verdict. The dropdown also offers **Implementierung erzeugen…** — scaffolds an implementing model in Visio from an abstract specification, with `implements` references already set. |
+| OWL PASS Tools | **ALPS Verification** | Split button: checks the currently open model (default) or two OWL files against a specification model; shows a report with an overall verdict. |
+| OWL PASS Tools | **Implementierung erzeugen** | Scaffolds an implementing model in Visio from an abstract specification (OWL), with `implements` references already set and one empty SBD page per subject. |
 | OWL PASS Tools | **PASS BPMN Converter** | Split button: converts the currently open model (default) or an `.owl` file into a BPMN 2.0 model (`.bpmn`), viewable e.g. in bpmn.io or Camunda. |
 | OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
 | PASS NL Checker | **PASS NL Checker** | Checks every shape label with the local ML model and asks an LLM for better labels where invalid. |
@@ -86,8 +87,8 @@ Ported from the KIT master-thesis prototype
 ([andikra/ALPS-Verification-Thesis](https://github.com/andikra)) — SBD checks are not
 implemented yet; the verdict covers the SID level only.
 
-**Implementierung erzeugen…** (in the split button's dropdown) is the inverse
-direction: pick an abstract **specification** OWL file and the add-in scaffolds a new
+**Implementierung erzeugen** (its own ribbon button next to ALPS Verification) is the
+inverse direction: pick an abstract **specification** OWL file and the add-in scaffolds a new
 **implementing model** directly in Visio — one FullySpecified subject per specification
 subject (with the `implements` reference already set and an empty SBD page linked as the
 starting point for the actual behavior) plus the message structure between them.

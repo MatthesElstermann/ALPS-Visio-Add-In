@@ -91,16 +91,20 @@ namespace ALPS_Visio_AddIn_rewrite
             verifyFilesItem.Click += new RibbonControlEventHandler(this.AlpsVerification);
             verificationSplitButton.Items.Add(verifyFilesItem);
 
+            owlGroup.Items.Add(verificationSplitButton);
+
             // Umkehrung der Verifikation: aus einer abstrakten Spezifikation ein
             // implementierendes Modell erzeugen (implements-Verweise gesetzt).
-            RibbonButton scaffoldItem = this.Factory.CreateRibbonButton();
-            scaffoldItem.Name = "scaffoldImplementationItem";
-            scaffoldItem.Label = "Implementierung erzeugen…";
-            scaffoldItem.SuperTip = "Erzeugt aus einer abstrakten Spezifikation (OWL-Datei) ein neues implementierendes Modell in Visio: je Spezifikations-Subjekt ein konkretes Subjekt mit gesetztem implements-Verweis und leerer SBD-Seite, dazu die Nachrichten-Struktur.";
-            scaffoldItem.Click += new RibbonControlEventHandler(this.ScaffoldImplementationFromSpec);
-            verificationSplitButton.Items.Add(scaffoldItem);
-
-            owlGroup.Items.Add(verificationSplitButton);
+            // Eigener Button neben der Verification, damit das Tool direkt sichtbar ist.
+            RibbonButton scaffoldButton = this.Factory.CreateRibbonButton();
+            scaffoldButton.Name = "scaffoldImplementationButton";
+            scaffoldButton.Label = "Implementierung erzeugen";
+            scaffoldButton.SuperTip = "Erzeugt aus einer abstrakten Spezifikation (OWL-Datei) ein neues implementierendes Modell in Visio: je Spezifikations-Subjekt ein konkretes Subjekt mit gesetztem implements-Verweis und leerer SBD-Seite, dazu die Nachrichten-Struktur. Anschließend über „ALPS Verification“ prüfbar.";
+            scaffoldButton.OfficeImageId = "TableInsert";
+            scaffoldButton.ShowImage = true;
+            scaffoldButton.ControlSize = RibbonControlSize.RibbonControlSizeLarge;
+            scaffoldButton.Click += new RibbonControlEventHandler(this.ScaffoldImplementationFromSpec);
+            owlGroup.Items.Add(scaffoldButton);
 
             // --- Group 4: PASS NL Checker ---
             // Eigener Ribbon-Abschnitt fuer die NL-Pruefung: Pruefung immer per lokalem
