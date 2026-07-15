@@ -62,6 +62,25 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             return parser.loadModels(paths);
         }
 
+        /// <summary>
+        /// Führt einen Einzel-Check aus und fängt Fehler ab: ein fehlschlagender
+        /// (fragiler Prototyp-)Check bricht nicht die ganze Verifikation ab, sondern
+        /// nennt Name + volle Exception (inkl. Stacktrace) im Report/Debug-Log.
+        /// </summary>
+        private static T RunCheck<T>(string name, Func<T> check)
+        {
+            try
+            {
+                return check();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("### Check „" + name + "“ fehlgeschlagen: " + ex);
+                System.Diagnostics.Debug.WriteLine("Verification check '" + name + "' failed: " + ex);
+                return default(T);
+            }
+        }
+
         private static string VerifyCore(IList<IPASSProcessModel> models)
         {
 
@@ -89,19 +108,23 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                         models[1].getAllElements().Values.OfType<IMessageExchange>().ToList();
 
                     // Pair specification/implementation elements (the calls also print their findings).
+                    // Jeder Einzel-Check wird gekapselt, damit ein Fehler die genaue Stelle
+                    // im Report nennt (samt Stacktrace) statt alles abzubrechen.
                     GetCorrespondingElementsALL getAll = new GetCorrespondingElementsALL();
-                    var subjects = getAll.GetSubjects(models);
-                    getAll.GetMessages(models);
-                    var transitions = getAll.GetMessageTransitions(models);
-                    getAll.GetMessageRestriction(models);
-                    getAll.GetStates(models);
-                    getAll.GetTransitions(models);
+                    var subjects = RunCheck("GetSubjects", () => getAll.GetSubjects(models));
+                    RunCheck("GetMessages", () => { getAll.GetMessages(models); return 0; });
+                    var transitions = RunCheck("GetMessageTransitions", () => getAll.GetMessageTransitions(models));
+                    RunCheck("GetMessageRestriction", () => { getAll.GetMessageRestriction(models); return 0; });
+                    RunCheck("GetStates", () => { getAll.GetStates(models); return 0; });
+                    RunCheck("GetTransitions", () => { getAll.GetTransitions(models); return 0; });
 
                     // Implemented SID checks.
                     CheckSID checkSID = new CheckSID();
-                    restrictionsValid = checkSID.CheckCommunicationRestrictions(specifyingRestrictions, implementingMessages) == 1;
-                    subjectsValid = checkSID.CheckSubject(subjects);
-                    connectorsValid = checkSID.CheckMessageconnectors(transitions);
+                    restrictionsValid = RunCheck("CheckCommunicationRestrictions",
+                        () => checkSID.CheckCommunicationRestrictions(specifyingRestrictions, implementingMessages)) == 1;
+                    subjectsValid = RunCheck("CheckSubject", () => checkSID.CheckSubject(subjects ?? new List<Tuple<ISubject, ISubject>>()));
+                    connectorsValid = RunCheck("CheckMessageconnectors",
+                        () => checkSID.CheckMessageconnectors(transitions ?? new List<Tuple<ICommunicationAct, IImplementingElement<ICommunicationAct>>>()));
                     checksRan = true;
 
                     // SBD checks are not implemented yet in the prototype.
@@ -117,7 +140,7 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                 // die Checks intern auf null laufen koennen. Statt hart abzustuerzen die
                 // Ursache verstaendlich melden.
                 Console.SetOut(original);
-                return "Die Verifikation konnte nicht vollständig durchlaufen.\n\n" + ex.Message +
+                return "Die Verifikation konnte nicht vollständig durchlaufen.\n\n" + ex +
                     "\n\nHinweis: Die Prüfung vergleicht ein Spezifikations- mit einem " +
                     "Implementierungsmodell über deren „implements“-Verweise. Enthält das " +
                     "Implementierungsmodell keine solchen Verweise, gibt es nichts zu paaren. Für " +
