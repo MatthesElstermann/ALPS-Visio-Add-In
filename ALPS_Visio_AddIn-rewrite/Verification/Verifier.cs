@@ -108,6 +108,22 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                     new CheckSBD();
                 }
             }
+            catch (Exception ex)
+            {
+                // Die portierten KIT-Prototyp-Checks sind fragil: sie erwarten zwei
+                // GEPARSTE Modelle (Spezifikation + Implementierung), die ueber
+                // "implements"-Verweise verknuepft sind. Ein direkt aus dem geoeffneten
+                // Dokument gebautes Modell traegt solche Verweise (noch) nicht, wodurch
+                // die Checks intern auf null laufen koennen. Statt hart abzustuerzen die
+                // Ursache verstaendlich melden.
+                Console.SetOut(original);
+                return "Die Verifikation konnte nicht vollständig durchlaufen.\n\n" + ex.Message +
+                    "\n\nHinweis: Die Prüfung vergleicht ein Spezifikations- mit einem " +
+                    "Implementierungsmodell über deren „implements“-Verweise. Ein direkt aus dem " +
+                    "geöffneten Dokument gebautes Modell trägt diese Verweise noch nicht — für eine " +
+                    "vollständige Verifikation bitte über den Pfeil des Buttons zwei OWL-Dateien wählen " +
+                    "(Spezifikation + Implementierung).\n\nBisherige Ausgabe:\n" + output;
+            }
             finally
             {
                 Console.SetOut(original);
