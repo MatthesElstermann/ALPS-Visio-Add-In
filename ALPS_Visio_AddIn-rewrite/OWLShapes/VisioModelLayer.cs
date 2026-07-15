@@ -40,8 +40,21 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             {
                 if (!(modelElement is IVisioImportable importable)) continue;
 
+                // PrepareDimensions() separat absichern: es laeuft VOR dem gekapselten
+                // ImportToVisio und fuer jedes Shape-Element (auch Message-Exchanges) —
+                // ein Fehler hier wuerde sonst den ganzen Import ungebremst abbrechen.
                 if (importable is IVisioImportableWithShape shapeImportable)
-                    if (shapeImportable.PrepareDimensions()) anyHadCoordinates = true;
+                {
+                    try
+                    {
+                        if (shapeImportable.PrepareDimensions()) anyHadCoordinates = true;
+                    }
+                    catch (System.Exception ex)
+                    {
+                        string id = modelElement.getModelComponentID();
+                        System.Diagnostics.Debug.WriteLine("PrepareDimensions von \"" + id + "\" fehlgeschlagen: " + ex);
+                    }
+                }
 
                 if (modelElement is ISubject subject)
                 {

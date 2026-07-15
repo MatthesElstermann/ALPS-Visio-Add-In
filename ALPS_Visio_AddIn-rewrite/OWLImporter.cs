@@ -103,6 +103,15 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 importable.ImportToVisio(null); // FEAT: import into current page
             }
+            catch (System.Exception ex)
+            {
+                // Catch-all-Diagnose: die volle Exception (inkl. Stacktrace) ins
+                // Ausgabefenster schreiben, bevor sie an den Ribbon-Handler weitergereicht
+                // wird — so ist die exakte Absturzstelle auch dann sichtbar, wenn sie tief
+                // in der API liegt (der Dialog zeigt nur die Meldung).
+                System.Diagnostics.Debug.WriteLine("### OWL-Import abgebrochen: " + ex);
+                throw;
+            }
             finally
             {
                 app.ScreenUpdating = prevScreenUpdating;
