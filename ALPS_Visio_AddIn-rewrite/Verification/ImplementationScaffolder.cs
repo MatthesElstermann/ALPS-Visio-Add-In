@@ -49,6 +49,9 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
         /// <summary>Name des erzeugten Implementierungs-Modells.</summary>
         public string ModelName { get; private set; }
 
+        // Vergebene IDs (fuer eindeutige, lesbare Namen ohne GUID-Anhaengsel).
+        private readonly HashSet<string> _usedIds = new HashSet<string>(StringComparer.Ordinal);
+
         /// <summary>
         /// Laedt die Spezifikation, baut das implementierende Modell und zeichnet es in
         /// das aktive Dokument (bzw. ein neues, falls keines offen ist).
@@ -70,6 +73,13 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             var layer = new VisioModelLayer(model);
             model.setBaseLayer(layer);
 
+            // Lesbare IDs statt der API-generierten GUID-Anhaengsel ("ModelLayer-<guid>"):
+            // die Layer-ID wird zum Namen der SID-Seite, die Subjekt-IDs erscheinen im
+            // Model Explorer, als Prop.modelComponentID und im SBD-Seitennamen.
+            // setModelComponentID propagiert die Aenderung sauber (Model und Layer
+            // re-keyen ihre Element-Dictionaries via notifyModelComponentIDChanged).
+            layer.setModelComponentID(UniqueId("SID_1"));
+
             // 2a. Subjekte: jedes Spezifikations-Subjekt (auch abstrakte/Interface-Subjekte)
             // bekommt ein konkretes FullySpecified-Gegenstueck mit implements-Verweis.
             // SubjectImport schreibt den Verweis beim Zeichnen als Prop.implements auf die
@@ -80,6 +90,7 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             {
                 string label = FirstLabelOf(specSubject);
                 var implSubject = new VisioFullySpecifiedSubject(layer, label);
+                implSubject.setModelComponentID(UniqueId(SanitizeName(label)));
 
                 // Leeres, zeichenbares Basisverhalten setzen: SubjectImport legt dann eine
                 // (leere) SBD-Seite an und verlinkt sie — der Startpunkt fuer die eigentliche
@@ -87,7 +98,9 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                 // OWL-Import setzt hier ebenfalls VisioSubjectBehavior-Instanzen.)
                 // Gefahrlos trotz Behavior-Tausch (vgl. Ä72): es werden keine Zustaende
                 // registriert, das Behavior bleibt leer.
-                implSubject.setBaseBehavior(new VisioSubjectBehavior(layer, label + " Behavior"));
+                var behavior = new VisioSubjectBehavior(layer, label + " Behavior");
+                behavior.setModelComponentID(UniqueId(SanitizeName(label) + "_Behavior"));
+                implSubject.setBaseBehavior(behavior);
 
                 implSubject.addImplementedInterfaceIDReference(specSubject.getUriModelComponentID());
                 implBySpecId[specSubject.getModelComponentID()] = implSubject;
@@ -124,6 +137,8 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                 if (!listsByPair.TryGetValue(pairKey, out VisioMessageExchangeList list))
                 {
                     list = new VisioMessageExchangeList(layer);
+                    list.setModelComponentID(UniqueId("MessageConnector_" +
+                        SanitizeName(FirstLabelOf(implSender)) + "_" + SanitizeName(FirstLabelOf(implReceiver))));
                     listsByPair[pairKey] = list;
                 }
 
@@ -132,6 +147,7 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                 {
                     msgSpec = new VisioMessageSpecification(layer);
                     msgSpec.addModelComponentLabel(msgLabel);
+                    msgSpec.setModelComponentID(UniqueId(SanitizeName(msgLabel)));
                     messagesByPairAndLabel[msgKey] = msgSpec;
                 }
 
@@ -140,6 +156,8 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                 // IImplementingElement) — die Verifikation paart Exchanges daher ohnehin
                 // nicht. Die Struktur (wer sendet was an wen) wird 1:1 uebernommen.
                 var exchange = new VisioMessageExchange(layer);
+                exchange.setModelComponentID(UniqueId("Exchange_" + SanitizeName(msgLabel) + "_" +
+                    SanitizeName(FirstLabelOf(implSender)) + "_" + SanitizeName(FirstLabelOf(implReceiver))));
                 exchange.addModelComponentLabel(
                     "Message: " + msgLabel + " From: " + FirstLabelOf(implSender) + " To: " + FirstLabelOf(implReceiver));
                 exchange.setMessageType(msgSpec);
@@ -182,6 +200,21 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             {
                 app.ScreenUpdating = prevScreenUpdating;
             }
+        }
+
+        /// <summary>
+        /// Liefert eine modellweit eindeutige, lesbare ID: die Basis unveraendert, bei
+        /// Kollision mit Zaehler-Suffix („Subject_2", „Subject_2_2", …).
+        /// </summary>
+        private string UniqueId(string baseId)
+        {
+            if (string.IsNullOrWhiteSpace(baseId))
+                baseId = "Element";
+            string candidate = baseId;
+            int counter = 2;
+            while (!_usedIds.Add(candidate))
+                candidate = baseId + "_" + counter++;
+            return candidate;
         }
 
         private static ISubject ResolveImpl(IDictionary<string, ISubject> implBySpecId, ISubject specSubject)
