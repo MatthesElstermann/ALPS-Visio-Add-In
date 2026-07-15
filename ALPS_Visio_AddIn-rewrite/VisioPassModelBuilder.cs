@@ -231,10 +231,14 @@ namespace ALPS_Visio_AddIn_rewrite
                   || connector.HasCategory("FinalizedMessageConnector")))
                 return;
 
-            string senderId = GetProp(connector, "originSubject");
-            string receiverId = GetProp(connector, "targetSubject");
-            _subjectsByVisioId.TryGetValue(senderId ?? "", out ISubject sender);
-            _subjectsByVisioId.TryGetValue(receiverId ?? "", out ISubject receiver);
+            // Prop.originSubject/targetSubject schreibt die Stencil-VBA beim manuellen
+            // Zeichnen -- auf per OWL-Import erzeugten Dokumenten sind sie leer (der
+            // Import klebt die Connectoren nur). Fallback: die physisch angeklebten
+            // Shapes an Begin (Sender) und End (Empfaenger).
+            ISubject sender = ResolveSubject(GetProp(connector, "originSubject"))
+                ?? ResolveSubject(GetProp(GetGluedShape(connector, atBegin: true), "modelComponentID"));
+            ISubject receiver = ResolveSubject(GetProp(connector, "targetSubject"))
+                ?? ResolveSubject(GetProp(GetGluedShape(connector, atBegin: false), "modelComponentID"));
             if (sender == null || receiver == null)
             {
                 _warnings.Add("Message-Connector „" + connector.NameU +
@@ -258,7 +262,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 }
 
                 var exchange = new MessageExchange(layer,
-                    "Message: " + msgLabel + " From: " + GetProp(connector, "originSubject") + " To: " + receiverId);
+                    "Message: " + msgLabel + " From: " + FirstLabelOf(sender) + " To: " + FirstLabelOf(receiver));
                 exchange.setMessageType(spec);
                 exchange.setSender(sender);
                 exchange.setReceiver(receiver);
@@ -435,8 +439,18 @@ namespace ALPS_Visio_AddIn_rewrite
 
             string id = GetProp(shape, "modelComponentID");
             string label = GetProp(shape, "lable");
+
+            // Prop.originState/targetState schreibt die Stencil-VBA beim manuellen
+            // Zeichnen -- auf importierten Dokumenten sind sie leer. Fallback: die
+            // physisch angeklebten Zustands-Shapes (Begin = Quelle, End = Ziel; so
+            // klebt auch der OWL-Import die Transitions).
             string sourceId = GetProp(shape, "originState");
             string targetId = GetProp(shape, "targetState");
+            if (!_statesByVisioId.ContainsKey(sourceId ?? ""))
+                sourceId = GetProp(GetGluedShape(shape, atBegin: true), "modelComponentID");
+            if (!_statesByVisioId.ContainsKey(targetId ?? ""))
+                targetId = GetProp(GetGluedShape(shape, atBegin: false), "modelComponentID");
+
             _statesByVisioId.TryGetValue(sourceId ?? "", out IState source);
             _statesByVisioId.TryGetValue(targetId ?? "", out IState target);
             if (source == null || target == null)
@@ -517,12 +531,47 @@ namespace ALPS_Visio_AddIn_rewrite
             }
         }
 
-        /// <summary>Liest Prop.&lt;propName&gt; einer Shape (auch PageSheets sind Shapes); "" wenn nicht vorhanden.</summary>
+        /// <summary>Liest Prop.&lt;propName&gt; einer Shape (auch PageSheets sind Shapes); "" wenn Shape/Zelle fehlt.</summary>
         private static string GetProp(Visio.Shape shape, string propName)
         {
-            if (shape.CellExistsU["Prop." + propName, 0] == 0)
+            if (shape == null || shape.CellExistsU["Prop." + propName, 0] == 0)
                 return "";
             return shape.CellsU["Prop." + propName].ResultStr[""] ?? "";
+        }
+
+        private ISubject ResolveSubject(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return null;
+            _subjectsByVisioId.TryGetValue(key, out ISubject subject);
+            return subject;
+        }
+
+        /// <summary>
+        /// Das an Begin bzw. End des 1D-Connectors angeklebte Shape (oder null).
+        /// </summary>
+        private static Visio.Shape GetGluedShape(Visio.Shape connector, bool atBegin)
+        {
+            try
+            {
+                foreach (Visio.Connect connect in connector.Connects)
+                {
+                    bool isBegin = connect.FromPart == (short)Visio.VisFromParts.visBegin;
+                    if (isBegin == atBegin)
+                        return connect.ToSheet;
+                }
+            }
+            catch
+            {
+                // Nicht geklebt/kein 1D-Shape -- dann eben kein Fallback.
+            }
+            return null;
+        }
+
+        private static string FirstLabelOf(ISubject subject)
+        {
+            IList<string> labels = subject.getModelComponentLabelsAsStrings();
+            return labels.Count > 0 ? labels[0] : subject.getModelComponentID();
         }
 
         private static bool GetPropBool(Visio.Shape shape, string propName)
