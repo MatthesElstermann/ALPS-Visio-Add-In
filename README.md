@@ -149,6 +149,14 @@ fragile to automate), and task/event/gateway subtypes are applied best effort vi
 the shapes' shape data — depending on Visio version/language some subtypes may stay
 generic.
 
+The reverse direction works too: **"BPMN-Datei anzeigen…"** reads any BPMN 2.0 file
+(bpmn.io, Camunda Modeler, this add-in's own export) via `BpmnDeserializer` and draws
+it the same way. Coordinates come from the file's BPMN DI section; if the file has no
+DI, the layout is generated automatically. Parsing is deliberately tolerant: unknown
+flow elements, lanes, data objects and annotations are skipped with a warning;
+user/service/manual/business-rule tasks are read as generic tasks; parallel,
+inclusive and complex gateways are supported.
+
 Ported from the standalone
 [pass-bpmn-converter](https://github.com/pass-bpmn-converter/pass-bpmn-converter)
 (GPLv3) into `BpmnConverter/` (namespace `PassBpmnConverter`). Known limitations of

@@ -276,6 +276,24 @@ namespace ALPS_Visio_AddIn_rewrite
                 typePropRows = GatewayTypeRows;
                 typeKeywords = new[] { "event", "ereignis" };
             }
+            else if (element is IParallelGateway)
+            {
+                masterCandidates = new[] { "Gateway" };
+                typePropRows = GatewayTypeRows;
+                typeKeywords = new[] { "parallel" };
+            }
+            else if (element is IInclusiveGateway)
+            {
+                masterCandidates = new[] { "Gateway" };
+                typePropRows = GatewayTypeRows;
+                typeKeywords = new[] { "inclusive", "inklusiv" };
+            }
+            else if (element is IComplexGateway)
+            {
+                masterCandidates = new[] { "Gateway" };
+                typePropRows = GatewayTypeRows;
+                typeKeywords = new[] { "complex", "komplex" };
+            }
             else if (element is IExclusiveGateway)
             {
                 masterCandidates = new[] { "Gateway" };

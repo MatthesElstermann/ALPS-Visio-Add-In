@@ -182,6 +182,15 @@ namespace ALPS_Visio_AddIn_rewrite
             bpmnVisioPageItem.Click += new RibbonControlEventHandler(this.ShowCurrentModelAsBpmnPage);
             bpmnSplitButton.Items.Add(bpmnVisioPageItem);
 
+            RibbonButton bpmnImportItem = this.Factory.CreateRibbonButton();
+            bpmnImportItem.Name = "bpmnImportItem";
+            bpmnImportItem.Label = "BPMN-Datei anzeigen…";
+            bpmnImportItem.SuperTip = "Liest eine BPMN-2.0-Datei (z. B. aus bpmn.io oder dem Camunda Modeler) " +
+                "ein und zeichnet sie mit den Visio-BPMN-Shapes auf ein neues Zeichenblatt. Enthält die Datei " +
+                "kein Layout (BPMN DI), wird es automatisch erzeugt.";
+            bpmnImportItem.Click += new RibbonControlEventHandler(this.ShowBpmnFileAsPage);
+            bpmnSplitButton.Items.Add(bpmnImportItem);
+
             owlGroup.Items.Add(bpmnSplitButton);
 
             // Split button: clicking the button portion runs the default arrange immediately,
@@ -550,6 +559,66 @@ namespace ALPS_Visio_AddIn_rewrite
             finally
             {
                 Console.SetOut(originalOut);
+                System.Windows.Forms.Cursor.Current = Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// Dropdown-Variante: eine BPMN-2.0-Datei (bpmn.io, Camunda, eigener Export)
+        /// einlesen und als BPMN-Zeichenblatt darstellen. Bringt die Datei kein
+        /// BPMN-DI-Layout mit, erzeugt der <see cref="PassBpmnConverter.Bpmn.BpmnDiagramGenerator"/>
+        /// die Anordnung automatisch.
+        /// </summary>
+        private void ShowBpmnFileAsPage(object sender, RibbonControlEventArgs e)
+        {
+            string inputPath;
+            using (var openDialog = new OpenFileDialog
+            {
+                Title = "BPMN-Datei wählen",
+                Filter = "BPMN Files (*.bpmn;*.xml)|*.bpmn;*.xml|Alle Dateien (*.*)|*.*"
+            })
+            {
+                if (openDialog.ShowDialog() != DialogResult.OK) return;
+                inputPath = openDialog.FileName;
+            }
+
+            try
+            {
+                System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
+
+                var warnings = new System.Collections.Generic.List<string>();
+                var bpmnModel = PassBpmnConverter.Bpmn.Serialization.BpmnDeserializer.Deserialize(inputPath, warnings);
+
+                // Datei ohne Diagramm-Teil: Layout mit dem vorhandenen Generator erzeugen.
+                if (bpmnModel.Definitions == null || bpmnModel.Definitions.Diagrams.Count == 0)
+                {
+                    PassBpmnConverter.Bpmn.BpmnDiagramGenerator.GenerateDiagram(bpmnModel);
+                    warnings.Add("Die Datei enthielt kein Diagramm-Layout (BPMN DI) — die Anordnung wurde automatisch erzeugt.");
+                }
+
+                // Ohne offenes Dokument gibt es kein Ziel-Zeichenblatt — dann eine neue Zeichnung anlegen.
+                if (Globals.ThisAddIn.Application.Documents.Count == 0)
+                    Globals.ThisAddIn.Application.Documents.Add("");
+
+                warnings.AddRange(BpmnVisioRenderer.Render(Globals.ThisAddIn.Application, bpmnModel,
+                    System.IO.Path.GetFileNameWithoutExtension(inputPath)));
+
+                if (warnings.Count > 0)
+                    new UI.ResultDialog(UI.ResultStatus.Warning,
+                        "BPMN-Datei dargestellt – mit Hinweisen",
+                        System.IO.Path.GetFileName(inputPath) + " wurde gezeichnet. Einige Elemente ließen sich nicht vollständig übernehmen.",
+                        "Hinweise:\n• " + string.Join("\n• ", warnings), bodyIsReport: false).ShowDialog();
+                else
+                    UI.ResultDialog.ShowSuccess("BPMN-Datei dargestellt",
+                        System.IO.Path.GetFileName(inputPath) + " wurde auf einem neuen Zeichenblatt dargestellt.");
+            }
+            catch (Exception ex)
+            {
+                UI.ResultDialog.ShowError("BPMN-Import fehlgeschlagen",
+                    "Die BPMN-Datei konnte nicht dargestellt werden.", DescribeException(ex));
+            }
+            finally
+            {
                 System.Windows.Forms.Cursor.Current = Cursors.Default;
             }
         }

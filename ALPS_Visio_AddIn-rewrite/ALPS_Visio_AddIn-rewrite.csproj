@@ -569,6 +569,7 @@
     <Compile Include="BpmnConverter\Bpmn\Model\DI\Plane.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\DI\Shape.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\DI\Style.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ComplexGateway.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\Definitions.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\EndEvent.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\ErrorEventDefinition.cs" />
@@ -585,6 +586,7 @@
     <Compile Include="BpmnConverter\Bpmn\Model\FlowNode.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\Gateway.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\GatewayDirection.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\InclusiveGateway.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\InteractionNode.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\IntermediateCatchEvent.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\IntermediateThrowEvent.cs" />
@@ -592,6 +594,7 @@
     <Compile Include="BpmnConverter\Bpmn\Model\Message.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\MessageEventDefinition.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\MessageFlow.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ParallelGateway.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\Participant.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\ParticipantMultiplicity.cs" />
     <Compile Include="BpmnConverter\Bpmn\Model\Process.cs" />
@@ -609,6 +612,7 @@
     <Compile Include="BpmnConverter\Bpmn\Model\TimerEventDefinition.cs" />
     <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnAttribute.cs" />
     <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnAttributeAttribute.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnDeserializer.cs" />
     <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnElementAttribute.cs" />
     <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnSerializer.cs" />
     <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnTypeAttribute.cs" />
