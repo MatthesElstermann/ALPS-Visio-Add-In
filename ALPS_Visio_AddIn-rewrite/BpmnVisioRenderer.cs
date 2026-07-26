@@ -321,8 +321,10 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             else if (diEdge.BpmnElement is IMessageFlow messageFlow)
             {
-                sourceId = messageFlow.SourceRef == null ? null : messageFlow.SourceRef.Id;
-                targetId = messageFlow.TargetRef == null ? null : messageFlow.TargetRef.Id;
+                // IInteractionNode ist ein Marker-Interface ohne Id; alle konkreten
+                // Knoten (Participants, Tasks, Events) sind aber IBaseElement.
+                sourceId = (messageFlow.SourceRef as IBaseElement)?.Id;
+                targetId = (messageFlow.TargetRef as IBaseElement)?.Id;
                 label = messageFlow.Name;
                 masterCandidates = new[] { "Message Flow" };
                 isMessageFlow = true;
