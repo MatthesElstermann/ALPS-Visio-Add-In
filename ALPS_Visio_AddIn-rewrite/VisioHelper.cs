@@ -111,7 +111,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 {
                     // Normale Shape-Master kommen regulaer per Drop ins Dokument;
                     // hier interessieren nur die Muster-Typen (Fill/Line/LineEnd).
-                    if (master.Type == (short)Visio.VisMasterTypes.visTypeMaster)
+                    if (master.Type == Visio.VisMasterTypes.visTypeMaster)
                         continue;
 
                     if (!HasMaster(targetDocument, master.NameU))
