@@ -91,6 +91,12 @@ namespace ALPS_Visio_AddIn_rewrite
             // open stencils to reduce load time
             VH.openStencil(VH.VisioStencils.SID_STENCIL);
 
+            // Die Verbinder-Master (Transitions, MessageConnector) zeichnen ihre
+            // Pfeilspitzen ueber benutzerdefinierte Linienmuster; Visio uebertraegt
+            // diese Muster beim programmatischen Drop nicht ins Zieldokument. Vor dem
+            // Zeichnen kopieren, sonst erscheinen alle Verbinder ohne Pfeilspitzen.
+            VH.CopyPatternMasters(Globals.ThisAddIn.Application.ActiveDocument);
+
             // Waehrend des Zeichnens nur das Bildschirm-Rendering aussetzen. Bewusst NICHT
             // EventsEnabled/DeferRecalc: Die ALPS-Stencils sind SmartShapes — der Drop des
             // Message-Connectors erzeugt z. B. die Message-Box erst ueber seine

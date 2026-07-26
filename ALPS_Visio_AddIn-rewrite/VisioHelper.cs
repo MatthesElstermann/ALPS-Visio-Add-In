@@ -88,6 +88,52 @@ namespace ALPS_Visio_AddIn_rewrite
             }
         }
 
+        /// <summary>
+        /// Uebertraegt die benutzerdefinierten Muster-Master (Linien-/Linienenden-/
+        /// Fuellmuster) beider ALPS-Stencils in das Zieldokument, sofern dort noch
+        /// nicht vorhanden. Die Verbinder-Master zeichnen ihre Pfeilspitzen ueber
+        /// USE("…")-Linienmuster (z. B. LinePattern = USE("NewConnectorPattern"));
+        /// beim programmatischen <c>page.Drop</c> kopiert Visio solche referenzierten
+        /// Muster nicht mit (das Stencil-VBA, das dabei sonst greift, ist waehrend
+        /// des Imports deaktiviert). Ohne die Muster im Dokument laufen die
+        /// USE-Formeln ins Leere und Visio rendert die Verbinder ohne Pfeilspitzen.
+        /// </summary>
+        public static void CopyPatternMasters(Visio.Document targetDocument)
+        {
+            if (targetDocument == null) return;
+
+            foreach (VisioStencils stencilKind in new[] { VisioStencils.SID_STENCIL, VisioStencils.SBD_STENCIL })
+            {
+                Visio.Document stencil = openStencil(stencilKind);
+                if (stencil == null) continue; // openStencil hat den Fehler bereits gemeldet
+
+                foreach (Visio.Master master in stencil.Masters)
+                {
+                    // Normale Shape-Master kommen regulaer per Drop ins Dokument;
+                    // hier interessieren nur die Muster-Typen (Fill/Line/LineEnd).
+                    if (master.Type == (short)Visio.VisMasterTypes.visTypeMaster)
+                        continue;
+
+                    if (!HasMaster(targetDocument, master.NameU))
+                        targetDocument.Masters.Drop(master, 0, 0);
+                }
+            }
+        }
+
+        /// <summary>True, wenn das Dokument bereits einen Master mit diesem Universal-Namen hat.</summary>
+        private static bool HasMaster(Visio.Document document, string nameU)
+        {
+            try
+            {
+                Visio.Master _ = document.Masters.get_ItemU(nameU);
+                return true;
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                return false;
+            }
+        }
+
         public static Visio.Shape Place(string shapeType, Visio.Page page)
         {
             try
