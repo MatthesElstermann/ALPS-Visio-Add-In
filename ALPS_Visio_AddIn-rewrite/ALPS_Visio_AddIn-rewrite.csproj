@@ -314,6 +314,7 @@
   -->
   <ItemGroup>
     <Compile Include="AutoArranger.cs" />
+    <Compile Include="BpmnVisioRenderer.cs" />
     <Compile Include="NLChecker\CustomProviderDialog.cs">
       <SubType>Form</SubType>
     </Compile>

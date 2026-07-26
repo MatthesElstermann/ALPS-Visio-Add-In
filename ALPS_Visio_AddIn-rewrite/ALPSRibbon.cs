@@ -173,6 +173,15 @@ namespace ALPS_Visio_AddIn_rewrite
             bpmnFileItem.Click += new RibbonControlEventHandler(this.ConvertOwlFileToBpmn);
             bpmnSplitButton.Items.Add(bpmnFileItem);
 
+            RibbonButton bpmnVisioPageItem = this.Factory.CreateRibbonButton();
+            bpmnVisioPageItem.Name = "bpmnVisioPageItem";
+            bpmnVisioPageItem.Label = "Als BPMN-Zeichenblatt anzeigen";
+            bpmnVisioPageItem.SuperTip = "Konvertiert das aktuell geöffnete Modell und zeichnet das Ergebnis " +
+                "mit den Visio-BPMN-Shapes auf ein neues Zeichenblatt — ohne Datei zu speichern. " +
+                "Benötigt die BPMN-Schablone von Visio Professional bzw. Visio Plan 2.";
+            bpmnVisioPageItem.Click += new RibbonControlEventHandler(this.ShowCurrentModelAsBpmnPage);
+            bpmnSplitButton.Items.Add(bpmnVisioPageItem);
+
             owlGroup.Items.Add(bpmnSplitButton);
 
             // Split button: clicking the button portion runs the default arrange immediately,
@@ -481,6 +490,67 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 UI.ResultDialog.ShowError("BPMN-Konvertierung fehlgeschlagen",
                     "Die gewählte OWL-Datei konnte nicht nach BPMN konvertiert werden.", DescribeException(ex));
+            }
+        }
+
+        /// <summary>
+        /// Dropdown-Variante: das aktuell geoeffnete Modell konvertieren und statt als
+        /// .bpmn-Datei zu speichern direkt mit den Visio-BPMN-Shapes auf einem neuen
+        /// Zeichenblatt darstellen (<see cref="BpmnVisioRenderer"/>).
+        /// </summary>
+        private void ShowCurrentModelAsBpmnPage(object sender, RibbonControlEventArgs e)
+        {
+            if (!VisioPassModelBuilder.CanBuildFromActiveDocument(Globals.ThisAddIn.Application))
+            {
+                UI.ResultDialog.ShowWarning(
+                    "Kein ALPS/PASS-Modell geöffnet",
+                    "Das aktive Dokument trägt kein Modell (keine SID-Seite mit Modell-URI).",
+                    "Die BPMN-Anzeige braucht das aktuell geöffnete Modell als Quelle.");
+                return;
+            }
+
+            // Konverter-Warnungen laufen wie bei RunBpmnConversion ueber die
+            // umgeleitete Konsole und werden mit Builder- und Renderer-Hinweisen
+            // im Ergebnisdialog gebuendelt.
+            var consoleBuffer = new System.IO.StringWriter();
+            System.IO.TextWriter originalOut = Console.Out;
+            try
+            {
+                System.Windows.Forms.Cursor.Current = Cursors.WaitCursor;
+                Console.SetOut(consoleBuffer);
+
+                var builder = new VisioPassModelBuilder();
+                var passModel = builder.BuildFromActiveDocument(Globals.ThisAddIn.Application);
+                var bpmnModel = PassBpmnConverter.Conversion.Converter.ConvertPassToBpmn(passModel);
+                PassBpmnConverter.Bpmn.BpmnDiagramGenerator.GenerateDiagram(bpmnModel);
+
+                var warnings = new System.Collections.Generic.List<string>();
+                if (builder.Warnings != null)
+                    warnings.AddRange(builder.Warnings);
+                warnings.AddRange(
+                    BpmnVisioRenderer.Render(Globals.ThisAddIn.Application, bpmnModel, builder.ModelName));
+                warnings.AddRange(consoleBuffer.ToString()
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Where(line => line.StartsWith("Warning:") || line.StartsWith("Error:")));
+
+                if (warnings.Count > 0)
+                    new UI.ResultDialog(UI.ResultStatus.Warning,
+                        "BPMN-Zeichenblatt erstellt – mit Hinweisen",
+                        "Das Modell wurde als BPMN gezeichnet. Einige Elemente ließen sich nicht vollständig übernehmen.",
+                        "Hinweise:\n• " + string.Join("\n• ", warnings), bodyIsReport: false).ShowDialog();
+                else
+                    UI.ResultDialog.ShowSuccess("BPMN-Zeichenblatt erstellt",
+                        "Das aktuelle Modell wurde als BPMN-Diagramm auf einem neuen Zeichenblatt dargestellt.");
+            }
+            catch (Exception ex)
+            {
+                UI.ResultDialog.ShowError("BPMN-Anzeige fehlgeschlagen",
+                    "Das Modell konnte nicht als BPMN-Zeichenblatt dargestellt werden.", DescribeException(ex));
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                System.Windows.Forms.Cursor.Current = Cursors.Default;
             }
         }
 

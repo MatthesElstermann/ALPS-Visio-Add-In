@@ -44,7 +44,7 @@ After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with four grou
 | OWL PASS Tools | **Import OWL** | Imports a PASS/ALPS model from an `.owl` file and draws it. |
 | OWL PASS Tools | **ALPS Verification** | Split button: checks the currently open model (default) or two OWL files against a specification model; shows a report with an overall verdict. |
 | OWL PASS Tools | **Implementierung erzeugen** | Scaffolds an implementing model in Visio from an abstract specification (OWL), with `implements` references already set and one empty SBD page per subject. |
-| OWL PASS Tools | **PASS BPMN Converter** | Split button: converts the currently open model (default) or an `.owl` file into a BPMN 2.0 model (`.bpmn`), viewable e.g. in bpmn.io or Camunda. |
+| OWL PASS Tools | **PASS BPMN Converter** | Split button: converts the currently open model (default) or an `.owl` file into a BPMN 2.0 model (`.bpmn`), viewable e.g. in bpmn.io or Camunda — or renders the converted model directly onto a new Visio page using the built-in BPMN shapes. |
 | OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
 | PASS NL Checker | **PASS NL Checker** | Checks every shape label with the local ML model and asks an LLM for better labels where invalid. |
 | PASS NL Checker | **NL-Modell trainieren** | Retrains the NL Checker's local ML model from the bundled training data. |
@@ -138,6 +138,16 @@ Guard behaviors) are supported; diagram elements (BPMN DI) are generated and arr
 automatically, so the result can be opened directly in [bpmn.io](https://bpmn.io/),
 Camunda Modeler and similar tools. Warnings about elements that cannot be converted
 accurately are collected and shown after the conversion.
+
+The dropdown also offers **"Als BPMN-Zeichenblatt anzeigen"**: instead of saving a
+`.bpmn` file, the converted model is drawn onto a **new page of the active document**
+using Visio's built-in BPMN shapes (`BpmnVisioRenderer`, stencil *BPMN Basic Shapes*
+— requires Visio Professional/Plan 2). Placement reuses the generated BPMN-DI
+coordinates; connectors are glued dynamically and routed by Visio. Pools are drawn
+as plain rectangles with a rotated name strip (the CFF-based Pool/Lane master is
+fragile to automate), and task/event/gateway subtypes are applied best effort via
+the shapes' shape data — depending on Visio version/language some subtypes may stay
+generic.
 
 Ported from the standalone
 [pass-bpmn-converter](https://github.com/pass-bpmn-converter/pass-bpmn-converter)
