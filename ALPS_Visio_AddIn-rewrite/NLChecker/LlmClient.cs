@@ -255,16 +255,43 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
                 string responseString = await SendWithDiagnosticsAsync(request, provider);
 
-                JObject json = ParseResponse(responseString, provider);
-                if (json["error"] != null)
-                    throw new Exception("API Error (" + provider + "): " + json["error"]["message"]);
-                if (json["type"]?.ToString() == "error")
-                    throw new Exception("API Error (" + provider + "): " + json["error"]?["message"]);
+                // Modell-Listen kommen je nach Provider unterschiedlich verpackt:
+                // OpenAI-Stil {"data":[...]}, teils {"models":[...]} (z. B. Gemini
+                // nativ, Ollama /api/tags), Together AI als nacktes JSON-Array.
+                // Eintraege tragen "id" oder "name"; manche Listen sind blanke Strings.
+                JToken parsed;
+                try
+                {
+                    parsed = JToken.Parse(responseString);
+                }
+                catch
+                {
+                    string preview = responseString == null ? "<leer>"
+                        : responseString.Length > 300 ? responseString.Substring(0, 300) + "…" : responseString;
+                    throw new Exception("Unerwartete (Nicht-JSON-)Antwort von " + provider + ": " + preview);
+                }
+
+                JToken data = parsed;
+                if (parsed is JObject json)
+                {
+                    if (json["error"] != null)
+                        throw new Exception("API Error (" + provider + "): " + json["error"]["message"]);
+                    if (json["type"]?.ToString() == "error")
+                        throw new Exception("API Error (" + provider + "): " + json["error"]?["message"]);
+                    data = json["data"] ?? json["models"] ?? new JArray();
+                }
 
                 var models = new System.Collections.Generic.List<string>();
-                foreach (JToken entry in json["data"] ?? new JArray())
+                foreach (JToken entry in data)
                 {
-                    string id = entry["id"]?.ToString();
+                    string id;
+                    if (entry is JObject entryObj)
+                        id = (entryObj["id"] ?? entryObj["name"])?.ToString();
+                    else if (entry.Type == JTokenType.String)
+                        id = entry.ToString();
+                    else
+                        continue;
+
                     if (string.IsNullOrWhiteSpace(id))
                         continue;
                     // OpenAI listet auch Embedding-/Audio-/Bild-Modelle -- fuer den

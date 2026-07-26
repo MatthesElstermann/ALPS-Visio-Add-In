@@ -112,11 +112,14 @@ locally. Three providers are built in (button *NL-Checker Einstellungen*) — th
 default model `Llama-3.3-70B`), **OpenAI** (`gpt-4o-mini` by default) and
 **Anthropic** (`claude-opus-4-8` by default; consider `claude-haiku-4-5` for lower
 cost). Beyond those, **custom providers** can be added directly in the settings
-dialog (*Neu…*): any **OpenAI-compatible** chat-completions endpoint (e.g. a local
-Ollama or LM Studio server, Groq, OpenRouter, Azure OpenAI) or an endpoint speaking
-the **Anthropic Messages** format — configured with a name, the chat URL and an
-optional models URL (derived from the chat URL when left empty). Custom providers
-may be used **without an API key** (local servers); built-in providers require one.
+dialog (*Neu…*): any **OpenAI-compatible** chat-completions endpoint or an endpoint
+speaking the **Anthropic Messages** format — configured with a name, the chat URL and
+an optional models URL (derived from the chat URL when left empty). **Templates**
+pre-fill these fields for well-known public and local providers (Groq, OpenRouter,
+Mistral, DeepSeek, Together AI, xAI/Grok, Google Gemini via its OpenAI-compatible
+endpoint, Ollama, LM Studio) — pick one, paste the API key, fetch the model list,
+done. Custom providers may be used **without an API key** (local servers); built-in
+providers require one.
 Model name and API key are stored **per provider** in
 `%APPDATA%\ALPS_Visio_AddIn\nl_checker_settings.json` (plain text; an old
 `llm_api_key.txt` from earlier versions is migrated automatically). Without a

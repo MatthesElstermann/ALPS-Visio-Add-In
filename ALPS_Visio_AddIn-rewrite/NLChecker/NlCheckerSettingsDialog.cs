@@ -288,8 +288,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                        "benötigt. Modell und Key werden je Provider gespeichert. " +
                        "„Abrufen“ lädt die beim Provider verfügbaren Modelle (API-Key nötig; " +
                        "eigene Provider auch ohne Key). Über „Neu…“ lassen sich weitere Provider " +
-                       "anlegen — jeder OpenAI-kompatible Endpoint (z. B. Ollama, LM Studio, Groq, " +
-                       "OpenRouter) oder ein Endpoint im Anthropic-Format.",
+                       "anlegen — per Vorlage für bekannte Anbieter (Groq, OpenRouter, Mistral, " +
+                       "DeepSeek, Together AI, xAI, Gemini, Ollama, LM Studio) oder frei für jeden " +
+                       "OpenAI-kompatiblen bzw. Anthropic-Format-Endpoint.",
             };
 
             btnOK = MakeButton("OK");

@@ -8,10 +8,11 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
     /// <summary>
     /// Ein vom Nutzer selbst angelegter LLM-Provider: beliebiger OpenAI-kompatibler
     /// Chat-Completions-Endpoint (z. B. Ollama/LM Studio lokal, Groq, OpenRouter,
-    /// Azure OpenAI) oder ein Endpoint im Anthropic-Messages-Format. Der API-Key wird
-    /// wie bei den eingebauten Providern separat je Provider-Name in
-    /// <see cref="NlCheckerSettings.ApiKeys"/> gehalten und darf fuer lokale Server
-    /// leer bleiben.
+    /// Mistral, DeepSeek, Together AI, xAI oder Gemini ueber seinen
+    /// OpenAI-Kompatibilitaets-Endpoint) oder ein Endpoint im
+    /// Anthropic-Messages-Format. Der API-Key wird wie bei den eingebauten Providern
+    /// separat je Provider-Name in <see cref="NlCheckerSettings.ApiKeys"/> gehalten
+    /// und darf fuer lokale Server leer bleiben.
     /// </summary>
     public class CustomLlmProvider
     {
