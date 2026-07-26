@@ -103,25 +103,79 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Oeffnet die eingebaute BPMN-Schablone (metrisch, sonst US). Fehlen beide,
-        /// bringt die Visio-Edition keine BPMN-Shapes mit (nur Professional/Plan 2).
+        /// Oeffnet die eingebaute BPMN-Schablone. Drei Stufen: (1) eine bereits
+        /// geoeffnete BPMN-Schablone wiederverwenden, (2) den Visio-Content-Ordner
+        /// ueber <c>GetBuiltInStencilFile</c> ermitteln (OpenEx sucht bei blossen
+        /// Dateinamen NICHT dort) und die BPMN-Datei per Wildcard finden,
+        /// (3) zuletzt die bekannten Dateinamen direkt probieren.
         /// </summary>
         private static Visio.Document OpenBpmnStencil(Visio.Application app)
         {
+            // (1) Bereits geoeffnete BPMN-Schablone (z. B. von Hand geoeffnet).
+            foreach (Visio.Document open in app.Documents)
+            {
+                try
+                {
+                    if ((int)open.Type == (int)Visio.VisDocumentTypes.visTypeStencil
+                        && open.Name.StartsWith("BPMN", StringComparison.OrdinalIgnoreCase))
+                        return open;
+                }
+                catch (System.Runtime.InteropServices.COMException) { }
+            }
+
+            // (2) Content-Ordner ueber ein garantiert vorhandenes eingebautes Stencil
+            //     bestimmen — der zurueckgegebene Pfad zeigt in "…\Visio Content\<LCID>\",
+            //     wo auch die BPMN-Schablone liegt.
+            string contentDir = null;
+            foreach (Visio.VisMeasurementSystem measurement in new[]
+                { Visio.VisMeasurementSystem.visMSMetric, Visio.VisMeasurementSystem.visMSUS })
+            {
+                try
+                {
+                    string builtIn = app.GetBuiltInStencilFile(
+                        Visio.VisBuiltInStencilTypes.visBuiltInStencilContainers, measurement);
+                    if (!string.IsNullOrEmpty(builtIn))
+                    {
+                        contentDir = System.IO.Path.GetDirectoryName(builtIn);
+                        break;
+                    }
+                }
+                catch (System.Runtime.InteropServices.COMException) { }
+            }
+
+            if (contentDir != null && System.IO.Directory.Exists(contentDir))
+            {
+                // "BASI"-Schablone (BPMN Basic Shapes) bevorzugen, metrisch (_M) vor US (_U).
+                IEnumerable<string> candidates = System.IO.Directory.GetFiles(contentDir, "BPMN*.vssx")
+                    .OrderByDescending(p => System.IO.Path.GetFileName(p)
+                        .IndexOf("BASI", StringComparison.OrdinalIgnoreCase) >= 0)
+                    .ThenByDescending(p => p.EndsWith("_M.vssx", StringComparison.OrdinalIgnoreCase));
+                foreach (string path in candidates)
+                {
+                    try
+                    {
+                        return app.Documents.OpenEx(path, (short)Visio.VisOpenSaveArgs.visOpenDocked);
+                    }
+                    catch (System.Runtime.InteropServices.COMException) { }
+                }
+            }
+
+            // (3) Blosse Dateinamen (greift, wenn der Content-Ordner im Suchpfad liegt).
             foreach (string fileName in BpmnStencilFiles)
             {
                 try
                 {
                     return app.Documents.OpenEx(fileName, (short)Visio.VisOpenSaveArgs.visOpenDocked);
                 }
-                catch (System.Runtime.InteropServices.COMException)
-                {
-                    // naechsten Kandidaten probieren
-                }
+                catch (System.Runtime.InteropServices.COMException) { }
             }
+
             throw new InvalidOperationException(
                 "Die eingebaute BPMN-Schablone (BPMN Basic Shapes) wurde nicht gefunden. "
-                + "BPMN-Shapes sind nur in Visio Professional bzw. Visio Plan 2 enthalten.");
+                + "BPMN-Shapes sind nur in Visio Professional bzw. Visio Plan 2 enthalten. "
+                + "Workaround: die Schablone einmal manuell öffnen (Shapes-Fenster → Weitere Shapes "
+                + "→ Geschäftsprozess → „BPMN-Standardformen“) und die Aktion wiederholen."
+                + (contentDir != null ? "\nDurchsuchter Content-Ordner: " + contentDir : ""));
         }
 
         /// <summary>Legt das Ziel-Zeichenblatt mit dokumentweit eindeutigem Namen an (NameU = Name, siehe Seiten-Gotchas).</summary>
