@@ -15,8 +15,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
     /// PASS Natural-Language checker. Prueft fuer jedes relevante Shape per lokalem
     /// ML.NET-Klassifikator (offline), ob das Label ein gueltiger Name fuer seinen Typ
     /// ist. Fuer ungueltige Labels liefert ein LLM (<see cref="LlmClient"/>, Provider
-    /// waehlbar: UniGPT/OpenAI/Anthropic) Verbesserungsvorschlaege. Provider, Modell
-    /// und API-Keys kommen aus <see cref="NlCheckerSettings"/>.
+    /// waehlbar: eingebaut UniGPT/OpenAI/Anthropic oder vom Nutzer angelegte eigene
+    /// Provider) Verbesserungsvorschlaege. Provider, Modell und API-Keys kommen aus
+    /// <see cref="NlCheckerSettings"/>.
     /// </summary>
     public class NlChecker
     {
@@ -36,7 +37,8 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
         /// <summary>
         /// Prepares the checker: laedt die Einstellungen, das lokale ML-Modell (Erstlauf:
-        /// Training) und -- falls ein API-Key hinterlegt ist -- den LLM-Client fuer die
+        /// Training) und -- falls der LLM-Provider konfiguriert ist (eingebaute brauchen
+        /// einen API-Key, eigene nur ihre Chat-URL) -- den LLM-Client fuer die
         /// Label-Vorschlaege. Returns false with a message when the model can't be built.
         /// </summary>
         public bool Initialize(out string error)
@@ -44,7 +46,7 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             error = null;
 
             _settings = NlCheckerSettings.Load();
-            _llm = string.IsNullOrWhiteSpace(_settings.ActiveApiKey) ? null : new LlmClient(_settings);
+            _llm = _settings.IsLlmConfigured ? new LlmClient(_settings) : null;
 
             try
             {

@@ -48,7 +48,7 @@ After the add-in loads, an **ALPS/PASS ADDIN** ribbon tab appears with four grou
 | OWL PASS Tools | **Auto Arrange** | Re-arranges the active SID/SBD page from its shapes. Split button: click = left-to-right, arrow = pick **Left-Right** or **Top-Down**. |
 | PASS NL Checker | **PASS NL Checker** | Checks every shape label with the local ML model and asks an LLM for better labels where invalid. |
 | PASS NL Checker | **NL-Modell trainieren** | Retrains the NL Checker's local ML model from the bundled training data. |
-| PASS NL Checker | **NL-Checker Einstellungen** | Choose the LLM provider (UniGPT/OpenAI/Anthropic) and per-provider model + API key for the label suggestions. |
+| PASS NL Checker | **NL-Checker Einstellungen** | Choose the LLM provider (built-in UniGPT/OpenAI/Anthropic or user-defined custom endpoints) and per-provider model + API key for the label suggestions. |
 
 The features in detail:
 
@@ -107,14 +107,20 @@ model) at any time via the **NL-Modell trainieren** button.
 
 For labels judged invalid, an **LLM** is asked for two improved label suggestions.
 The LLM is used **only for these suggestions** — the validity check itself always runs
-locally. Three providers are supported (button *NL-Checker Einstellungen*) — the
+locally. Three providers are built in (button *NL-Checker Einstellungen*) — the
 **UniGPT endpoint of the University of Münster** (OpenAI-compatible,
 default model `Llama-3.3-70B`), **OpenAI** (`gpt-4o-mini` by default) and
 **Anthropic** (`claude-opus-4-8` by default; consider `claude-haiku-4-5` for lower
-cost). Model name and API key are stored **per provider** in
+cost). Beyond those, **custom providers** can be added directly in the settings
+dialog (*Neu…*): any **OpenAI-compatible** chat-completions endpoint (e.g. a local
+Ollama or LM Studio server, Groq, OpenRouter, Azure OpenAI) or an endpoint speaking
+the **Anthropic Messages** format — configured with a name, the chat URL and an
+optional models URL (derived from the chat URL when left empty). Custom providers
+may be used **without an API key** (local servers); built-in providers require one.
+Model name and API key are stored **per provider** in
 `%APPDATA%\ALPS_Visio_AddIn\nl_checker_settings.json` (plain text; an old
-`llm_api_key.txt` from earlier versions is migrated automatically). Without an API key
-the check still runs — only the suggestions are skipped.
+`llm_api_key.txt` from earlier versions is migrated automatically). Without a
+configured LLM the check still runs — only the suggestions are skipped.
 
 ### PASS BPMN Converter
 
@@ -303,8 +309,9 @@ authoritative overview of the architecture and the open tasks. Highlights:
 - The **PASS BPMN Converter** converts one-way (PASS → BPMN); Choice Segments,
   non-standard Send/Receive types and Data Objects are not converted yet.
 - The **ALPS Verification** is a prototype: SID checks only, SBD checks are empty.
-- The NL Checker's LLM side supports UniGPT (Uni Münster), OpenAI and Anthropic;
-  other providers require a code change in `NLChecker/LlmClient.cs`.
+- The NL Checker's LLM side has UniGPT (Uni Münster), OpenAI and Anthropic built in;
+  additional providers can be added by the user in the settings dialog (any
+  OpenAI-compatible or Anthropic-format endpoint) — no code change needed.
 - Performance during import is dominated by Visio itself.
 
 Additional notes and a deeper code walk-through live in

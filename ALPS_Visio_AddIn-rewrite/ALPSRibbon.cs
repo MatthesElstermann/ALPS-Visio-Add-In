@@ -638,8 +638,9 @@ namespace ALPS_Visio_AddIn_rewrite
         }
 
         /// <summary>
-        /// Opens the NL-checker settings dialog: check method (local ML model vs. LLM),
-        /// LLM provider (UniGPT/OpenAI/Anthropic) and per-provider model + API key.
+        /// Opens the NL-checker settings dialog: LLM provider (built-in
+        /// UniGPT/OpenAI/Anthropic plus user-defined custom providers) and
+        /// per-provider model + API key.
         /// </summary>
         private void OpenNlCheckerSettings(object sender, RibbonControlEventArgs e)
         {
