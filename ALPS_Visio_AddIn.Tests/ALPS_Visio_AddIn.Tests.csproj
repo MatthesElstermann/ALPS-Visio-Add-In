@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Getrenntes NUnit-Testprojekt fuer die Visio-UNABHAENGIGE Logik des Add-Ins. Bewusst SDK-Style
+    (PackageReference statt packages.config); das haelt die Testinfrastruktur schlank und ist mit
+    VS 2022 neben dem klassischen VSTO-Projekt in derselben Solution problemlos nutzbar.
+
+    NICHT testbar sind alle Pfade, die Visio-COM zeichnen (kein aktives Visio im Testlauf). Getestet
+    werden reine bzw. rechnende Bausteine: QuoteLiteral (Escaping), spaeter Verifier.Verify
+    (Spec/Impl-Pipeline, laeuft ganz ohne Visio) und AlpsReaderWriterFactory (Regressionstest CWD-Fix).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>ALPS_Visio_AddIn_rewrite.Tests</RootNamespace>
+    <AssemblyName>ALPS_Visio_AddIn.Tests</AssemblyName>
+    <!--
+      Binding-Redirects automatisch erzeugen: alps.net.api/dotNetRDF/ML ziehen Support-Assemblies
+      (System.Memory, System.Runtime.CompilerServices.Unsafe, ...) nach, deren Redirects sonst nur in
+      der app.config des Hauptprojekts stehen. Ohne diese wuerde das Laden im Testlauf werfen.
+    -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ALPS_Visio_AddIn-rewrite\ALPS_Visio_AddIn-rewrite.csproj" />
+  </ItemGroup>
+
+  <!--
+    Direkte Compile-Referenz auf alps.net.api. Beim ProjectReference von diesem SDK-Projekt auf das
+    packages.config-basierte Hauptprojekt fliessen dessen Fremd-Assembly-Referenzen NICHT als
+    Compile-Referenz mit; der Factory-Test nutzt aber direkt den Typ PASSReaderWriter. Der Pfad wird
+    durch den NuGet-Restore des Hauptprojekts befuellt (gemeinsamer packages-Ordner).
+  -->
+  <ItemGroup>
+    <Reference Include="alps.net.api">
+      <HintPath>..\packages\alps.net.api.0.9.1.6\lib\net48\alps.net.api.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!--
+    Volle Laufzeit-Abhaengigkeitskette bereitstellen. Der ProjectReference reicht nur die Add-In-DLL
+    durch, nicht deren transitive Fremd-Assemblies (Serilog, dotNetRDF, HtmlAgilityPack, ...), die die
+    Verification/der PASSReaderWriter zur Laufzeit braucht. Statt jede DLL einzeln zu referenzieren,
+    kopieren wir die komplette (bereits funktionierende) bin des Hauptprojekts ins Test-Output.
+    Laeuft nach dem Build; der ProjectReference stellt sicher, dass die Add-In-bin da schon existiert.
+  -->
+  <Target Name="CopyMainProjectDependencies" AfterTargets="Build">
+    <ItemGroup>
+      <MainProjectBinaries Include="..\ALPS_Visio_AddIn-rewrite\bin\$(Configuration)\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MainProjectBinaries)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true"
+          OverwriteReadOnlyFiles="true" />
+  </Target>
+
+</Project>

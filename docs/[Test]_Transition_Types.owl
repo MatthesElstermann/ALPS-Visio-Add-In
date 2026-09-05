@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY abstract-pass-ont "http://www.imi.kit.edu/abstract-pass-ont#" >
+    <!ENTITY standard-pass-ont "http://www.i2pm.net/standard-pass-ont#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<!--
+    Test-Datei: Transition-Typen
+    ============================
+    Zweck:  Testen, dass der Transition-Typ als Stencil-Dropdown gesetzt wird
+            (Änderung 25, Prop.modelComponentType per =INDEX(...)). Ein Subjekt
+            mit einem SBD, dessen DoTransitionen verschiedene Typen tragen:
+              Standard (0), Trigger (1), Precedence (2), Finalized (3)
+
+    Der Typ wird über die rdf:type-Subklasse ausgedrückt (z.B. TriggerDoTransition
+    subClassOf DoTransition + TriggerTransitionType). Defensiv ist zusätzlich der
+    Basistyp DoTransition angegeben, damit die VisioClassFactory sicher
+    VisioDoTransition wählt.
+
+    Hinweis: Den fünften Typ "Advice" gibt es nur für Send-/Receive-Transitionen
+    (AdviceSendTransition/AdviceReceiveTransition), nicht für DoTransition. Der
+    INDEX-Mechanismus in TransitionImport ist jedoch typ-agnostisch, dieser Test
+    deckt ihn vollständig ab.
+
+    Ohne Koordinaten → Auto-Layout (Baum) ordnet die Zustände an.
+-->
+
+<rdf:RDF
+    xmlns:abstract-pass-ont="http://www.imi.kit.edu/abstract-pass-ont#"
+    xmlns:standard-pass-ont="http://www.i2pm.net/standard-pass-ont#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns="http://alps-visio-test.example/transition-types-test#">
+
+    <owl:Ontology rdf:about="http://alps-visio-test.example/transition-types-test">
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont"/>
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont/0.8.0"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont/1.1.0"/>
+    </owl:Ontology>
+
+    <!-- =====================================================================
+         PASSProcessModel + ModelLayer (SID)
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#TransitionTypes_Model">
+        <rdf:type rdf:resource="&standard-pass-ont;PASSProcessModel"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">TransitionTypes_Model</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">[Test]_Transition_Types</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#Layer_SID"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#Layer_SID">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_SID</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_SID</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#Subject_Worker"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#SBD_Worker"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Subjekt
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#Subject_Worker">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Subject_Worker</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Worker</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:containsBehavior rdf:resource="http://alps-visio-test.example/transition-types-test#SBD_Worker"/>
+        <standard-pass-ont:containsBaseBehavior rdf:resource="http://alps-visio-test.example/transition-types-test#SBD_Worker"/>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         SBD-Fluss: S_Start =[standard]=> S_A =[trigger]=> S_B
+                    =[precedence]=> S_C =[finalized]=> S_End
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#SBD_Worker">
+        <rdf:type rdf:resource="&standard-pass-ont;SubjectBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">SBD_Worker</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">SBD: Worker</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:hasInitialState rdf:resource="http://alps-visio-test.example/transition-types-test#S_Start"/>
+        <standard-pass-ont:hasEndState rdf:resource="http://alps-visio-test.example/transition-types-test#S_End"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#S_Start"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#S_A"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#S_B"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#S_C"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#S_End"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#T_Standard"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#T_Trigger"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#T_Precedence"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/transition-types-test#T_Finalized"/>
+    </owl:NamedIndividual>
+
+    <!-- States -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#S_Start">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;InitialStateOfBehavior"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">S_Start</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Start</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:isInitialStateOf rdf:resource="http://alps-visio-test.example/transition-types-test#SBD_Worker"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#S_A">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">S_A</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">After Standard</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#S_B">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">S_B</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">After Trigger</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#S_C">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">S_C</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">After Precedence</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#S_End">
+        <rdf:type rdf:resource="&standard-pass-ont;DoState"/>
+        <rdf:type rdf:resource="&standard-pass-ont;EndState"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">S_End</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">End (After Finalized)</standard-pass-ont:hasModelComponentLabel>
+    </owl:NamedIndividual>
+
+    <!-- Transition 1: Standard (INDEX 0) -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#T_Standard">
+        <rdf:type rdf:resource="&standard-pass-ont;DoTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">T_Standard</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">standard</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/transition-types-test#S_Start"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/transition-types-test#S_A"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+    </owl:NamedIndividual>
+
+    <!-- Transition 2: Trigger (INDEX 1) -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#T_Trigger">
+        <rdf:type rdf:resource="&standard-pass-ont;DoTransition"/>
+        <rdf:type rdf:resource="&abstract-pass-ont;TriggerDoTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">T_Trigger</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">trigger</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/transition-types-test#S_A"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/transition-types-test#S_B"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+    </owl:NamedIndividual>
+
+    <!-- Transition 3: Precedence (INDEX 2) -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#T_Precedence">
+        <rdf:type rdf:resource="&standard-pass-ont;DoTransition"/>
+        <rdf:type rdf:resource="&abstract-pass-ont;PrecedenceDoTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">T_Precedence</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">precedence</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/transition-types-test#S_B"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/transition-types-test#S_C"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+    </owl:NamedIndividual>
+
+    <!-- Transition 4: Finalized (INDEX 3) -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/transition-types-test#T_Finalized">
+        <rdf:type rdf:resource="&standard-pass-ont;DoTransition"/>
+        <rdf:type rdf:resource="&abstract-pass-ont;FinalizedDoTransition"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">T_Finalized</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">finalized</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasSourceState rdf:resource="http://alps-visio-test.example/transition-types-test#S_C"/>
+        <standard-pass-ont:hasTargetState rdf:resource="http://alps-visio-test.example/transition-types-test#S_End"/>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+    </owl:NamedIndividual>
+
+</rdf:RDF>

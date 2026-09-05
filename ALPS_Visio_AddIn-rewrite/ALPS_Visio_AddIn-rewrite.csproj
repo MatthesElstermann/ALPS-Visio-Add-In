@@ -1,0 +1,675 @@
+﻿<Project ToolsVersion="17.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.props" Condition="Exists('..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.props')" />
+  <Import Project="..\packages\Microsoft.ML.CpuMath.4.0.2\build\netstandard2.0\Microsoft.ML.CpuMath.props" Condition="Exists('..\packages\Microsoft.ML.CpuMath.4.0.2\build\netstandard2.0\Microsoft.ML.CpuMath.props')" />
+  <Import Project="..\packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <!--
+    This section defines project-level properties.
+
+    AssemblyName
+      Name of the output assembly.
+    Configuration
+      Specifies a default value for debug.
+    OutputType
+      Must be "Library" for VSTO.
+    Platform
+      Specifies what CPU the output of this project can run on.
+    NoStandardLibraries
+      Set to "false" for VSTO.
+    RootNamespace
+      In C#, this specifies the namespace given to new files. In VB, all objects are
+      wrapped in this namespace at runtime.
+  -->
+  <PropertyGroup>
+    <ProjectTypeGuids>{BAA0C2D2-18E2-41B9-852F-F413020CAA33};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3502551C-12CA-4513-8F40-D23B97E2C764}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <NoStandardLibraries>false</NoStandardLibraries>
+    <RootNamespace>ALPS_Visio_AddIn_rewrite</RootNamespace>
+    <AssemblyName>ALPS_Visio_AddIn-rewrite</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <!-- C# 12: der portierte pass-bpmn-converter (BpmnConverter/) nutzt file-scoped
+         Namespaces, required-Member und Collection-Expressions. Reine Compiler-Features
+         (VS-2022-Roslyn) — keine Runtime-Abhaengigkeit; required braucht zusaetzlich die
+         Attribut-Polyfills in BpmnConverter/Polyfills.cs. Bestandscode (C# 7.3/9) bleibt
+         unveraendert kompatibel. -->
+    <LangVersion>12.0</LangVersion>
+    <DefineConstants>VSTO40;UseOfficeInterop</DefineConstants>
+    <ResolveComReferenceSilent>true</ResolveComReferenceSilent>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <IsWebBootstrapper>False</IsWebBootstrapper>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <PublishUrl>C:\Users\Administrator\Desktop\Visio Plugins\Fertige Plugins\ALPS-VisioAddIn\</PublishUrl>
+    <InstallUrl />
+    <TargetCulture>de</TargetCulture>
+    <ApplicationVersion>1.0.0.1</ApplicationVersion>
+    <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>days</UpdateIntervalUnits>
+    <ProductName>ALPS_Visio_AddIn-rewrite</ProductName>
+    <PublisherName />
+    <SupportUrl />
+    <FriendlyName>ALPS_Visio_AddIn-rewrite</FriendlyName>
+    <OfficeApplicationDescription />
+    <LoadBehavior>3</LoadBehavior>
+  </PropertyGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.8">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.8 %28x86 und x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.VSTORuntime.4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft Visual Studio 2010-Tools für Office-Laufzeit %28x86 und x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <PropertyGroup>
+    <!--
+      OfficeApplication
+        Add-in host application
+    -->
+    <OfficeApplication>Visio</OfficeApplication>
+  </PropertyGroup>
+  <!--
+    This section defines properties that are set when the "Debug" configuration is selected.
+
+    DebugSymbols
+      If "true", create symbols (.pdb). If "false", do not create symbols.
+    DefineConstants
+      Constants defined for the preprocessor.
+    EnableUnmanagedDebugging
+      If "true", starting the debugger will attach both managed and unmanaged debuggers.
+    Optimize
+      If "true", optimize the build output. If "false", do not optimize.
+    OutputPath
+      Output path of project relative to the project file.
+    WarningLevel
+      Warning level for the compiler.
+  -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <DefineConstants>TRACE;DEBUG;VSTO40;UseOfficeInterop</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <!--
+    This section defines properties that are set when the "Release" configuration is selected.
+
+    DebugSymbols
+      If "true", create symbols (.pdb). If "false", do not create symbols.
+    DefineConstants
+      Constants defined for the preprocessor.
+    EnableUnmanagedDebugging
+      If "true", starting the debugger will attach both managed and unmanaged debuggers.
+    Optimize
+      If "true", optimize the build output. If "false", do not optimize.
+    OutputPath
+      Output path of project relative to the project file.
+    WarningLevel
+      Warning level for the compiler.
+  -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <!--
+    This section specifies references for the project.
+  -->
+  <ItemGroup>
+    <Reference Include="Accessibility" />
+    <Reference Include="alps.net.api, Version=0.9.1.6, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\alps.net.api.0.9.1.6\lib\net48\alps.net.api.dll</HintPath>
+    </Reference>
+    <Reference Include="dotNetRDF, Version=2.7.5.0, Culture=neutral, PublicKeyToken=6055ffe4c97cc780, processorArchitecture=MSIL">
+      <HintPath>..\packages\dotNetRDF.2.7.5\lib\net40\dotNetRDF.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.11.34.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.11.34\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.5.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.Numerics, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.Numerics.8.0.0\lib\net462\Microsoft.Bcl.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ML.4.0.2\lib\netstandard2.0\Microsoft.ML.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.CpuMath, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ML.CpuMath.4.0.2\lib\netstandard2.0\Microsoft.ML.CpuMath.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.Data, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ML.4.0.2\lib\netstandard2.0\Microsoft.ML.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.DataView, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ML.DataView.4.0.2\lib\netstandard2.0\Microsoft.ML.DataView.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.KMeansClustering, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ML.4.0.2\lib\netstandard2.0\Microsoft.ML.KMeansClustering.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.PCA, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ML.4.0.2\lib\netstandard2.0\Microsoft.ML.PCA.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.StandardTrainers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ML.4.0.2\lib\netstandard2.0\Microsoft.ML.StandardTrainers.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ML.Transforms, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ML.4.0.2\lib\netstandard2.0\Microsoft.ML.Transforms.dll</HintPath>
+    </Reference>
+    <Reference Include="Neo4j.Driver, Version=5.13.21.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Neo4j.Driver.5.13.0\lib\netstandard2.0\Neo4j.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.2.11.0\lib\net46\Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.Console, Version=4.0.1.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.Console.4.0.1\lib\net45\Serilog.Sinks.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.File, Version=5.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.File.5.0.0\lib\net45\Serilog.Sinks.File.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.CodeDom, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.CodeDom.8.0.0\lib\net462\System.CodeDom.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.8.0.0\lib\net462\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Tensors, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Tensors.8.0.0\lib\net462\System.Numerics.Tensors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.6.0\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.0\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Threading.Channels, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Channels.8.0.0\lib\net462\System.Threading.Channels.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="VDS.Common, Version=1.10.0.0, Culture=neutral, PublicKeyToken=ab5f4eb908061bf0, processorArchitecture=MSIL">
+      <HintPath>..\packages\VDS.Common.1.10.0\lib\net40-client\VDS.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Office.Tools.v4.0.Framework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Tools.Applications.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Office.Tools.Common.v4.0.Utilities, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <Choose>
+    <When Condition="$([System.String]::Copy(&quot;;$(DefineConstants);&quot;).ToLower().Contains(';useofficeinterop;')) or $([System.String]::Copy(&quot;,$(DefineConstants),&quot;).ToLower().Contains(',useofficeinterop,'))">
+      <ItemGroup>
+        <Reference Include="Office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+          <Private>False</Private>
+          <EmbedInteropTypes>true</EmbedInteropTypes>
+        </Reference>
+        <Reference Include="Microsoft.Office.Interop.Visio, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+          <Private>False</Private>
+          <EmbedInteropTypes>true</EmbedInteropTypes>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <COMReference Include="Microsoft.Office.Core">
+          <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+          <VersionMajor>2</VersionMajor>
+          <VersionMinor>7</VersionMinor>
+          <Lcid>0</Lcid>
+          <WrapperTool>tlbimp</WrapperTool>
+          <Isolated>False</Isolated>
+          <EmbedInteropTypes>true</EmbedInteropTypes>
+        </COMReference>
+        <COMReference Include="Microsoft.Office.Interop.Visio">
+          <Guid>{00021A98-0000-0000-C000-000000000046}</Guid>
+          <VersionMajor>4</VersionMajor>
+          <VersionMinor>15</VersionMinor>
+          <Lcid>0</Lcid>
+          <WrapperTool>tlbimp</WrapperTool>
+          <Isolated>False</Isolated>
+          <EmbedInteropTypes>true</EmbedInteropTypes>
+        </COMReference>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <ItemGroup>
+    <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <!--
+    This section defines the user source files that are part of the project.
+     
+    A "Compile" element specifies a source file to compile.
+    An "EmbeddedResource" element specifies an .resx file for embedded resources.
+    A "None" element specifies a file that is not to be passed to the compiler (for instance, 
+    a text file or XML file).
+    The "AppDesigner" element specifies the directory where the application properties files
+    can be found.
+  -->
+  <ItemGroup>
+    <Compile Include="AutoArranger.cs" />
+    <Compile Include="BpmnVisioRenderer.cs" />
+    <Compile Include="NLChecker\CustomProviderDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NLChecker\LlmClient.cs" />
+    <Compile Include="NLChecker\NlChecker.cs" />
+    <Compile Include="NLChecker\NlCheckerSettings.cs" />
+    <Compile Include="NLChecker\NlCheckerSettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NLChecker\ProcessingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Verification\CheckSBD.cs" />
+    <Compile Include="Verification\CheckSID.cs" />
+    <Compile Include="Verification\GetCorrespondingElementsALL.cs" />
+    <Compile Include="Verification\ImplementationScaffolder.cs" />
+    <Compile Include="Verification\NullSafeModelElementFactory.cs" />
+    <Compile Include="Verification\LogWriter.cs" />
+    <Compile Include="Verification\Verifier.cs" />
+    <Compile Include="AlpsReaderWriterFactory.cs" />
+    <Compile Include="OWLImporter.cs" />
+    <Compile Include="ALPSRibbon.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Constants.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioDoState.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioGenericReturnToOriginReference.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioRecieveState.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioSendState.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioDoTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioRecieveTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioFlowRestrictor.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioSendingFailedTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioSendTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioTimeTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioUserCancelTransition.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\IShapeImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\PASSProcessModelElementImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\StateImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\TransitionImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\BehaviorImporter.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioFullySpecifiedSubject.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioInterfaceSubject.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioMessageExchange.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioMessageExchangeList.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioMessageSpecification.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioStandAloneMacroSubject.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioCommunicationChannel.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioGuardExtension.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioMacroExtension.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioSubjectExtension.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioSubjectGroup.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\alpsElements\VisioSystemInterfaceSubject.cs" />
+    <Compile Include="OWLShapes\VisioMacroBehavior.cs" />
+    <Compile Include="OWLShapes\VisioModelLayer.cs" />
+    <Compile Include="OWLShapes\IVisioImportable.cs" />
+    <Compile Include="OWLShapes\IVisioImportableWithShape.cs" />
+    <Compile Include="OWLShapes\VisualizationBounds.cs" />
+    <Compile Include="OWLShapes\VisioClassFactory.cs" />
+    <Compile Include="OWLShapes\VisioPASSProcessModel.cs" />
+    <Compile Include="OWLShapes\VisioSubjectBehavior.cs" />
+    <Compile Include="OWLShapes\VisioExtensionBehavior.cs" />
+    <Compile Include="OWLShapes\VisioGuardBehavior.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ShapeFinder.cs" />
+    <Compile Include="VisioHelper.cs" />
+    <Compile Include="VisioPassModelBuilder.cs" />
+    <Compile Include="PageManagement\DiagramPage.cs" />
+    <Compile Include="PageManagement\SIDPage.cs" />
+    <Compile Include="PageManagement\SBDPage.cs" />
+    <Compile Include="PageManagement\VisioProcessModel.cs" />
+    <Compile Include="PageManagement\DiagramPageController.cs" />
+    <Compile Include="PageManagement\ModelController.cs" />
+    <Compile Include="PageManagement\SBDPageController.cs" />
+    <Compile Include="PageManagement\SIDPageController.cs" />
+    <Compile Include="PageManagement\SBDSnapHandler.cs" />
+    <Compile Include="PageManagement\SIDSnapHandler.cs" />
+    <Compile Include="PageManagement\SnapHandler.cs" />
+    <Compile Include="UI\AnchorBarsUsage.cs" />
+    <Compile Include="UI\ResultDialog.cs" />
+    <Compile Include="UI\DirectoryTreeViewItem.cs" />
+    <Compile Include="UI\IDialogCallback.cs" />
+    <Compile Include="UI\WindowChangeLayerName.xaml.cs">
+      <DependentUpon>WindowChangeLayerName.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\WindowChangeProperties.xaml.cs">
+      <DependentUpon>WindowChangeProperties.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\WindowChangePropertiesSBD.xaml.cs">
+      <DependentUpon>WindowChangePropertiesSBD.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\WindowDirectory.xaml.cs">
+      <DependentUpon>WindowDirectory.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\WindowSnapConfirmation.xaml.cs">
+      <DependentUpon>WindowSnapConfirmation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\WindowSnapMaintenance.xaml.cs">
+      <DependentUpon>WindowSnapMaintenance.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PageManagement\ShapeCorners.cs" />
+    <Compile Include="PageManagement\ShapeEdges.cs" />
+    <Compile Include="PageManagement\ShapeGeometry.cs" />
+    <Compile Include="PageManagement\Vector2D.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Resources\strings.de.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>strings.de.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NLChecker\training.tsv" />
+    <None Include="ALPS_Visio_AddIn-rewrite_1_TemporaryKey.pfx" />
+    <None Include="ALPS_Visio_AddIn-rewrite_TemporaryKey.pfx" />
+    <Compile Include="OWLShapes\ImportFunctionality\SubjectImport.cs" />
+    <Compile Include="OWLShapes\InteractionDescribing\VisioCommunicationRestriction.cs" />
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Resources\strings.de.Designer.cs">
+      <DependentUpon>strings.de.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Resources\strings.Designer.cs">
+      <DependentUpon>strings.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="ThisAddIn.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <None Include="Resources\ALPS_ont_v_0.8.0.owl" />
+    <None Include="Resources\standard_PASS_ont_v_1.1.0.owl" />
+    <None Include="ThisAddIn.Designer.xml">
+      <DependentUpon>ThisAddIn.cs</DependentUpon>
+    </None>
+    <Compile Include="ThisAddIn.Designer.cs">
+      <DependentUpon>ThisAddIn.Designer.xml</DependentUpon>
+    </Compile>
+    <AppDesigner Include="Properties\" />
+    <None Include="TODO.md" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\document-open-7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\document-page-setup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\go_arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\OWL.png" />
+    <None Include="Resources\owlIcon2.png" />
+    <None Include="Resources\owlIcon2.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="UI\WindowChangeLayerName.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\WindowChangeProperties.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\WindowChangePropertiesSBD.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\WindowDirectory.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\WindowSnapConfirmation.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\WindowSnapMaintenance.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>EB2014D41CBA35628A20CC0EBC7636D127E91766</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>ALPS_Visio_AddIn-rewrite_1_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <!-- Portierter PASS-nach-BPMN-Konverter (github.com/pass-bpmn-converter), siehe BpmnConverter/. -->
+  <ItemGroup>
+    <Compile Include="BpmnConverter\Bpmn\BpmnUtility.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Layout\BpmnDiagramGenerator.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Layout\Grid.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Activity.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BaseElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BoundaryEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnDiagram.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnEdge.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnLabel.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnLabelStyle.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnPlane.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\BpmnShape.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnDI\MessageVisibleKind.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnModel.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\BpmnModelConstants.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\CallActivity.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\CallableElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\CatchEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Collaboration.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ConditionalEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DC\Bounds.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DC\Font.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DC\Point.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Diagram.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\DiagramElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Edge.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Label.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\LabeledEdge.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\LabeledShape.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Node.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Plane.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Shape.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\DI\Style.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ComplexGateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Definitions.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EndEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ErrorEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Escalation.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EscalationEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Event.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EventBasedGateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EventBasedGatewayType.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\EventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ExclusiveGateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Expression.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\FlowElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\FlowElementsContainer.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\FlowNode.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Gateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\GatewayDirection.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\InclusiveGateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\InteractionNode.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\IntermediateCatchEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\IntermediateThrowEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\LinkEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Message.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\MessageEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\MessageFlow.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ParallelGateway.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Participant.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ParticipantMultiplicity.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Process.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ReceiveTask.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\RootElement.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ScriptTask.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\SendTask.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\SequenceFlow.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Signal.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\SignalEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\StartEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\SubProcess.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\Task.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\ThrowEvent.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Model\TimerEventDefinition.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnAttribute.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnAttributeAttribute.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnDeserializer.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnElementAttribute.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnSerializer.cs" />
+    <Compile Include="BpmnConverter\Bpmn\Serialization\BpmnTypeAttribute.cs" />
+    <Compile Include="BpmnConverter\Conversion\Converter.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\BoundaryNode.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\Edge.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\Element.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\Graph.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\Node.cs" />
+    <Compile Include="BpmnConverter\Conversion\Graph\SubGraph.cs" />
+    <Compile Include="BpmnConverter\Conversion\LinqExtensions.cs" />
+    <Compile Include="BpmnConverter\Pass\PassParser.cs" />
+    <Compile Include="BpmnConverter\Pass\PassUtility.cs" />
+    <Compile Include="BpmnConverter\Polyfills.cs" />
+  </ItemGroup>
+  <!-- ML.NET-Natives in den Ausgabeordner kopieren. Die Kopier-Regel in
+       Microsoft.ML.CpuMath.props greift nur bei explizitem PlatformTarget
+       x64/x86 - dieses VSTO-Projekt baut aber AnyCPU, daher landete
+       CpuMathNative.dll nie im Output und Training scheiterte im Visio-Host
+       mit DllNotFoundException. Beide Architekturen werden in Unterordner
+       kopiert; NlChecker.PrepareNativeLibraryResolution laedt zur Laufzeit
+       die zur Prozess-Bitness passende Variante. -->
+  <ItemGroup>
+    <Content Include="..\packages\Microsoft.ML.CpuMath.4.0.2\runtimes\win-x64\nativeassets\netstandard2.0\CpuMathNative.dll" Condition="Exists('..\packages\Microsoft.ML.CpuMath.4.0.2\runtimes\win-x64\nativeassets\netstandard2.0\CpuMathNative.dll')">
+      <Link>NativeAssets\x64\CpuMathNative.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="..\packages\Microsoft.ML.CpuMath.4.0.2\runtimes\win-x86\nativeassets\netstandard2.0\CpuMathNative.dll" Condition="Exists('..\packages\Microsoft.ML.CpuMath.4.0.2\runtimes\win-x86\nativeassets\netstandard2.0\CpuMathNative.dll')">
+      <Link>NativeAssets\x86\CpuMathNative.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
+  <!-- Include the build rules for a C# project. -->
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- Include additional build rules for an Office application add-in. -->
+  <Import Project="$(VSToolsPath)\OfficeTools\Microsoft.VisualStudio.Tools.Office.targets" Condition="'$(VSToolsPath)' != ''" />
+  <!-- This section defines VSTO properties that describe the host-changeable project properties. -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{BAA0C2D2-18E2-41B9-852F-F413020CAA33}">
+        <ProjectProperties HostName="Visio" HostPackage="{29A7B9D7-A7F1-4328-8EF0-6B2D1A56B2C1}" OfficeVersion="15.0" VstxVersion="4.0" ApplicationType="Visio" Language="cs" TemplatesPath="" DebugInfoExeName="#Software\Microsoft\Office\16.0\Visio\InstallRoot\Path#visio.exe" AddItemTemplatesGuid="{51063C3A-E220-4D12-8922-BDA915ACD783}" />
+        <Host Name="Visio" GeneratedCodeNamespace="ALPS_Visio_AddIn_rewrite" PublishedHash="69C324AB27932AA2FBF2B7EA72250886FF164DE6" IconIndex="0">
+          <HostItem Name="ThisAddIn" Code="ThisAddIn.cs" CanonicalName="AddIn" PublishedHash="000632A4753C233816D83A76CEA80457ADBF4488" CanActivate="false" IconIndex="1" Blueprint="ThisAddIn.Designer.xml" GeneratedCode="ThisAddIn.Designer.cs" />
+        </Host>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ML.CpuMath.4.0.2\build\netstandard2.0\Microsoft.ML.CpuMath.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.CpuMath.4.0.2\build\netstandard2.0\Microsoft.ML.CpuMath.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.targets'))" />
+  </Target>
+  <Import Project="..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.targets" Condition="Exists('..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.targets')" />
+</Project>

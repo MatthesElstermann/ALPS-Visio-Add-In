@@ -1,0 +1,73 @@
+using Microsoft.Office.Interop.Visio;
+using System.Windows;
+using AppStrings = ALPS_Visio_AddIn_rewrite.Resources.strings;
+
+namespace ALPS_Visio_AddIn_rewrite
+{
+    /// <summary>
+    /// interaction logic for WindowSnapMaintenance.xaml
+    /// </summary>
+    public partial class WindowSnapMaintenance : System.Windows.Window
+    {
+        public WindowSnapMaintenance()
+        {
+            InitializeComponent();
+        }
+
+        // Basisklassen-Typ statt SbdSnapHandler: der Dialog wird inzwischen auch vom
+        // SidSnapHandler benutzt (Bestaetigung beim Trennen gesnappter Subjekte).
+        private SnapHandler SnapHandler;
+
+        private Shape Shape;
+        private Shape SnapToShape;
+
+        /// <summary>
+        /// constructor.
+        /// </summary>
+        /// <param name="snapHandler">callback</param>
+        /// <param name="shape">name of shape</param>
+        /// <param name="snapToShape">name of shape should be snapping to</param>
+        public WindowSnapMaintenance(SnapHandler snapHandler, Shape shape, Shape snapToShape)
+        {
+            InitializeComponent();
+
+            this.SnapHandler = snapHandler;
+            this.Shape = shape;
+            this.SnapToShape = snapToShape;
+
+            Title = AppStrings.WindowSnapConfirmationTitle;
+            btnDialogNo.Content = AppStrings.No;
+            btnDialogYes.Content = AppStrings.Yes;
+
+            // Fills the two labels with the name of the shapes
+            labelShapeSnapName.Content = string.Format(AppStrings.WindowSnapConfirmationShouldShapeSnap, "\"" + shape.Name + "\"");
+            labelShapeSnapToName.Content = string.Format(AppStrings.WindowSnapMaintenanceShouldStaySnapped, "\"" + snapToShape.Name + "\"");
+
+        }
+
+
+        /// <summary>
+        /// Called when the Yes-Button is pressed.
+        /// Delivers the button-press to the callback (snap handler)
+        /// </summary>
+        /// <param name="sender">clicked Button</param>
+        /// <param name="e">the event that happened</param>
+        private void btnDialogYes_Click(object sender, RoutedEventArgs e)
+        {
+            SnapHandler.maintainSnap(Shape, SnapToShape);
+            this.Close();
+        }
+
+        /// <summary>
+        /// Called when the No-Button is pressed.
+        /// Delivers the button-press to the callback (snap handler)
+        /// </summary>
+        /// <param name="sender">clicked Button</param>
+        /// <param name="e">the event that happened</param>
+        private void btnDialogNo_Click(object sender, RoutedEventArgs e)
+        {
+            SnapHandler.unsnap(Shape);
+            this.Close();
+        }
+    }
+}
