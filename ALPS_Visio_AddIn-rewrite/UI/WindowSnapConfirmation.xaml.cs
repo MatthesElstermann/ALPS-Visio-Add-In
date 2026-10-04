@@ -15,6 +15,9 @@ namespace ALPS_Visio_AddIn_rewrite
         private Shape snappingShape;
         private Shape referenceBackgroundShape;
 
+        /// <summary>True, wenn der Nutzer mit "Ja" gesnappt hat (Nein oder Schliessen = false).</summary>
+        public bool SnapConfirmed { get; private set; }
+
         /// <summary>
         /// constructor.
         /// </summary>
@@ -51,6 +54,7 @@ namespace ALPS_Visio_AddIn_rewrite
         private void btnDialogYes_Click(object sender, RoutedEventArgs e)
         {
             snapHandler.performSnap(snappingShape, referenceBackgroundShape);
+            SnapConfirmed = true;
             this.Close();
         }
 

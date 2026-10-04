@@ -201,6 +201,16 @@ namespace ALPS_Visio_AddIn_rewrite.UI
             }
         }
 
+        /// <summary>
+        /// Modal mit dem Visio-Hauptfenster als Besitzer anzeigen — ohne Besitzer konnte der
+        /// Dialog hinter Visio landen (Visio wirkte dann eingefroren).
+        /// </summary>
+        public new DialogResult ShowDialog()
+        {
+            var owner = VisioOwner.Win32Window;
+            return owner != null ? base.ShowDialog(owner) : base.ShowDialog();
+        }
+
         // --- Bequeme statische Helfer ---------------------------------------------------------
 
         public static void ShowSuccess(string title, string subtitle = null, string body = null)

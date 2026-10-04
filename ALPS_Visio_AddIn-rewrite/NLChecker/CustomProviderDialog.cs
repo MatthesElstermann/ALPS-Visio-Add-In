@@ -141,6 +141,17 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                 return;
             }
 
+            // Der API-Key geht bei http:// unverschluesselt ueber das Netz — fuer lokale Server
+            // (Ollama, LM Studio) ueblich, fuer entfernte Hosts nur nach Bestaetigung.
+            if (IsPlainHttpToRemoteHost(chatUrl) || IsPlainHttpToRemoteHost(modelsUrl))
+            {
+                DialogResult confirm = MessageBox.Show(
+                    "Die Adresse verwendet http:// zu einem entfernten Server. Der API-Key würde " +
+                    "unverschlüsselt übertragen.\n\nTrotzdem speichern?",
+                    "PASS NL Checker", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+                if (confirm != DialogResult.Yes) return;
+            }
+
             Result = new CustomLlmProvider
             {
                 Name = name,
@@ -177,6 +188,13 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                        "um sie automatisch aus der Chat-URL abzuleiten.";
 
             return null;
+        }
+
+        private static bool IsPlainHttpToRemoteHost(string url)
+        {
+            return Uri.TryCreate(url, UriKind.Absolute, out Uri parsed)
+                && parsed.Scheme == Uri.UriSchemeHttp
+                && !parsed.IsLoopback;
         }
 
         private static bool IsValidHttpUrl(string url)

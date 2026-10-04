@@ -182,7 +182,9 @@ public class Converter
                 {
                     // TODO: improve error handling
                     if (participant.ProcessRef == null)
-                        throw new InvalidOperationException();
+                        throw new InvalidOperationException(
+                            "Subjekt \"" + fullySpecifiedSubject.getModelComponentID() + "\" hat ein Macro-/Guard-Verhalten (\""
+                            + subjectBehavior.getModelComponentID() + "\"), aber kein Basis-Verhalten — BPMN-Konvertierung nicht möglich.");
 
                     ISubProcess eventSubProcess = BpmnUtility.CreateSubProcess(name: PassUtility.GetElementName(subjectBehavior), triggeredByEvent: true);
                     participant.ProcessRef.FlowElements.Add(eventSubProcess);
@@ -297,7 +299,7 @@ public class Converter
             if (!(edge.Transition is IReceiveTransition receiveTransition && edge.Source.State is IGuardReceiveState))
                 continue;
 
-            IMessageSpecification? messageSpecification = receiveTransition.getTransitionCondition().getReceptionOfMessage();
+            IMessageSpecification? messageSpecification = receiveTransition.getTransitionCondition()?.getReceptionOfMessage();
 
             INode exclusiveGatewayNode = new Node()
             {
@@ -462,7 +464,7 @@ public class Converter
             if (!(edge.Transition is ISendTransition sendTransition))
                 continue;
 
-            IMessageSpecification messageSpecification = sendTransition.getTransitionCondition().getRequiresSendingOfMessage();
+            IMessageSpecification? messageSpecification = sendTransition.getTransitionCondition()?.getRequiresSendingOfMessage();
 
             INode sendTaskNode = new Node()
             {
@@ -487,7 +489,7 @@ public class Converter
                     continue;
             }
 
-            IMessageSpecification messageSpecification = receiveTransition.getTransitionCondition().getReceptionOfMessage();
+            IMessageSpecification? messageSpecification = receiveTransition.getTransitionCondition()?.getReceptionOfMessage();
 
             INode receiveTaskNode = new Node()
             {
@@ -631,15 +633,21 @@ public class Converter
 
             ICollection<IEdge> incomingEdges = GetIncomingEdges(node);
             if (incomingEdges.Count > 1)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(
+                    "Zwischenereignis \"" + intermediateCatchEvent.Id + "\" hat " + incomingEdges.Count
+                    + " eingehende Kanten — erwartet wird höchstens eine.");
 
-            if (incomingEdges.First().Source.FlowNode is not ITask sourceTask)
+            if (incomingEdges.Count == 0 || incomingEdges.First().Source.FlowNode is not ITask sourceTask)
                 continue;
 
+            // Nur Timer-, Conditional- und Error-Events werden zu Boundary-Events (Time-, User-Cancel-
+            // und Sending-Failed-Transitionen). Die fruehere Bedingung
+            // !(d is not Timer || d is not Conditional || d is not Error) war stets false und filterte
+            // nichts; heute folgen einem Task nur diese drei Typen, das Ergebnis bleibt also gleich.
             IEventDefinition? eventDefinition = intermediateCatchEvent.EventDefinitions.FirstOrDefault();
-            if (!(eventDefinition is not ITimerEventDefinition
-                || eventDefinition is not IConditionalEventDefinition
-                || eventDefinition is not IErrorEventDefinition))
+            if (!(eventDefinition is ITimerEventDefinition
+                || eventDefinition is IConditionalEventDefinition
+                || eventDefinition is IErrorEventDefinition))
                 continue;
 
             node.FlowNode = BpmnUtility.CreateBoundaryEvent(sourceTask, eventDefinition);

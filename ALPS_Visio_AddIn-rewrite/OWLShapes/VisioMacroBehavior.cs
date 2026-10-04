@@ -15,16 +15,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
         public void ImportToVisio(Visio.Page currentPage)
         {
-            // TODO: set page dimensions
-
-            foreach (IBehaviorDescribingComponent component in this.getBehaviorDescribingComponents().Values)
-            {
-                if (!(component is IVisioImportable importable)) continue;
-
-                if (importable is IVisioImportableWithShape shapeImportable) shapeImportable.PrepareDimensions();
-
-                if (importable is IState || importable is ITransition) importable.ImportToVisio(currentPage);
-            }
+            // Wie Subject-/Guard-/Extension-Behaviors ueber den gemeinsamen Importer zeichnen:
+            // States vor Transitionen (sonst scheitert das Kleben), Dimensionen + Fallback-Layout.
+            BehaviorImporter.Draw(this.getBehaviorDescribingComponents(), currentPage);
         }
 
         public override IParseablePASSProcessModelElement getParsedInstance()

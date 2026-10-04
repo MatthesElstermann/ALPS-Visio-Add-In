@@ -36,7 +36,13 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // hasModelComponentLabel
             VH.SetProp(shape, Constants.Properties.Label, this.GetEnglishLabel(out IList<IStringWithExtra> otherLabels));
             foreach (IStringWithExtra otherLabel in otherLabels)
-                VH.SetProp(shape, Constants.Properties.Label + otherLabel.getExtra().ToUpper(), otherLabel.getContent());
+            {
+                // Sprach-Tags wie "de-DE" ergaben Zeilennamen mit Bindestrich ("lableDE-DE") —
+                // im ShapeSheet ungueltig, AddNamedRow warf und der Import des Elements brach ab.
+                string suffix = RowNameSuffix(otherLabel.getExtra());
+                if (suffix.Length == 0) continue; // ohne Tag wuerde die englische Zeile ueberschrieben
+                VH.SetProp(shape, Constants.Properties.Label + suffix, otherLabel.getContent());
+            }
             // TODO: hasAdditionalAttribute into new Fields
             // some of element.getElementsWithUnspecifiedRelation()
 
@@ -72,7 +78,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             foreach (IStringWithExtra label in element.getModelComponentLabels())
             {
-                if (label.getExtra().ToLower() == "en") englishLabel = label;
+                // "en", "en-US", "en-GB" … gelten als Englisch (vorher nur exakt "en").
+                string tag = (label.getExtra() ?? "").ToLowerInvariant();
+                if (englishLabel == null && (tag == "en" || tag.StartsWith("en-"))) englishLabel = label;
                 else nonEnglishLabels.Add(label);
             }
 
@@ -83,6 +91,18 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             }
 
             return englishLabel?.getContent();
+        }
+
+        /// <summary>Sprach-Tag als gueltiger ShapeSheet-Zeilennamen-Teil: nur A-Z, 0-9, _ ("de-DE" → "DE_DE").</summary>
+        public static string RowNameSuffix(string languageTag)
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (char c in (languageTag ?? "").ToUpperInvariant())
+            {
+                if ((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') sb.Append(c);
+                else if (c == '-') sb.Append('_');
+            }
+            return sb.ToString();
         }
 
         public Visio.Shape GetShape()

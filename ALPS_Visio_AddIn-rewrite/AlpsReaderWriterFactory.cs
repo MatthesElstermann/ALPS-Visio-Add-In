@@ -30,8 +30,12 @@ namespace ALPS_Visio_AddIn_rewrite
             try
             {
                 // Ordner "bin" unter dem Temp-Verzeichnis: garantiert, dass IndexOf("bin") >= 0 ist,
-                // sodass der Substring im Library-Konstruktor nicht mehr wirft.
-                string safeDir = Path.Combine(Path.GetTempPath(), "bin");
+                // sodass der Substring im Library-Konstruktor nicht mehr wirft. Eigener Ordner je
+                // Prozess und AppDomain: der Ctor LOESCHT "<…>\logs\logfile.txt" vor dem Schreiben —
+                // bei einem gemeinsamen %TEMP%\bin warf das eine IOException, sobald eine zweite
+                // Visio-Instanz (oder AppDomain) die Logdatei offen hielt.
+                string safeDir = Path.Combine(Path.GetTempPath(), "ALPS_Visio_AddIn",
+                    System.Diagnostics.Process.GetCurrentProcess().Id + "_" + System.AppDomain.CurrentDomain.Id, "bin");
                 Directory.CreateDirectory(safeDir);
                 Directory.SetCurrentDirectory(safeDir);
             }

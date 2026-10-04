@@ -88,7 +88,10 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         public int CompareTo(SIDPage x)
         {
-            return x.getPriorityOrder() > this.priorityOrder ? 1 : 0;
+            // Vorher nur 1/0 (nie -1) — kein gueltiger Vergleich, List.Sort lieferte eine
+            // beliebige Reihenfolge. Aufsteigend: kleinere Nummer = hoehere Prioritaet = zuerst.
+            if (x == null) return -1;
+            return this.priorityOrder.CompareTo(x.getPriorityOrder());
         }
 
         internal int getPriorityOrder()

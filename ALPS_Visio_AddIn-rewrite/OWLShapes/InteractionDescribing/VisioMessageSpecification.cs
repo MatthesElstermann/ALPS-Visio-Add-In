@@ -24,6 +24,25 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // TODO: containsPayloadDescription
         }
 
+        /// <summary>
+        /// Zeichnet die Nachricht fuer eine Message-Box auf <paramref name="page"/> und liefert das Shape.
+        /// Eine Spezifikation kann in mehreren Boxen vorkommen (auch auf anderen Layer-Seiten); ein
+        /// Shape gehoert aber nur zu einer Liste — InsertListMember verschob es frueher aus der ersten
+        /// Box heraus. Ab der zweiten Verwendung wird deshalb ein eigenes Shape angelegt.
+        /// </summary>
+        public Visio.Shape ImportForMessageBox(Visio.Page page)
+        {
+            if (this.GetShape() == null)
+            {
+                ImportToVisio(page);
+                return this.GetShape();
+            }
+
+            var copy = new PASSProcessModelElementImport(this);
+            copy.Import(shapeType, page, VH.GetBounds(this));
+            return copy.GetShape();
+        }
+
         public bool PrepareDimensions() // TODO: prepare dimensions
         {
             return false;

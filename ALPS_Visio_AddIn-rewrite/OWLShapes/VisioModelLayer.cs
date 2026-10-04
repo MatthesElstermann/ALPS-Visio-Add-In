@@ -28,7 +28,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // hasPriorityNumber
             VH.SetProp(page.PageSheet, Constants.Properties.PriorityOrderNumber, this.priorityNumber.ToString());
 
-            bool anyHadCoordinates = false;
+            // Nur Subjekte zaehlen: auch States sind Layer-Elemente — hatte ein State Koordinaten,
+            // fiel frueher das Auto-Layout aus und Subjekte ohne Koordinaten stapelten sich bei (0,0).
+            var subjectsWithoutCoordinates = new HashSet<ISubject>();
             var importedSubjects = new List<ISubject>();
             var messageExchangeLists = new List<IVisioImportable>();
             var otherDrawables = new List<IVisioImportable>();
@@ -47,12 +49,14 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 {
                     try
                     {
-                        if (shapeImportable.PrepareDimensions()) anyHadCoordinates = true;
+                        if (!shapeImportable.PrepareDimensions() && modelElement is ISubject withoutCoordinates)
+                            subjectsWithoutCoordinates.Add(withoutCoordinates);
                     }
                     catch (System.Exception ex)
                     {
                         string id = modelElement.getModelComponentID();
                         System.Diagnostics.Debug.WriteLine("PrepareDimensions von \"" + id + "\" fehlgeschlagen: " + ex);
+                        if (modelElement is ISubject failed) subjectsWithoutCoordinates.Add(failed);
                     }
                 }
 
@@ -80,8 +84,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // message box is centered on the connector while the subjects still sit at their
             // drop position; moving them afterwards drags the (glued) connector along but
             // leaves the box behind at (0,0).
-            if (!anyHadCoordinates && importedSubjects.Count > 0)
-                ApplyHorizontalLayout(importedSubjects, page);
+            // Subjekte mit Koordinaten bleiben, wo die Datei sie hinlegt; nur die uebrigen
+            // werden in einer Reihe angeordnet.
+            var subjectsToLayout = importedSubjects.Where(subjectsWithoutCoordinates.Contains).ToList();
+            if (subjectsToLayout.Count > 0)
+                ApplyHorizontalLayout(subjectsToLayout, page);
 
             // Second pass: now that subjects are placed, draw the message exchange lists
             // and the remaining SID-level drawables (their connectors glue to the subjects).
@@ -108,7 +115,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             catch (System.Exception ex)
             {
                 string id = importable is IPASSProcessModelElement element ? element.getModelComponentID() : importable.GetType().Name;
-                System.Diagnostics.Debug.WriteLine("Import des Elements \"" + id + "\" fehlgeschlagen: " + ex);
+                ImportDiagnostics.Report(id, ex);
                 return false;
             }
         }
@@ -119,26 +126,26 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         /// </summary>
         private void ApplyHorizontalLayout(IList<ISubject> subjects, Visio.Page page)
         {
+            // Mit der tatsaechlichen Breite jedes Shapes rechnen: Gruppen/System-Interface-Subjekte
+            // sind deutlich breiter als ein Subjekt — mit fester Breite ueberlappten sie.
+            var shapes = subjects.OfType<IVisioImportableWithShape>().Select(s => s.GetShape()).Where(s => s != null).ToList();
+            var widths = shapes.Select(s => System.Math.Max(SIDSubjectWidthMM, s.CellsU[Constants.ShapeCells.Width].Result["mm"])).ToList();
+
             // Grow the page so the row of subjects (and the message boxes between them) fits.
-            double rowWidth = (subjects.Count - 1) * (SIDSubjectWidthMM + SIDSubjectSpacingMM);
-            double pageWidth = rowWidth + SIDSubjectWidthMM + 2 * SIDMarginMM;
+            double rowWidth = widths.Sum() + System.Math.Max(0, widths.Count - 1) * SIDSubjectSpacingMM;
+            double pageWidth = rowWidth + 2 * SIDMarginMM;
             pageWidth = System.Math.Max(pageWidth, page.PageSheet.CellsU["PageWidth"].Result["mm"]);
             VH.SetCellMM(page.PageSheet, "PageWidth", pageWidth);
 
             double pageHeightMM = page.PageSheet.CellsU["PageHeight"].Result["mm"];
             double y = pageHeightMM / 2.0;
-            double x = SIDMarginMM + SIDSubjectWidthMM / 2.0;
+            double left = SIDMarginMM;
 
-            foreach (ISubject subject in subjects)
+            for (int i = 0; i < shapes.Count; i++)
             {
-                if (!(subject is IVisioImportableWithShape importable)) continue;
-                Visio.Shape shape = importable.GetShape();
-                if (shape != null)
-                {
-                    VH.SetCellMM(shape, Constants.ShapeCells.PinX, x);
-                    VH.SetCellMM(shape, Constants.ShapeCells.PinY, y);
-                }
-                x += SIDSubjectWidthMM + SIDSubjectSpacingMM;
+                VH.SetCellMM(shapes[i], Constants.ShapeCells.PinX, left + widths[i] / 2.0);
+                VH.SetCellMM(shapes[i], Constants.ShapeCells.PinY, y);
+                left += widths[i] + SIDSubjectSpacingMM;
             }
         }
 

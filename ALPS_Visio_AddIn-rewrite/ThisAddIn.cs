@@ -67,10 +67,24 @@ namespace ALPS_Visio_AddIn_rewrite
         /// <param name="window">The active window, not used by this function</param>
         private void Application_WindowActivated(Window window)
         {
+            // Kein Dokument offen (z. B. nach dem Schliessen des letzten) — nichts zu tun.
+            Visio.Document current = Application.ActiveDocument;
+            if (current == null) return;
+
+            // activeDoc kann null sein (Visio ohne Dokument gestartet) oder auf ein bereits
+            // geschlossenes Dokument zeigen — dann wirft FullName eine COMException.
+            string previous;
+            try { previous = activeDoc?.FullName; }
+            catch (System.Runtime.InteropServices.COMException) { previous = null; }
+
             // If no window change, return
-            if (activeDoc.FullName.Equals(Application.ActiveDocument.FullName)) return;
-            activeDoc = Application.ActiveDocument;
-            reset();
+            if (current.FullName.Equals(previous)) return;
+            activeDoc = current;
+            try { reset(); }
+            catch (System.Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("[ThisAddIn] reset on window change failed: " + e);
+            }
         }
 
         /// <summary>
@@ -78,28 +92,69 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         private void Application_PageAdded(Page page)
         {
-            //let the model manager determine to what model the new Page belongs to
-            modelManager.pageAdded(page);
-
-            refreshLayerExplorerTreeView();
+            // Seiten anderer Dokumente (z. B. Hintergrunddokumente, Schablonen) gehoeren nicht
+            // zum Modell des aktiven Dokuments.
+            if (!IsActiveDrawing(page.Document)) return;
+            try
+            {
+                //let the model manager determine to what model the new Page belongs to
+                modelManager.pageAdded(page);
+                refreshLayerExplorerTreeView();
+            }
+            catch (System.Exception e)
+            {
+                // Ausnahmen aus COM-Events wuerden sonst still verschluckt bzw. den Handler kappen.
+                System.Diagnostics.Debug.WriteLine("[ThisAddIn] PageAdded failed: " + e);
+            }
         }
 
         private void Application_DocumentOpened(IVDocument doc)
         {
-            activeDoc = Application.ActiveDocument;
-            reset();
+            onDrawingOpenedOrCreated(doc);
         }
 
         private void Application_DocumentCreated(IVDocument doc)
         {
-            activeDoc = Application.ActiveDocument;
-            reset();
+            onDrawingOpenedOrCreated(doc);
+        }
+
+        /// <summary>
+        /// DocumentOpened/-Created feuern auch fuer Schablonen — u. a. fuer die SID-/SBD-Schablone,
+        /// die der Import selbst oeffnet. Ein reset() an dieser Stelle ersetzte den ModelController
+        /// mitten in einem laufenden Import/setExtends. Nur echte Zeichnungen loesen den Reset aus.
+        /// </summary>
+        private void onDrawingOpenedOrCreated(IVDocument doc)
+        {
+            if (doc == null || doc.Type != VisDocumentTypes.visTypeDrawing) return;
+            try
+            {
+                // Dokumente aus einem frueheren Import tragen die Steuerzelle evtl. noch auf "aus"
+                // (wurde mit gespeichert) — dann lief u. a. das Umschalten des Shape-Sets nie mehr.
+                if (doc is Visio.Document drawing && VisioHelper.AreVBAListenersOff(drawing))
+                    VisioHelper.ReenableVBAListenersWhenIdle(drawing);
+
+                activeDoc = Application.ActiveDocument;
+                reset();
+            }
+            catch (System.Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("[ThisAddIn] reset after open/create failed: " + e);
+            }
+        }
+
+        private bool IsActiveDrawing(Visio.Document doc)
+        {
+            Visio.Document active = Application.ActiveDocument;
+            if (doc == null || active == null) return false;
+            try { return doc.ID == active.ID && doc.Type == VisDocumentTypes.visTypeDrawing; }
+            catch (System.Runtime.InteropServices.COMException) { return false; }
         }
 
         internal void updateClicked()
         {
+            if (Application.ActiveDocument == null) return;
             modelManager.updateWholeController(Application.ActiveDocument.Pages);
-            layerExplorer.displayTreeView(modelManager.getTreeView());
+            layerExplorer?.displayTreeView(modelManager.getTreeView());
         }
 
         internal ModelController getModelController()
@@ -109,24 +164,70 @@ namespace ALPS_Visio_AddIn_rewrite
 
         internal void extendsChanged(SIDPage extends, SIDPage changedPage)
         {
+            if (Application.ActiveDocument == null) return;
             modelManager.updateWholeController(Application.ActiveDocument.Pages);
             //if (changedPage.)
             modelManager.updateBackground(extends, changedPage);
-            layerExplorer.displayTreeView(modelManager.getTreeView());
+            layerExplorer?.displayTreeView(modelManager.getTreeView());
         }
+
+        /// <summary>
+        /// Visio-Fenster der aktuell angezeigten Anchor Bar (Layer Explorer), um sie bei einem
+        /// erneuten Klick wieder einzublenden statt jedes Mal eine weitere anzulegen.
+        /// </summary>
+        private Visio.Window layerExplorerWindow;
+        private int layerExplorerHostWindowId;
 
         internal void showDirectoryClicked()
         {
+            if (Application.ActiveDocument == null) return;
             modelManager.updateWholeController(Application.ActiveDocument.Pages);
 
-            //Methods are not used due to a problem with the setParent-Method regarding the anchor-bar
-            AnchorBarsUsage ancBar = new AnchorBarsUsage(this, modelManager);
-            layerExplorer = ancBar.CreateAnchorBar(Application);
+            if (!TryReshowLayerExplorer())
+            {
+                //Methods are not used due to a problem with the setParent-Method regarding the anchor-bar
+                AnchorBarsUsage ancBar = new AnchorBarsUsage(this, modelManager);
+                layerExplorer = ancBar.CreateAnchorBar(Application);
+                layerExplorerWindow = ancBar.AnchorWindow;
+                layerExplorerHostWindowId = Application.ActiveWindow.ID;
+            }
 
             layerExplorer.displayTreeView(modelManager.getTreeView());
         }
+
+        /// <summary>
+        /// Blendet die vorhandene Anchor Bar wieder ein, sofern sie noch existiert und zum
+        /// aktiven Zeichnungsfenster gehoert. Sonst false (dann wird eine neue angelegt).
+        /// </summary>
+        private bool TryReshowLayerExplorer()
+        {
+            if (layerExplorer == null || layerExplorerWindow == null) return false;
+            try
+            {
+                if (layerExplorerHostWindowId == Application.ActiveWindow.ID)
+                {
+                    // Nur wiederverwenden, wenn die Anchor Bar noch zum Zeichnungsfenster gehoert
+                    // (vom Nutzer geschlossene Anchor Bars verschwinden aus dessen Windows-Liste).
+                    int explorerId = layerExplorerWindow.ID;
+                    foreach (Visio.Window child in Application.ActiveWindow.Windows)
+                    {
+                        if (child.ID != explorerId) continue;
+                        child.Visible = true;
+                        return true;
+                    }
+                }
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                // Anchor Bar wurde geschlossen bzw. ihr Zeichnungsfenster existiert nicht mehr.
+            }
+            layerExplorerWindow = null;
+            return false;
+        }
         private void reset()
         {
+            if (Application.ActiveDocument == null) return;
+            this.modelManager?.detach();
             this.modelManager = new ModelController(this);
             modelManager.updateWholeController(Application.ActiveDocument.Pages);
             layerExplorer?.displayTreeView(modelManager.getTreeView());

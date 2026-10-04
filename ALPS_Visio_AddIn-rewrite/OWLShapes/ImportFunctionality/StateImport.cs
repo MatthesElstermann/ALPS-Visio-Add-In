@@ -20,7 +20,18 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
         public override void Import(string shapeType, Visio.Page page, IList<ISimple2DVisualizationPoint> bounds)
         {
+            // StateReference (z. B. im GBD ein Verweis auf einen State der Basis-SBD): alps.net.api
+            // wandelt den geparsten Stub in einen gewoehnlichen State um und behaelt nur den Verweis.
+            // Solche States als "State Reference" zeichnen — nur dieses Shape rastet auf
+            // SBD-Seiten ein — und den Ziel-State als extends eintragen (Grundlage des Snaps).
+            IState referenced = (state as IStateReference)?.getReferencedState();
+            if (referenced != null)
+                shapeType = Constants.SBDMasters.StateExtension;
+
             base.Import(shapeType, page, bounds);
+
+            if (referenced != null)
+                VH.SetProp(shape, Constants.Properties.Transition.Extends, referenced.getModelComponentID());
 
             // EndState
             VH.SetPropBool(shape, Constants.Properties.State.End, state.isStateType(IState.StateType.EndState));

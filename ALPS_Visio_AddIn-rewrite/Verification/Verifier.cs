@@ -111,6 +111,7 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             // lieferten die Werte schon immer zurueck, sie wurden nur nie ausgewertet).
             bool checksRan = false;
             bool restrictionsValid = false, subjectsValid = false, connectorsValid = false;
+            bool connectorsCheckable = false;
             int notPairable = 0;
 
             try
@@ -155,6 +156,9 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
                     subjectsValid = RunCheck("CheckSubject", () => checkSID.CheckSubject(subjects ?? new List<Tuple<ISubject, ISubject>>()));
                     connectorsValid = RunCheck("CheckMessageconnectors",
                         () => checkSID.CheckMessageconnectors(transitions ?? new List<Tuple<ICommunicationAct, IImplementingElement<ICommunicationAct>>>()));
+                    // Ohne gepaarte Message-Transitionen hat CheckMessageconnectors nichts zu
+                    // pruefen und lieferte bisher stets "ja" — dann als "nicht pruefbar" ausweisen.
+                    connectorsCheckable = transitions != null && transitions.Any(t => t.Item2 != null);
                     checksRan = true;
 
                     // SBD checks are not implemented yet in the prototype.
@@ -184,7 +188,7 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
 
             string report = output.ToString();
             if (checksRan)
-                report += BuildVerdict(restrictionsValid, subjectsValid, connectorsValid,
+                report += BuildVerdict(restrictionsValid, subjectsValid, connectorsValid, connectorsCheckable,
                     CountOccurrences(report, "Element not implemented!") - notPairable, notPairable);
 
             return string.IsNullOrWhiteSpace(report)
@@ -200,9 +204,10 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
         /// werden gesondert ausgewiesen, aber nicht eingerechnet (siehe VerifyCore).
         /// </summary>
         private static string BuildVerdict(bool restrictionsValid, bool subjectsValid, bool connectorsValid,
-            int notImplemented, int notPairable)
+            bool connectorsCheckable, int notImplemented, int notPairable)
         {
-            bool passed = restrictionsValid && subjectsValid && connectorsValid && notImplemented == 0;
+            bool passed = restrictionsValid && subjectsValid && (connectorsValid || !connectorsCheckable)
+                && notImplemented == 0;
 
             var sb = new StringBuilder();
             sb.AppendLine();
@@ -211,7 +216,7 @@ namespace ALPS_Visio_AddIn_rewrite.Verification
             sb.AppendLine("==========================================");
             sb.AppendLine("Kommunikations-Restriktionen eingehalten:     " + (restrictionsValid ? "ja" : "NEIN"));
             sb.AppendLine("Subjekt-Typen korrekt implementiert:          " + (subjectsValid ? "ja" : "NEIN"));
-            sb.AppendLine("Message-Connector-Typen korrekt implementiert: " + (connectorsValid ? "ja" : "NEIN"));
+            sb.AppendLine("Message-Connector-Typen korrekt implementiert: " + (!connectorsCheckable ? "nicht pruefbar" : connectorsValid ? "ja" : "NEIN"));
             sb.AppendLine("Nicht implementierte Spezifikations-Elemente:  " + notImplemented);
             if (notPairable > 0)
                 sb.AppendLine("Nicht ins Verdict eingerechnet:                " + notPairable +

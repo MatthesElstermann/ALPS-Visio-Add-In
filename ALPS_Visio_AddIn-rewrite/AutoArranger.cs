@@ -69,7 +69,7 @@ namespace ALPS_Visio_AddIn_rewrite
             try
             {
                 string pageType = ReadPageTypeFormula(page);
-                if (pageType.Contains(Constants.Properties.SBDPage))
+                if (pageType.Contains(Constants.Properties.SBDPage) || pageType.Contains(Constants.Properties.GBDPage))
                 {
                     // SBD-Label-Boxen folgen ihren Connectoren per Stencil-Formel —
                     // kein Nachzentrieren noetig.

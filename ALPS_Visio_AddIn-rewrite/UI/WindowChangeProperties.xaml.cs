@@ -203,8 +203,13 @@ namespace ALPS_Visio_AddIn_rewrite
 
         private void btnDialogOK_Click(object sender, RoutedEventArgs e)
         {
+            // Direkt eingetippte Werte uebernehmen — currentPriority aenderte sich bisher
+            // nur ueber Pfeiltasten/Mausrad, ein getippter Wert ging beim OK verloren.
+            if (int.TryParse(textBoxPriority.Text, out int typedPriority) && typedPriority >= 1)
+                currentPriority = typedPriority;
+
             // Update the priority if a number is entered
-            if (currentPriority != priorityOnStart)
+            if (currentPriority != priorityOnStart && sidPageC != null)
             {
                 modelController.updatePagePriority(currentPriority.ToString(), sidPageC);
                 addIn.refreshLayerExplorerTreeView();
@@ -234,17 +239,17 @@ namespace ALPS_Visio_AddIn_rewrite
 
         private void noSeparation_Click(object sender, RoutedEventArgs e)
         {
-            sidPageC.setSeparationStyle(DiagramPageController.SeparationStyle.NO_SEP);
+            sidPageC?.setSeparationStyle(DiagramPageController.SeparationStyle.NO_SEP);
         }
 
         private void normalSeparation_Click(object sender, RoutedEventArgs e)
         {
-            sidPageC.setSeparationStyle(DiagramPageController.SeparationStyle.STANDARD_SEP);
+            sidPageC?.setSeparationStyle(DiagramPageController.SeparationStyle.STANDARD_SEP);
         }
 
         private void fullSeparation_Click(object sender, RoutedEventArgs e)
         {
-            sidPageC.setSeparationStyle(DiagramPageController.SeparationStyle.FULL_SEP);
+            sidPageC?.setSeparationStyle(DiagramPageController.SeparationStyle.FULL_SEP);
         }
 
     }

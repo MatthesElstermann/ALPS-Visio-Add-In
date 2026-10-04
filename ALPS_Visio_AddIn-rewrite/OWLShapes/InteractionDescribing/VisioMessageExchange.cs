@@ -15,6 +15,12 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         protected VisioMessageExchange() { import = new PASSProcessModelElementImport(this); }
         public void ImportToVisio(Visio.Page page)
         {
+            // Vor dem Zeichnen pruefen: ein Verbinder kann nur an Shapes derselben Seite kleben.
+            // Liegen Sender und Empfaenger auf verschiedenen Ebenen (= Seiten), entstand sonst ein
+            // verwaister Verbinder neben der Seite und die Meldung "Ungueltiges Zielobjekt".
+            EnsureOnPage(this.getSender(), page, "Sender");
+            EnsureOnPage(this.getReceiver(), page, "Empfänger");
+
             import.Import(shapeType, page, VH.GetBounds(this));
 
             // set path (auto arrange)
@@ -25,6 +31,19 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             // TODO: AbstractMessageExchange
             // TODO: FinalizedMessageExchange -> alps.net.api
+        }
+
+        private static void EnsureOnPage(ISubject subject, Visio.Page page, string role)
+        {
+            if (!(subject is IVisioImportableWithShape importable)) return;
+            Visio.Shape shape = importable.GetShape();
+            string name = subject.getModelComponentLabelsAsStrings().Count > 0
+                ? subject.getModelComponentLabelsAsStrings()[0] : subject.getModelComponentID();
+            if (shape == null)
+                throw new System.InvalidOperationException(role + " „" + name + "“ wurde nicht gezeichnet — Nachricht übersprungen.");
+            if (shape.ContainingPage.ID != page.ID)
+                throw new System.InvalidOperationException(role + " „" + name + "“ liegt auf einer anderen Ebene (Seite „"
+                    + shape.ContainingPage.Name + "“). Nachrichten zwischen Ebenen kann Visio nicht als Verbinder zeichnen — Nachricht übersprungen.");
         }
 
         public bool PrepareDimensions() // TODO: prepare dimensions

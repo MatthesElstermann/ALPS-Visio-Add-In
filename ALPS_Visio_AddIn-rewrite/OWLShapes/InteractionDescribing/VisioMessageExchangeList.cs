@@ -56,12 +56,21 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 // aggregate list
                 foreach (IMessageExchange messageExchange in this.getMessageExchanges().Values)
                 {
-                    if (messageExchange.getMessageType() is IVisioImportableWithShape importable)
+                    Visio.Shape messageShape = null;
+                    if (messageExchange.getMessageType() is VisioMessageSpecification specification)
+                    {
+                        messageShape = specification.ImportForMessageBox(page);
+                    }
+                    else if (messageExchange.getMessageType() is IVisioImportableWithShape importable)
                     {
                         importable.ImportToVisio(page);
+                        messageShape = importable.GetShape();
+                    }
 
-                        messageBox.ContainerProperties.InsertListMember(importable.GetShape(), 0);
-                        importable.GetShape().BringToFront();
+                    if (messageShape != null)
+                    {
+                        messageBox.ContainerProperties.InsertListMember(messageShape, 0);
+                        messageShape.BringToFront();
                     }
                 }
             }

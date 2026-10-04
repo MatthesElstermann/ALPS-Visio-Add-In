@@ -17,10 +17,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         {
             import.Import(shapeType, page, VH.GetBounds(this));
 
-            // TODO
-
-            //if (getCorrespondentA() != null && getCorrespondentA() is IVisioImportableWithShape importableSender) GetShape().CellsU["BeginX"].GlueToPos(importableSender.GetShape(), 1, 0.5);
-            //if (getCorrespondentB() != null && getCorrespondentB() is IVisioImportableWithShape importableReceiver) GetShape().CellsU["EndY"].GlueToPos(importableReceiver.GetShape(), 0, 0.5);
+            // Mit den beiden Subjekten verbinden (frueher auskommentiert — der Verbinder lag
+            // unverbunden bei (0,0) neben der Seite).
+            VH.GlueConnectorToSubjects(GetShape(), getCorrespondentA(), getCorrespondentB(), getModelComponentID());
         }
 
         public bool PrepareDimensions() // TODO: prepare dimensions

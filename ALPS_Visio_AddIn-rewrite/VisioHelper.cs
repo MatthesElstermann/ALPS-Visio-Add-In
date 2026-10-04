@@ -13,17 +13,96 @@ namespace ALPS_Visio_AddIn_rewrite
 {
     public static class VisioHelper
     {
+        /// <summary>
+        /// Liefert die aktive Zeichnung und legt eine neue an, wenn keine aktiv ist. Ein reiner
+        /// Documents.Count-Check genuegt nicht: geoeffnete Schablonen zaehlen mit, und ist eine
+        /// Schablone aktiv, landeten Flag-Zelle und neue Seiten sonst in der Schablone.
+        /// </summary>
+        public static Visio.Document EnsureActiveDrawing()
+        {
+            Visio.Application app = Globals.ThisAddIn.Application;
+            Visio.Document active = app.ActiveDocument;
+            if (active != null && active.Type == Visio.VisDocumentTypes.visTypeDrawing) return active;
+            return app.Documents.Add("");
+        }
+
         public static void setVBAListenersRunning(Boolean newStatus)
         {
-            Visio.IVDocument myActiveDocument = Globals.ThisAddIn.Application.ActiveDocument;
+            SetVBAListenersRunning(EnsureActiveDrawing(), newStatus);
+        }
 
-            if (myActiveDocument.DocumentSheet.CellExistsU["Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun, 0] == 0)
+        private const string VBAListenersCell = "Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun;
+
+        /// <summary>True, wenn die Steuerzelle die Schablonen-VBA ausdruecklich abschaltet (Wert 0).</summary>
+        public static bool AreVBAListenersOff(Visio.Document document)
+        {
+            return document.DocumentSheet.CellExistsU[VBAListenersCell, 0] != 0
+                && document.DocumentSheet.CellsU[VBAListenersCell].FormulaU == "0";
+        }
+
+        /// <summary>
+        /// Schaltet die Schablonen-VBA wieder ein, sobald Visio das naechste Mal untaetig ist.
+        /// Nicht sofort am Ende des Imports: Visio stellt die waehrend des Imports entstandenen
+        /// Ereignisse erst danach zu — die Willkommens-Routine der Schablone (sie benannte sonst die
+        /// importierte SID-Seite um) laeuft so noch bei abgeschalteter VBA. Danach greifen die
+        /// VBA-Funktionen wieder, u. a. das Umschalten des Shape-Sets je nach SID-/SBD-Seite
+        /// (im Original-Add-In wurde die VBA nach dem Import ebenfalls wieder eingeschaltet).
+        /// </summary>
+        public static void ReenableVBAListenersWhenIdle(Visio.Document document)
+        {
+            // Nur einmal je Dokument einplanen: nach einem Import stellt Visio u. a. das
+            // DocumentCreated-Ereignis erst zu, wenn die VBA schon abgeschaltet ist — ThisAddIn
+            // plante dann ein zweites Wiedereinschalten ein (Willkommensmeldung erschien doppelt).
+            int documentId = document.ID;
+            if (!_pendingVBAReenable.Add(documentId)) return;
+
+            Visio.Application app = Globals.ThisAddIn.Application;
+            Visio.EApplication_VisioIsIdleEventHandler handler = null;
+            handler = idleApp =>
+            {
+                app.VisioIsIdle -= handler;
+                _pendingVBAReenable.Remove(documentId);
+                try
+                {
+                    SetVBAListenersRunning(document, true);
+
+                    // Die Schablonen-VBA setzt beim Einschalten offenbar eigene Seiteneinstellungen
+                    // und entfernte dabei den Hintergrund der GBD-Seiten (Basis-SBD nicht mehr
+                    // sichtbar, State Reference nicht eingerastet). Danach die Seitenverwaltung
+                    // neu aufbauen, damit die Hintergruende erneut abgeleitet werden.
+                    Visio.Document active = app.ActiveDocument;
+                    if (active != null && active.ID == document.ID)
+                        Globals.ThisAddIn.updateClicked();
+                }
+                catch (System.Runtime.InteropServices.COMException e)
+                {
+                    // Dokument inzwischen geschlossen — nichts mehr einzuschalten.
+                    Debug.WriteLine("[VBA] re-enabling listeners failed: " + e.Message);
+                }
+            };
+            app.VisioIsIdle += handler;
+        }
+
+        private static readonly HashSet<int> _pendingVBAReenable = new HashSet<int>();
+
+        private static void SetVBAListenersRunning(Visio.IVDocument myActiveDocument, Boolean newStatus)
+        {
+            string cellName = "Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun;
+            string formula = newStatus ? "-1" : "0";
+            if (myActiveDocument.DocumentSheet.CellExistsU[cellName, 0] == 0)
             {
                 myActiveDocument.DocumentSheet.AddNamedRow((short)visSectionProp, Constants.Properties.InteropWithVSTOShouldListenersRun, (short)visTagDefault);
             }
+            else if (myActiveDocument.DocumentSheet.CellsU[cellName].FormulaU == formula)
+            {
+                // Bereits gesetzt: nicht erneut schreiben. Die Schablonen-VBA reagiert auf jede
+                // Aenderung dieser Zelle (StopCode); ein zweiter Import im selben Dokument loeste
+                // dadurch erneut StopCode auf bereits gestoppten Listenern aus — VBA-Laufzeitfehler,
+                // danach liefen die Makros nicht mehr und die Message-Boxen fehlten.
+                return;
+            }
 
-            myActiveDocument.DocumentSheet.CellsU["Prop." + Constants.Properties.InteropWithVSTOShouldListenersRun].Formula =
-                newStatus ? "-1" : "0";
+            myActiveDocument.DocumentSheet.CellsU[cellName].Formula = formula;
         }
 
         public enum VisioStencils
@@ -74,12 +153,17 @@ namespace ALPS_Visio_AddIn_rewrite
             return null;
         }
 
-        /// <summary>Checks whether a cached COM document is still open (RCW still valid).</summary>
+        /// <summary>
+        /// Checks whether a cached COM document is still open and usable. Die ID allein genuegt
+        /// nicht: ein Verweis kann noch eine ID liefern, waehrend der Zugriff auf Masters bereits
+        /// mit "Objekt kann nicht erstellt werden" scheitert.
+        /// </summary>
         private static bool IsAlive(Visio.Document doc)
         {
             try
             {
                 int _ = doc.ID;
+                int __ = doc.Masters.Count;
                 return true;
             }
             catch
@@ -104,20 +188,52 @@ namespace ALPS_Visio_AddIn_rewrite
 
             foreach (VisioStencils stencilKind in new[] { VisioStencils.SID_STENCIL, VisioStencils.SBD_STENCIL })
             {
-                Visio.Document stencil = openStencil(stencilKind);
-                if (stencil == null) continue; // openStencil hat den Fehler bereits gemeldet
-
-                foreach (Visio.Master master in stencil.Masters)
+                // Nur Kosmetik (Pfeilspitzen) — ein Fehler hier darf den Import nicht abbrechen.
+                // Typisch: der gecachte Schablonen-Verweis ist nach einem VBA-Fehler oder
+                // Schliessen der Schablone unbrauchbar ("Objekt kann nicht erstellt werden").
+                // Dann den Cache verwerfen und genau einmal frisch oeffnen.
+                try
                 {
-                    // Normale Shape-Master kommen regulaer per Drop ins Dokument;
-                    // hier interessieren nur die Muster-Typen (Fill/Line/LineEnd).
-                    if (master.Type == Visio.VisMasterTypes.visTypeMaster)
-                        continue;
-
-                    if (!HasMaster(targetDocument, master.NameU))
-                        targetDocument.Masters.Drop(master, 0, 0);
+                    CopyPatternMastersFrom(openStencil(stencilKind), targetDocument);
+                }
+                catch (System.Runtime.InteropServices.COMException)
+                {
+                    InvalidateStencil(stencilKind);
+                    try
+                    {
+                        CopyPatternMastersFrom(openStencil(stencilKind), targetDocument);
+                    }
+                    catch (System.Runtime.InteropServices.COMException e)
+                    {
+                        ImportDiagnostics.Report("Linienmuster der " + (stencilKind == VisioStencils.SID_STENCIL ? "SID" : "SBD")
+                            + "-Schablone (Verbinder evtl. ohne Pfeilspitzen)", e);
+                    }
                 }
             }
+        }
+
+        private static void CopyPatternMastersFrom(Visio.Document stencil, Visio.Document targetDocument)
+        {
+            if (stencil == null) return; // openStencil hat den Fehler bereits gemeldet
+
+            foreach (Visio.Master master in stencil.Masters)
+            {
+                // Normale Shape-Master kommen regulaer per Drop ins Dokument;
+                // hier interessieren nur die Muster-Typen (Fill/Line/LineEnd).
+                if (master.Type == Visio.VisMasterTypes.visTypeMaster)
+                    continue;
+
+                if (!HasMaster(targetDocument, master.NameU))
+                    targetDocument.Masters.Drop(master, 0, 0);
+            }
+        }
+
+        /// <summary>Verwirft den gecachten Schablonen-Verweis samt der daraus stammenden Master.</summary>
+        private static void InvalidateStencil(VisioStencils stencil)
+        {
+            _stencilCache.Remove(stencil);
+            foreach (string shapeType in _masterCache.Keys.Where(type => GetStencil(type) == stencil).ToList())
+                _masterCache.Remove(shapeType);
         }
 
         /// <summary>True, wenn das Dokument bereits einen Master mit diesem Universal-Namen hat.</summary>
@@ -178,10 +294,26 @@ namespace ALPS_Visio_AddIn_rewrite
             // the SBD stencil and Place() throws "Objektname nicht gefunden" (e.g. drawing a guard
             // extension during import).
             Constants.SIDMasters.ActorExtension,
+            // Ohne diese beiden landete die Suche in der SBD-Schablone ("Objektname nicht
+            // gefunden") — vermutlich der Grund, weshalb Guard-/Macro-Extensions frueher als
+            // ActorExtension gezeichnet wurden.
+            Constants.SIDMasters.GuardExtension,
+            Constants.SIDMasters.MacroExtension,
             Constants.SIDMasters.SubjectGroup,
             Constants.SIDMasters.AbstractCommunicationChannel,
             Constants.SIDMasters.SystemInterfaceSubject,
         };
+
+        /// <summary>
+        /// Liefert <paramref name="preferred"/>, wenn die zustaendige Schablone diesen Master enthaelt,
+        /// sonst <paramref name="fallback"/> (aeltere Schablonen-Versionen ohne den Master).
+        /// </summary>
+        public static string MasterOrFallback(string preferred, string fallback)
+        {
+            if (_masterCache.ContainsKey(preferred)) return preferred;
+            Visio.Document stencil = openStencil(GetStencil(preferred));
+            return stencil != null && HasMaster(stencil, preferred) ? preferred : fallback;
+        }
 
         public static VisioStencils GetStencil(string shapeType)
         {
@@ -318,11 +450,7 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         public static Visio.Page CreateSIDPage(string name, string nameU, string modelURI, string extends, string implements, string priority)
         {
-            Visio.Application addin = Globals.ThisAddIn.Application;
-            if (addin.Documents.Count < 1)
-                addin.Documents.Add("");
-
-            Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
+            Visio.Page page = EnsureActiveDrawing().Pages.Add();
 
             // Visio rejects duplicate page names — derive a unique variant before assigning.
             // NameU must mirror Name: a whitespace NameU is invalid and makes Visio fall back
@@ -330,6 +458,12 @@ namespace ALPS_Visio_AddIn_rewrite
             // keeps the SBD→SID hyperlink (which targets NameU) correct.
             page.Name = GetUniquePageName(page, name);
             page.NameU = page.Name;
+
+            // Wurde der Name eindeutig gemacht (Re-Import ins selbe Dokument), muss auch die
+            // Layer-Identitaet eindeutig sein — sonst haengt ModelController.registerNewSbdPage
+            // jede SBD an ALLE SID-Seiten mit gleichem Layer (doppelte Controller/Abos) und
+            // getSidPage(layer) wird mehrdeutig.
+            string pageLayer = page.Name.Equals(name) ? nameU : page.Name;
 
             page.PageSheet.AddSection((short)Visio.VisSectionIndices.visSectionProp);
 
@@ -346,7 +480,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 page.PageSheet.CellsU["Prop." + Constants.Properties.PageModelVersion].FormulaU = QuoteLiteral(" ");
 
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageLayer, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU = QuoteLiteral(nameU);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].FormulaU = QuoteLiteral(pageLayer);
 
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.Transition.Extends, 0);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Extends].FormulaU = QuoteLiteral(extends);
@@ -369,7 +503,10 @@ namespace ALPS_Visio_AddIn_rewrite
         /// Creates a new SBD diagram page linked to the given SID page and subject shape.
         /// Precondition: the SID page and document must already exist.
         /// </summary>
-        public static Visio.Page CreateSBDPage(Visio.Page sidPage, string name, string nameU, Visio.Shape subjectShape)
+        /// <param name="pageType">Seitentyp im Seitenblatt — wie bei den Seiten, die die Schablone selbst
+        /// anlegt: "SubjectBehavior" fuer SBDs, "SubjectGuardBehavior" fuer GBDs.</param>
+        public static Visio.Page CreateSBDPage(Visio.Page sidPage, string name, string nameU, Visio.Shape subjectShape,
+            string pageType = Constants.Properties.SBDPage)
         {
             Debug.Print("creating new SBD page");
             Visio.Page page = Globals.ThisAddIn.Application.ActiveDocument.Pages.Add();
@@ -389,7 +526,7 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.PageType, 0);
                 page.PageSheet.AddNamedRow((short)Visio.VisSectionIndices.visSectionProp, Constants.Properties.SBDLinkedSubjectID, 0);
-                page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU = QuoteLiteral(Constants.Properties.SBDPage);
+                page.PageSheet.CellsU["Prop." + Constants.Properties.PageType].FormulaU = QuoteLiteral(pageType);
                 page.PageSheet.CellsU["Prop." + Constants.Properties.SBDLinkedSubjectID].FormulaU = subjectShape.ID.ToString();
             }
 
@@ -407,6 +544,41 @@ namespace ALPS_Visio_AddIn_rewrite
         // -------------------------------------------------------------------------
         // Model element helpers
         // -------------------------------------------------------------------------
+
+        /// <summary>
+        /// Verbindet einen SID-Verbinder (Kommunikationskanal/-restriktion) mit seinen zwei Subjekten.
+        /// Nur Subjekte, die gezeichnet wurden und auf derselben Seite liegen, koennen verbunden
+        /// werden; sonst bleibt das Ende frei und der Import meldet es.
+        /// </summary>
+        public static void GlueConnectorToSubjects(Visio.Shape connector, ISubject a, ISubject b, string elementId)
+        {
+            if (connector == null) return;
+            Visio.Shape shapeA = (a as OWLShapes.IVisioImportableWithShape)?.GetShape();
+            Visio.Shape shapeB = (b as OWLShapes.IVisioImportableWithShape)?.GetShape();
+            int pageId = connector.ContainingPage.ID;
+
+            if (shapeA == null || shapeB == null || shapeA.ContainingPage.ID != pageId || shapeB.ContainingPage.ID != pageId)
+            {
+                ImportDiagnostics.Report(elementId, new InvalidOperationException(
+                    "Verbinder nicht verbunden — beide Subjekte müssen angegeben und auf derselben Ebene gezeichnet sein."));
+                return;
+            }
+
+            connector.CellsU["BeginX"].GlueToPos(shapeA, 1, 0.5);
+            connector.CellsU["EndX"].GlueToPos(shapeB, 0, 0.5);
+        }
+
+        /// <summary>
+        /// Lesbarer Name eines Modellelements fuer Seitennamen: das englische Label, sonst das erste
+        /// Label, sonst die Modell-ID.
+        /// </summary>
+        public static string DisplayName(IPASSProcessModelElement element)
+        {
+            var labels = element.getModelComponentLabels();
+            var label = labels.FirstOrDefault(l => (l.getExtra() ?? "").ToLowerInvariant().StartsWith("en")) ?? labels.FirstOrDefault();
+            string text = label?.getContent();
+            return string.IsNullOrWhiteSpace(text) ? element.getModelComponentID() : text.Trim();
+        }
 
         public static List<ISimple2DVisualizationPoint> GetBounds(PASSProcessModelElement element)
         {

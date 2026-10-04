@@ -542,6 +542,9 @@ namespace ALPS_Visio_AddIn_rewrite
             ContextMenu contextMenu = (ContextMenu)LogicalTreeHelper.GetParent(menuItem);
             DirectoryTreeViewItem item = (DirectoryTreeViewItem)contextMenu.PlacementTarget;
 
+            // Verschieben ist nur fuer SID-Seiten (Depth 1) definiert; SBD-Knoten (Depth 2)
+            // tragen ein SBDPage-Tag und wuerden beim SIDPage-Cast abstuerzen.
+            if (item.Depth != 1) return;
             DirectoryTreeViewItem parent = item.DirectoryParent;
 
             if (item.Index <= 0) return;
@@ -560,6 +563,7 @@ namespace ALPS_Visio_AddIn_rewrite
             ContextMenu contextMenu = (ContextMenu)LogicalTreeHelper.GetParent(menuItem as DependencyObject);
             DirectoryTreeViewItem item = (DirectoryTreeViewItem)contextMenu.PlacementTarget;
 
+            if (item.Depth != 1) return;
             DirectoryTreeViewItem parent = item.DirectoryParent;
 
             if (parent.Items.Count > item.Index + 1)

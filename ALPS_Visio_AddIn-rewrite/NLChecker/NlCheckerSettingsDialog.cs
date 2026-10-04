@@ -273,6 +273,7 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
             txtApiKey = new TextBox
             {
+                UseSystemPasswordChar = true,
                 Anchor = AnchorStyles.Left | AnchorStyles.Right,
                 MinimumSize = new System.Drawing.Size(280, 0),
             };

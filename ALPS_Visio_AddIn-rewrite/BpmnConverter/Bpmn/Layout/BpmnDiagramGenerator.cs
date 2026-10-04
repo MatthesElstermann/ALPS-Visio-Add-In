@@ -13,6 +13,7 @@ public class BpmnDiagramGenerator
     private const double GridCellSize = 175;
     private const double ParticipantPadding = 75;
     private const double ParticipantSpacing = 75;
+    private const double SubProcessPadding = 30;
 
     private readonly Dictionary<IFlowElementsContainer, Grid?> _grids = new Dictionary<IFlowElementsContainer, Grid?>();
 
@@ -51,7 +52,9 @@ public class BpmnDiagramGenerator
         {
             if (participant.ProcessRef != null)
             {
-                _grids.Add(participant.ProcessRef, GenerateLayout(participant.ProcessRef));
+                // Indexer statt Add: zwei Participants duerfen (in eingelesenen BPMN-Dateien)
+                // denselben Prozess referenzieren.
+                _grids[participant.ProcessRef] = GenerateLayout(participant.ProcessRef);
             }
         }
     }
@@ -92,6 +95,24 @@ public class BpmnDiagramGenerator
             }
         }
 
+        // Abgetrennte Komponenten, in denen jeder Knoten eine eingehende Kante hat (z. B. eine
+        // unfertige Schleife), wurden nie geseedet und fehlten still im Diagramm. Nach jedem
+        // Durchlauf deshalb den naechsten noch nicht platzierten Knoten nachlegen.
+        while (true)
+        {
+            DrainLayoutQueue(stack, grid, _boundaryEvents);
+            IFlowNode? unplaced = flowElementsContainer.FlowElements.OfType<IFlowNode>()
+                .FirstOrDefault(flowNode => flowNode is not IBoundaryEvent && !grid.Contains(flowNode));
+            if (unplaced == null) break;
+            stack.Enqueue((unplaced, null));
+        }
+
+        return grid;
+    }
+
+    private void DrainLayoutQueue(Queue<(IFlowNode current, IFlowNode? previous)> stack, Grid grid,
+        Dictionary<IFlowNode, List<IBoundaryEvent>> _boundaryEvents)
+    {
         while (stack.TryDequeue(out var elements))
         {
             (IFlowNode current, IFlowNode? previous) = elements;
@@ -110,7 +131,7 @@ public class BpmnDiagramGenerator
                 if (current is IFlowElementsContainer subFlowElementsContainer)
                 {
                     Grid? subGrid = GenerateLayout(subFlowElementsContainer);
-                    _grids.Add(subFlowElementsContainer, subGrid);
+                    _grids[subFlowElementsContainer] = subGrid;
                 }
             }
 
@@ -131,8 +152,6 @@ public class BpmnDiagramGenerator
                 stack.Enqueue((sequenceFlow.SourceRef, current));
             }
         }
-
-        return grid;
     }
 
     private IBpmnPlane GenerateDiagram(ICollaboration collaboration)
@@ -233,6 +252,7 @@ public class BpmnDiagramGenerator
     {
         List<IBpmnShape> bpmnShapes = new List<IBpmnShape>();
         List<IDiagramElement> diagramElements = new List<IDiagramElement>();
+        List<(IBpmnShape container, List<IDiagramElement> content)> subProcesses = new List<(IBpmnShape, List<IDiagramElement>)>();
 
         List<(IFlowNode flowNode, int row, int col)> elements = grid.GetAllElementsWithPosition();
 
@@ -259,12 +279,16 @@ public class BpmnDiagramGenerator
                 {
                     List<IDiagramElement> subElements = GenerateDiagram(subGrid);
                     diagramElements.AddRange(subElements);
+                    subProcesses.Add((shape, subElements));
                 }
             }
 
             bpmnShapes.Add(shape);
             diagramElements.Add(shape);
         }
+
+        // Vor dem Erzeugen der Kanten: Kanten-Endpunkte werden aus den (dann finalen) Bounds berechnet.
+        EmbedSubProcessContents(subProcesses, bpmnShapes);
 
         foreach (ISequenceFlow sequenceFlow in elements.Select(elements => elements.flowNode).SelectMany(flowNodes => flowNodes.Outgoing))
         {
@@ -283,6 +307,73 @@ public class BpmnDiagramGenerator
         }
 
         return diagramElements;
+    }
+
+    /// <summary>
+    /// Der Sub-Grid eines (Event-)Sub-Prozesses wird im selben Ursprung wie der aeussere Grid
+    /// gelayoutet — ohne Verschiebung laegen seine Zustaende deckungsgleich auf denen des
+    /// Basis-Prozesses. Hier wird der Inhalt in die Sub-Prozess-Box verschoben, die Box um
+    /// den Inhalt vergroessert und alles darunter Liegende entsprechend nach unten geschoben.
+    /// </summary>
+    private static void EmbedSubProcessContents(List<(IBpmnShape container, List<IDiagramElement> content)> subProcesses,
+        List<IBpmnShape> outerShapes)
+    {
+        foreach ((IBpmnShape container, List<IDiagramElement> content) in subProcesses.OrderBy(entry => entry.container.Bounds.Y).ToList())
+        {
+            List<IBpmnShape> innerShapes = content.OfType<IBpmnShape>().ToList();
+            if (innerShapes.Count == 0)
+                continue;
+
+            double minX = innerShapes.Min(shape => shape.Bounds.X);
+            double minY = innerShapes.Min(shape => shape.Bounds.Y);
+            double maxX = innerShapes.Max(shape => shape.Bounds.X + shape.Bounds.Width);
+            double maxY = innerShapes.Max(shape => shape.Bounds.Y + shape.Bounds.Height);
+
+            IBounds outer = container.Bounds;
+            double originalBottom = outer.Y + outer.Height;
+
+            ShiftElements(content, outer.X + SubProcessPadding - minX, outer.Y + SubProcessPadding - minY);
+
+            outer.Width = Math.Max(outer.Width, maxX - minX + 2 * SubProcessPadding);
+            outer.Height = Math.Max(outer.Height, maxY - minY + 2 * SubProcessPadding);
+            container.Bounds = outer;
+            container.IsExpanded = true;
+
+            double grow = outer.Y + outer.Height - originalBottom;
+            if (grow <= 0)
+                continue;
+
+            foreach (IBpmnShape other in outerShapes)
+            {
+                if (other == container || other.Bounds.Y < originalBottom)
+                    continue;
+                IBounds bounds = other.Bounds;
+                bounds.Y += grow;
+                other.Bounds = bounds;
+            }
+        }
+    }
+
+    private static void ShiftElements(IEnumerable<IDiagramElement> elements, double offsetX, double offsetY)
+    {
+        foreach (IDiagramElement diagramElement in elements)
+        {
+            if (diagramElement is IBpmnShape bpmnShape)
+            {
+                IBounds bounds = bpmnShape.Bounds;
+                bounds.X += offsetX;
+                bounds.Y += offsetY;
+                bpmnShape.Bounds = bounds;
+            }
+            if (diagramElement is IBpmnEdge bpmnEdge)
+            {
+                foreach (IPoint waypoint in bpmnEdge.Waypoints)
+                {
+                    waypoint.X += offsetX;
+                    waypoint.Y += offsetY;
+                }
+            }
+        }
     }
 
     private static string GenerateDiagramIdentifier(IBaseElement baseElement)
@@ -613,6 +704,9 @@ public class BpmnDiagramGenerator
         double deltaY = to.Y - from.Y;
 
         double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+        // Selbstschleife (A -> A): ohne Richtung keine Andockpunkte — sonst NaN-Wegpunkte.
+        if (distance == 0)
+            return;
 
         double directionX = deltaX / distance;
         double directionY = deltaY / distance;

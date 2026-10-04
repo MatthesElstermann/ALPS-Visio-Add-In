@@ -2,7 +2,6 @@ using Microsoft.Office.Interop.Visio;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows;
 namespace ALPS_Visio_AddIn_rewrite
 {
     /// <summary>
@@ -37,8 +36,8 @@ namespace ALPS_Visio_AddIn_rewrite
 
         protected override void setBackPage(DiagramPage newProperty)
         {
-            if (newProperty is SBDPage sbdPage)
-                this.referencedBackgroundPage = sbdPage;
+            // Auch null uebernehmen (siehe SidSnapHandler.setBackPage).
+            this.referencedBackgroundPage = newProperty as SBDPage;
         }
 
         /// <summary>
@@ -65,8 +64,10 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             if (!isShapeSnappable(snappingShape)) return;
             backgroundReferenceShapeName = backgroundReferenceShapeName.Trim('\\', '"');
-            // already snapped to the requested shape — nothing to do
-            if (snappedShapes.ContainsKey(snappingShape) && snappedShapes[snappingShape].Name.Equals(backgroundReferenceShapeName)) return;
+            // already snapped to the requested shape — nothing to do. Verglichen wird die
+            // modelComponentID, die performSnap selbst in die extends-Zelle schreibt (der fruehere
+            // Vergleich mit dem Shape-Namen schlug nach jedem eigenen Schreibvorgang fehl).
+            if (snappedShapes.ContainsKey(snappingShape) && modelComponentId(snappedShapes[snappingShape]).Equals(backgroundReferenceShapeName)) return;
             if (string.IsNullOrWhiteSpace(backgroundReferenceShapeName))
             {
                 if (snappedShapes.ContainsKey(snappingShape))
@@ -81,37 +82,34 @@ namespace ALPS_Visio_AddIn_rewrite
 
                 foreach (Shape snappable in snappableShapes)
                 {
-                    string modelCompId = snappable.CellsU["Prop.modelComponentID.Value"].ResultStr[""];
-                    if (!modelCompId.Equals(backgroundReferenceShapeName)) continue;
+                    if (!modelComponentId(snappable).Equals(backgroundReferenceShapeName)) continue;
                     performSnap(snappingShape, snappable);
                     found = true;
+                    break;
                 }
                 if (!found)
                 {
-                    MessageBox.Show(
-                        string.Format("Eingabe \"{0}\" wurde nicht gefunden. Ort der fehlerhaften Eingabe: \"{1}\"",
-                            backgroundReferenceShapeName, snappingShape.NameU),
-                        "Error", MessageBoxButton.OK);
+                    UI.ResultDialog.ShowWarning("Eingabe nicht gefunden",
+                        "„" + backgroundReferenceShapeName + "“ konnte nicht aufgelöst werden.",
+                        "Ort der fehlerhaften Eingabe: „" + snappingShape.NameU + "“");
                 }
             }
         }
 
-        public override void maintainSnap(Shape shape, Shape snapToShape)
+        private static string modelComponentId(Shape shape)
         {
-            if (!checkBorders(shape, snapToShape))
-            {
-                adjustSize(shape, snapToShape);
-            }
+            return shape.CellExistsU["Prop.modelComponentID.Value", 0] != 0
+                ? shape.CellsU["Prop.modelComponentID.Value"].ResultStr[""] : "";
         }
 
         /// <summary>
-        /// checks if the corners of two shapes are near to each other
+        /// "Ja, Snap beibehalten": Shape immer wieder auf das Ziel ausrichten. Frueher wurde das
+        /// uebersprungen, wenn eine Ecke noch in Reichweite lag — wegen des 5-mm-Uebermasses
+        /// blieb die Shape dann verschoben und der Dialog kam beim naechsten Move erneut.
         /// </summary>
-        private static bool checkBorders(IVShape shape, IVShape snapToShape)
+        public override void maintainSnap(Shape shape, Shape snapToShape)
         {
-            ShapeCorners snappingShapeVectors = new ShapeCorners(shape);
-            ShapeCorners referenceBackgroundShapeVectors = new ShapeCorners(snapToShape);
-            return snappingShapeVectors.isCloseToAtLeastOneOtherCorner(referenceBackgroundShapeVectors);
+            adjustSize(shape, snapToShape);
         }
 
         /// <summary>
@@ -136,8 +134,7 @@ namespace ALPS_Visio_AddIn_rewrite
             if (snappingShape.CellExistsU["Prop." + Constants.Properties.Transition.Extends + ".Value", 0] != 0)
             {
                 Cell cell = snappingShape.CellsU["Prop." + Constants.Properties.Transition.Extends + ".Value"];
-                string snapToShapeId = backgroundReferenceShape.CellsU["Prop.modelComponentID.Value"].ResultStr[""];
-                cell.Formula = VisioHelper.QuoteLiteral(snapToShapeId);
+                cell.Formula = VisioHelper.QuoteLiteral(modelComponentId(backgroundReferenceShape));
             }
             if (snappingShape.CellExistsU["Prop.lable.Value", 0] != 0)
             {

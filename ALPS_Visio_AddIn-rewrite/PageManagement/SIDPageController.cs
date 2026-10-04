@@ -15,8 +15,6 @@ namespace ALPS_Visio_AddIn_rewrite
         private ModelController modelController;
         private string modelURri;
 
-        private string xCoordinate = "";
-
         private SIDPage controlledSidPage;
 
         private SidSnapHandler snapHandler;
@@ -39,6 +37,29 @@ namespace ALPS_Visio_AddIn_rewrite
             // pro Zelle mehrfach.
             visioPage.CellChanged -= onCellChanged;
             visioPage.CellChanged += onCellChanged;
+        }
+
+        /// <summary>
+        /// Entfernt Controller, deren Seite geloescht oder deren Dokument geschlossen wurde, aus dem
+        /// statischen Cache — sonst hielt die Liste die COM-Objekte geschlossener Dokumente samt
+        /// CellChanged-Abo fuer die gesamte Visio-Sitzung am Leben.
+        /// </summary>
+        internal static void pruneClosedControllers()
+        {
+            foreach (SIDPageController controller in controllers.ToList())
+            {
+                try
+                {
+                    if (controller.visioPage.ID >= 0) continue;
+                }
+                catch (System.Runtime.InteropServices.COMException)
+                {
+                    // Seite/Dokument existiert nicht mehr.
+                }
+                try { controller.visioPage.CellChanged -= controller.onCellChanged; }
+                catch (System.Runtime.InteropServices.COMException) { }
+                controllers.Remove(controller);
+            }
         }
 
         public static SIDPageController getController(ThisAddIn addIn, ModelController modelController, string modelUri, Page page)
@@ -90,33 +111,34 @@ namespace ALPS_Visio_AddIn_rewrite
             SIDPage extends = controlledSidPage.getExtends();
             switch (cell.Name)
             {
+                // Eine Aenderung am Hyperlink-Ziel meldet Visio als Zelle "...SubAddress";
+                // der fruehere Vergleich nur mit "Hyperlink.extendedSubject" griff dadurch nie.
                 case "Hyperlink." + Constants.Properties.ExtendedSubject:
+                case "Hyperlink." + Constants.Properties.ExtendedSubject + Constants.SubAddressSuffix:
                 {
                     if (extends == null) break;
-                    var parts = cell.Formula.Split('/');
-                    string subjectName = parts.Length > 1 ? parts[1] : parts[0];
+                    string formula = cell.Formula;
+                    string subjectName = formula.Contains('/') ? formula.Substring(formula.LastIndexOf('/') + 1) : formula;
                     snapHandler.snap(cell.Shape, subjectName);
                     break;
                 }
                 case "Prop." + Constants.Properties.Transition.Extends:
+                    // Nur die extends-Zelle des Seitenblatts — Subjekt-Shapes tragen eine
+                    // gleichnamige Prop-Zeile (Snap-Ziel), die hier nichts ausloesen soll.
+                    if (cell.Shape.Type != (short)VisShapeTypes.visTypePage) break;
                     uUpdateExtends(visioPage.PageSheet.CellsU["Prop." + Constants.Properties.Transition.Extends].Formula);
                     break;
+                // Beide Achsen behandeln (frueher nur PinX — rein vertikale Bewegungen wurden
+                // ignoriert). Doppelte Pruefungen pro Move faengt SnapHandler.checkForSnapping ab.
                 case "PinX":
+                case "PinY":
                 {
-                    string newXCoordinate = cell.Formula.Replace("\"", "");
-                    if (!newXCoordinate.Equals(xCoordinate))
-                    {
-                        xCoordinate = newXCoordinate;
-                        if (extends != null)
-                            snapHandler.checkForSnapping(cell.Shape);
-                        if (controlledSidPage.getForeground() != null)
-                            modelController.backgroundShapeMoved(cell.Shape, controlledSidPage.getForeground());
-                    }
+                    if (extends != null)
+                        snapHandler.checkForSnapping(cell.Shape);
+                    if (controlledSidPage.getForeground() != null)
+                        modelController.backgroundShapeMoved(cell.Shape, controlledSidPage.getForeground());
                     break;
                 }
-                case "PinY":
-                    xCoordinate = "";
-                    break;
                 case "Prop." + Constants.Properties.PageModelURI:
                 {
                     string newModelURI = visioPage.PageSheet.CellsU["Prop." + Constants.Properties.PageModelURI].Formula;

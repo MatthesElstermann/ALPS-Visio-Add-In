@@ -25,7 +25,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             lblProgress.Text = $"Processing {processed} of {total} shapes...";
             progressBar.Maximum = total < 1 ? 1 : total;
             progressBar.Value = processed > progressBar.Maximum ? progressBar.Maximum : processed;
-            Application.DoEvents(); // Force UI update
+            // Nur neu zeichnen — DoEvents pumpte die komplette Nachrichtenschlange und liess so
+            // waehrend der Pruefung weitere Ribbon-Klicks und Dokument-Aenderungen zu.
+            this.Refresh();
         }
 
         private void InitializeComponent()

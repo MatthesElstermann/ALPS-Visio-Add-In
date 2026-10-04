@@ -35,7 +35,7 @@ namespace ALPS_Visio_AddIn_rewrite
         /// Gets or sets the parent item of this item.
         /// If the current item has no parent, the current item itself is returned.
         /// </summary>
-        public DirectoryTreeViewItem DirectoryParent { get => parent; set => changeParent(parent); }
+        public DirectoryTreeViewItem DirectoryParent { get => parent; set { changeParent(value); calcDepth(); } }
 
         private int getIndex()
         {

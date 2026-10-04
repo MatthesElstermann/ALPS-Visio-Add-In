@@ -56,7 +56,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                 // TODO: containsBaseBehavior
                 if (fullySpecifiedSubject.getSubjectBaseBehavior() is IVisioImportable importable)
                 {
-                    Visio.Page SBDPage = VH.CreateSBDPage(page, ("SBD: " + fullySpecifiedSubject.getModelComponentID()), ("" + fullySpecifiedSubject.getModelComponentID()), this.GetShape());
+                    // Sichtbarer Seitenname mit Typ-Praefix und dem LABEL des Subjekts ("SBD: Worker"),
+                    // der universelle Name behaelt die stabile Modell-ID.
+                    Visio.Page SBDPage = VH.CreateSBDPage(page, BehaviorPageName("SBD", fullySpecifiedSubject, page), ("" + fullySpecifiedSubject.getModelComponentID()), this.GetShape());
                     importable.ImportToVisio(SBDPage);
                 }
             }
@@ -65,7 +67,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             {
                 if (standaloneMacroSubject.getBehavior() is IVisioImportable importable)
                 {
-                    Visio.Page SBDPage = VH.CreateSBDPage(page, ("SBD: " + standaloneMacroSubject.getModelComponentID()), ("" + standaloneMacroSubject.getModelComponentID()), this.GetShape());
+                    Visio.Page SBDPage = VH.CreateSBDPage(page, BehaviorPageName("SBD", standaloneMacroSubject, page), ("" + standaloneMacroSubject.getModelComponentID()), this.GetShape());
                     importable.ImportToVisio(SBDPage);
                 }
             }
@@ -97,9 +99,17 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                     if (!(extensionBehavior is IVisioImportable importable)) continue;
                     try
                     {
+                        // GBD nur fuer Guard-Verhalten; andere Erweiterungsverhalten sind SBDs.
+                        // Benannt nach dem ERWEITERTEN Subjekt ("GBD: Worker (Layer_Guard)"), sonst
+                        // nach der Erweiterung selbst.
+                        // Seitentyp wie bei einer per Schablone angelegten GBD ("SubjectGuardBehavior").
+                        // Mit dem SBD-Typ behandelte die Schablonen-VBA die Seite wie eine normale SBD
+                        // und entfernte ihren Hintergrund (Basis-SBD nicht mehr sichtbar).
+                        bool isGuard = extensionBehavior is IGuardBehavior;
                         Visio.Page gbdPage = VH.CreateSBDPage(page,
-                            "GBD: " + extensionBehavior.getModelComponentID(),
-                            "" + extensionBehavior.getModelComponentID(), this.GetShape());
+                            BehaviorPageName(isGuard ? "GBD" : "SBD", extended ?? subject, page),
+                            "" + extensionBehavior.getModelComponentID(), this.GetShape(),
+                            isGuard ? Constants.Properties.GBDPage : Constants.Properties.SBDPage);
                         importable.ImportToVisio(gbdPage);
                     }
                     catch (System.Exception e)
@@ -119,6 +129,16 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
                     //systemInterfaceSubject.getContainedInterfaceSubjects()
                 }
             }
+        }
+
+        /// <summary>
+        /// Seitenname einer Verhaltensseite: "SBD: Worker (Layer_Base)". Die Ebene stammt aus dem
+        /// Namen der SID-Seite ("SID: Layer_Base"), auf der das Subjekt liegt.
+        /// </summary>
+        private static string BehaviorPageName(string kind, ISubject subject, Visio.Page sidPage)
+        {
+            string layer = sidPage.Name.StartsWith("SID: ") ? sidPage.Name.Substring("SID: ".Length) : sidPage.Name;
+            return kind + ": " + VH.DisplayName(subject) + " (" + layer + ")";
         }
     }
 }

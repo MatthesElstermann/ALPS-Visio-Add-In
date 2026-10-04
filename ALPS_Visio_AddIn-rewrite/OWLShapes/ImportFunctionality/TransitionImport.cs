@@ -75,9 +75,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             // Upper Bound if Multi Send: multiSendUpperBound
 
             // set path (auto arrange)
-            if (transition.getSourceState() is IVisioImportableWithShape importableSender)
+            // Nur kleben, wenn der State tatsaechlich gezeichnet wurde (GetShape() ist null,
+            // wenn sein Import fehlschlug) — sonst brach die Transition mit einer Ausnahme ab.
+            if (transition.getSourceState() is IVisioImportableWithShape importableSender && importableSender.GetShape() != null)
                 this.GetShape().CellsU["BeginX"].GlueToPos(importableSender.GetShape(), 1, 0.5);
-            if (transition.getTargetState() is IVisioImportableWithShape importableReceiver)
+            if (transition.getTargetState() is IVisioImportableWithShape importableReceiver && importableReceiver.GetShape() != null)
                 this.GetShape().CellsU["EndY"].GlueToPos(importableReceiver.GetShape(), 0, 0.5);
 
             // set box movement

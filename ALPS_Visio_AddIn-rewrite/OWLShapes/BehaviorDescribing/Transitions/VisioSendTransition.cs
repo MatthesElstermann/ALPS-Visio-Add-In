@@ -22,8 +22,17 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             // TODO
 
+            // add data mapping
+            List<IDataMappingLocalToOutgoing> tempList = getDataMappingFunctions().Values.ToList();
+            if (tempList.Count > 0)
+                VH.SetProp(import.GetShape(), Constants.Properties.Transition.DataMappingOutgoing, tempList[0].getDataMappingString());
+
+            // Die Transition-Condition ist in OWL optional — ohne sie bleibt es bei der Grundform.
+            ISendTransitionCondition condition = getTransitionCondition();
+            if (condition == null) return;
+
             // set reciever
-            ISubject receiver = getTransitionCondition().getRequiresMessageSentTo();
+            ISubject receiver = condition.getRequiresMessageSentTo();
             if (receiver != null && receiver.getModelComponentLabels().Count > 0)
             {
                 VH.SetUser(import.GetShape(), Constants.Properties.Transition.ReceiverSenderListForSubject, ";" + receiver.getModelComponentLabelsAsStrings()[0]);
@@ -32,7 +41,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             }
 
             // message
-            IMessageSpecification messageSpec = getTransitionCondition().getRequiresSendingOfMessage();
+            IMessageSpecification messageSpec = condition.getRequiresSendingOfMessage();
             if (messageSpec != null && messageSpec.getModelComponentLabels().Count > 0)
             {
                 VH.SetUser(import.GetShape(), Constants.Properties.Transition.PossibleMessageList, ";" + messageSpec.getModelComponentLabelsAsStrings()[0]);
@@ -41,20 +50,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             }
 
             // multiple sends
-            VH.SetProp(import.GetShape(), Constants.Properties.Transition.MultiSendLowerBound, getTransitionCondition().getMultipleLowerBound().ToString());
-            VH.SetProp(import.GetShape(), Constants.Properties.Transition.MultiSendUpperBound, getTransitionCondition().getMultipleUpperBound().ToString());
+            VH.SetProp(import.GetShape(), Constants.Properties.Transition.MultiSendLowerBound, condition.getMultipleLowerBound().ToString());
+            VH.SetProp(import.GetShape(), Constants.Properties.Transition.MultiSendUpperBound, condition.getMultipleUpperBound().ToString());
 
             // send type
-            VH.SetPropFormula(import.GetShape(), Constants.Properties.Transition.SendType, "INDEX(" + (int)getTransitionCondition().getSendType() + ", Prop.sendingType.Format)");
-
-            // add data mapping
-            List<IDataMappingLocalToOutgoing> tempList = getDataMappingFunctions().Values.ToList();
-            if (tempList.Count > 0)
-            {
-                string dataMappingString = tempList[0].getDataMappingString();
-
-                if (getDataMappingFunctions().Count > 0) VH.SetProp(import.GetShape(), Constants.Properties.Transition.DataMappingOutgoing, dataMappingString);
-            }
+            VH.SetPropFormula(import.GetShape(), Constants.Properties.Transition.SendType, "INDEX(" + (int)condition.getSendType() + ", Prop.sendingType.Format)");
         }
 
         public bool PrepareDimensions() // TODO: prepare dimensions

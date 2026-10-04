@@ -20,6 +20,8 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             import.Import(shapeType, page, VH.GetBounds(this));
 
             ITimeTransitionCondition condition = this.getTransitionCondition();
+            // Optional in OWL — ohne Condition bleibt es bei der Grundform.
+            if (condition == null) return;
 
             // transition type
             VH.SetPropFormula(import.GetShape(), Constants.Properties.Transition.TimeOutType,

@@ -40,8 +40,9 @@ namespace ALPS_Visio_AddIn_rewrite
 
         protected override void setBackPage(DiagramPage newProperty)
         {
-            if (newProperty is SIDPage sidPage)
-                this.referencedBackgroundPage = sidPage;
+            // Auch null uebernehmen: wird extends entfernt, darf kein veralteter
+            // Hintergrund-Verweis zurueckbleiben.
+            this.referencedBackgroundPage = newProperty as SIDPage;
         }
 
         /// <summary>
@@ -53,7 +54,9 @@ namespace ALPS_Visio_AddIn_rewrite
 
             backgroundReferenceShapeName = backgroundReferenceShapeName.Trim('\\', '"');
 
-            if (snappedShapes.ContainsKey(snappingShape) && snappedShapes[snappingShape].Name.Equals(backgroundReferenceShapeName)) return;
+            // performSnap schreibt NameU in den Hyperlink, Nutzer/Altbestand ggf. den lokalen Namen
+            // — beide akzeptieren (sonst loeste der eigene Schreibvorgang einen erneuten Snap aus).
+            if (snappedShapes.ContainsKey(snappingShape) && hasName(snappedShapes[snappingShape], backgroundReferenceShapeName)) return;
 
             if (string.IsNullOrWhiteSpace(backgroundReferenceShapeName))
             {
@@ -63,11 +66,13 @@ namespace ALPS_Visio_AddIn_rewrite
 
             IEnumerable<Shape> snappableShapes = getSnappableShapesOnBackgroundPage();
 
-            foreach (Shape snappable in snappableShapes)
-            {
-                if (!snappable.Name.Equals(backgroundReferenceShapeName)) continue;
-                performSnap(snappingShape, snappable);
-            }
+            Shape target = snappableShapes.FirstOrDefault(snappable => hasName(snappable, backgroundReferenceShapeName));
+            if (target != null) performSnap(snappingShape, target);
+        }
+
+        private static bool hasName(Shape shape, string name)
+        {
+            return shape.Name.Equals(name) || shape.NameU.Equals(name);
         }
 
         /// <summary>
@@ -96,18 +101,20 @@ namespace ALPS_Visio_AddIn_rewrite
             }
             if (referenceBackgroundShape.CellExistsU["Hyperlink." + Constants.Properties.LinkedSBD, 0] != 0)
             {
-                snapToShapePage = referencedBackgroundPage.getSbdPage(referenceBackgroundShape.Hyperlinks.ItemU[Constants.Properties.LinkedSBD].SubAddress);
+                snapToShapePage = referencedBackgroundPage?.getSbdPage(referenceBackgroundShape.Hyperlinks.ItemU[Constants.Properties.LinkedSBD].SubAddress);
             }
 
             if (shapePage != null)
             {
                 Debug.Print("setting to null");
-                modelController.getSbdPageController(shapePage).setExtends(null);
-                snappedShapes.Remove(shape);
+                modelController.getSbdPageController(shapePage)?.setExtends(null);
             }
+            // Immer austragen — auch ohne verlinkte SBD, sonst zieht notifyBackgroundShapeMoved
+            // das Shape weiter mit, obwohl es nicht mehr gesnappt ist.
+            snappedShapes.Remove(shape);
             if (snapToShapePage != null)
             {
-                modelController.getSbdPageController(snapToShapePage).setNotExtended();
+                modelController.getSbdPageController(snapToShapePage)?.setNotExtended();
             }
 
             if (shape.CellExistsU["Hyperlink." + Constants.Properties.ExtendedSubject, 0] != 0)
@@ -133,6 +140,7 @@ namespace ALPS_Visio_AddIn_rewrite
         public override void performSnap(Shape snappingShape, Shape backgroundReferenceShape)
         {
             base.performSnap(snappingShape, backgroundReferenceShape);
+            if (referencedBackgroundPage == null) return;
 
             if (snappingShape.CellExistsU["Hyperlink." + Constants.Properties.ExtendedSubject, 0] != 0)
             {
@@ -172,8 +180,7 @@ namespace ALPS_Visio_AddIn_rewrite
             }
 
             if (oldExtends == null) return;
-            SBDPageController oldExtendsC = modelController.getSbdPageController(oldExtends);
-            oldExtendsC.setNotExtended();
+            modelController.getSbdPageController(oldExtends)?.setNotExtended();
         }
 
         /// <summary>

@@ -53,5 +53,36 @@ namespace ALPS_Visio_AddIn_rewrite.Tests
             Assert.That(report, Does.Contain("VERDICT: BESTANDEN").Or.Contain("VERDICT: NICHT BESTANDEN"),
                 "Es wurde kein eindeutiges Verdict ausgegeben.");
         }
+
+        /// <summary>
+        /// Mehr-Ebenen-Paar: der Auditor liegt in Spezifikation und Implementierung auf der
+        /// ZWEITEN Ebene. Bestanden nur, wenn alle Ebenen gepaart werden.
+        /// </summary>
+        [Test]
+        public void Mehr_Ebenen_Implementierung_besteht()
+        {
+            string docs = DocsDir();
+            string report = Verifier.Verify(Path.Combine(docs, "[Verif]_Spec_ALPS_Layered.owl"),
+                Path.Combine(docs, "[Verif]_Impl_ALPS_Layered.owl"));
+
+            Assert.That(report, Does.Contain("Nicht implementierte Spezifikations-Elemente:  0"), report);
+            Assert.That(report, Does.Contain("VERDICT: BESTANDEN"), report);
+        }
+
+        /// <summary>
+        /// Gleiche Implementierung plus eine Nachricht Customer → Auditor, die die Restriktion der
+        /// Spezifikation verletzt. Der Restriktions-Check verglich frueher Objekt-Referenzen aus
+        /// zwei Modellen und konnte nie anschlagen.
+        /// </summary>
+        [Test]
+        public void Verletzte_Kommunikations_Restriktion_wird_erkannt()
+        {
+            string docs = DocsDir();
+            string report = Verifier.Verify(Path.Combine(docs, "[Verif]_Spec_ALPS_Layered.owl"),
+                Path.Combine(docs, "[Verif]_Impl_ALPS_Layered_Violation.owl"));
+
+            Assert.That(report, Does.Contain("Kommunikations-Restriktionen eingehalten:     NEIN"), report);
+            Assert.That(report, Does.Contain("VERDICT: NICHT BESTANDEN"), report);
+        }
     }
 }

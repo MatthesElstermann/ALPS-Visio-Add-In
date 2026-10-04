@@ -22,9 +22,12 @@ namespace ALPS_Visio_AddIn_rewrite
         /// <returns>The name of the SID-file</returns>
         public static String getSIDName()
         {
-            if (sidName == null)
-                sidName = getShapes(SIDPrefix);
-            return sidName;
+            if (sidName != null) return sidName;
+            // Nur echte Treffer cachen: der Platzhalter fuer "nicht gefunden" blieb sonst bis zum
+            // Visio-Neustart haengen, auch wenn die Schablone inzwischen installiert wurde.
+            string found = getShapes(SIDPrefix);
+            if (found != null) sidName = found;
+            return found ?? NotFoundName(SIDPrefix);
         }
 
         /// <summary>
@@ -33,9 +36,15 @@ namespace ALPS_Visio_AddIn_rewrite
         /// <returns>The name of the SBD-file</returns>
         public static String getSBDName()
         {
-            if (sbdName == null)
-                sbdName = getShapes(SBDPrefix);
-            return sbdName;
+            if (sbdName != null) return sbdName;
+            string found = getShapes(SBDPrefix);
+            if (found != null) sbdName = found;
+            return found ?? NotFoundName(SBDPrefix);
+        }
+
+        private static String NotFoundName(String prefix)
+        {
+            return prefix + " v.x.x.x.x" + ending;
         }
 
         /// <summary>
@@ -74,7 +83,7 @@ namespace ALPS_Visio_AddIn_rewrite
             }
 
             // No matching stencil found in any configured My-Shapes folder.
-            return prefix + " v.x.x.x.x" + ending;
+            return null;
         }
 
 
@@ -173,31 +182,39 @@ namespace ALPS_Visio_AddIn_rewrite
                 Console.WriteLine(e.Message);
             }
 
-            if (files != null)
+            // Nicht lesbarer Ordner: leere Liste statt null — der rekursive AddRange(null)
+            // warf sonst eine ArgumentNullException und brach die Schablonensuche ganz ab.
+            List<FileInfo> fileObjects = new List<FileInfo>();
+            if (files == null) return fileObjects;
+
+            // Checks for each file whether it matches the specified name regex
+            Regex rgx = new Regex(nameRegex);
+            foreach (System.IO.FileInfo fi in files)
             {
-                // Checks for each file whether it matches the specified name regex
-                Regex rgx = new Regex(nameRegex);
-                List<FileInfo> fileObjects = new List<FileInfo>();
-                foreach (System.IO.FileInfo fi in files)
+                if (rgx.IsMatch(fi.Name))
                 {
-                    //Debug.Print ("testing fi.name: " +fi.Name);  
-                    if (rgx.IsMatch(fi.Name))
-                    {
-                        fileObjects.Add(fi);
-                    }
+                    fileObjects.Add(fi);
                 }
-
-                // iterates recursive to get all possible files
-                foreach (System.IO.DirectoryInfo directory in root.GetDirectories())
-                {
-                    fileObjects.AddRange(getMatchingFiles(directory, nameRegex));
-                }
-
-                // Matching files are being returned
-                return fileObjects;
             }
 
-            return null;
+            // iterates recursive to get all possible files
+            DirectoryInfo[] subDirectories;
+            try
+            {
+                subDirectories = root.GetDirectories();
+            }
+            catch (Exception e) when (e is UnauthorizedAccessException || e is IOException)
+            {
+                Console.WriteLine(e.Message);
+                return fileObjects;
+            }
+            foreach (System.IO.DirectoryInfo directory in subDirectories)
+            {
+                fileObjects.AddRange(getMatchingFiles(directory, nameRegex));
+            }
+
+            // Matching files are being returned
+            return fileObjects;
         }
 
 

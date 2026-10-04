@@ -1,7 +1,6 @@
 ﻿<Project ToolsVersion="17.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.props" Condition="Exists('..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.props')" />
   <Import Project="..\packages\Microsoft.ML.CpuMath.4.0.2\build\netstandard2.0\Microsoft.ML.CpuMath.props" Condition="Exists('..\packages\Microsoft.ML.CpuMath.4.0.2\build\netstandard2.0\Microsoft.ML.CpuMath.props')" />
-  <Import Project="..\packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!--
     This section defines project-level properties.
@@ -343,8 +342,7 @@
     <Compile Include="OWLShapes\BehaviorDescribing\States\VisioDoState.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\States\VisioGenericReturnToOriginReference.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\States\VisioRecieveState.cs" />
-    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioSendState.cs" />
-    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioDoTransition.cs" />
+    <Compile Include="OWLShapes\BehaviorDescribing\States\VisioSendState.cs" />    <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioDoTransition.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioRecieveTransition.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioFlowRestrictor.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioSendingFailedTransition.cs" />
@@ -352,6 +350,7 @@
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioTimeTransition.cs" />
     <Compile Include="OWLShapes\BehaviorDescribing\Transitions\VisioUserCancelTransition.cs" />
     <Compile Include="OWLShapes\ImportFunctionality\IShapeImport.cs" />
+    <Compile Include="OWLShapes\ImportFunctionality\ImportDiagnostics.cs" />
     <Compile Include="OWLShapes\ImportFunctionality\PASSProcessModelElementImport.cs" />
     <Compile Include="OWLShapes\ImportFunctionality\StateImport.cs" />
     <Compile Include="OWLShapes\ImportFunctionality\TransitionImport.cs" />
@@ -397,6 +396,7 @@
     <Compile Include="PageManagement\SnapHandler.cs" />
     <Compile Include="UI\AnchorBarsUsage.cs" />
     <Compile Include="UI\ResultDialog.cs" />
+    <Compile Include="UI\VisioOwner.cs" />
     <Compile Include="UI\DirectoryTreeViewItem.cs" />
     <Compile Include="UI\IDialogCallback.cs" />
     <Compile Include="UI\WindowChangeLayerName.xaml.cs">
@@ -666,7 +666,6 @@
     <PropertyGroup>
       <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.ML.CpuMath.4.0.2\build\netstandard2.0\Microsoft.ML.CpuMath.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.CpuMath.4.0.2\build\netstandard2.0\Microsoft.ML.CpuMath.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.4.0.2\build\netstandard2.0\Microsoft.ML.targets'))" />

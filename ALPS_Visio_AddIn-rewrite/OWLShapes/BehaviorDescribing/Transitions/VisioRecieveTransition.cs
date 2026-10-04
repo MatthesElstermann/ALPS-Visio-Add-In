@@ -22,8 +22,15 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 
             // TODO: VH and stuff
 
+            // priority number
+            VH.SetProp(import.GetShape(), Constants.Properties.Transition.AlternativePriorityNumber, getPriorityNumber().ToString());
+
+            // Die Transition-Condition ist in OWL optional — ohne sie bleibt es bei der Grundform.
+            IReceiveTransitionCondition condition = getTransitionCondition();
+            if (condition == null) return;
+
             // sender
-            ISubject sender = getTransitionCondition().getMessageSentFrom();
+            ISubject sender = condition.getMessageSentFrom();
             if (sender != null && sender.getModelComponentLabels().Count > 0)
             {
                 VH.SetUser(import.GetShape(), Constants.Properties.Transition.ReceiverSenderListForSubject, ";" + sender.getModelComponentLabelsAsStrings()[0]);
@@ -32,7 +39,7 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             }
 
             // message
-            IMessageSpecification messageSpec = getTransitionCondition().getReceptionOfMessage();
+            IMessageSpecification messageSpec = condition.getReceptionOfMessage();
             if (messageSpec != null && messageSpec.getModelComponentLabels().Count > 0)
             {
                 VH.SetUser(import.GetShape(), Constants.Properties.Transition.PossibleMessageList, ";" + messageSpec.getModelComponentLabelsAsStrings()[0]);
@@ -41,15 +48,12 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             }
 
             // multiple receives
-            VH.SetProp(import.GetShape(), Constants.Properties.Transition.MultiReceiveLowerBound, getTransitionCondition().getMultipleLowerBound().ToString());
-            VH.SetProp(import.GetShape(), Constants.Properties.Transition.MultiReceiveUpperBound, getTransitionCondition().getMultipleUpperBound().ToString());
-
-            // priority number
-            VH.SetProp(import.GetShape(), Constants.Properties.Transition.AlternativePriorityNumber, getPriorityNumber().ToString());
+            VH.SetProp(import.GetShape(), Constants.Properties.Transition.MultiReceiveLowerBound, condition.getMultipleLowerBound().ToString());
+            VH.SetProp(import.GetShape(), Constants.Properties.Transition.MultiReceiveUpperBound, condition.getMultipleUpperBound().ToString());
 
             // receive type
             VH.SetPropFormula(import.GetShape(), Constants.Properties.Transition.ReceiveType,
-                "INDEX(" + (int)getTransitionCondition().getReceiveType() + ", Prop.receiveType.Format)");
+                "INDEX(" + (int)condition.getReceiveType() + ", Prop.receiveType.Format)");
 
             // data mapping
             if (getDataMappingFunctions().Count > 0)

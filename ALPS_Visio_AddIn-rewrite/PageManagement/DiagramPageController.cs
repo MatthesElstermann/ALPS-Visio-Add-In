@@ -48,7 +48,8 @@ namespace ALPS_Visio_AddIn_rewrite
         protected void setBackgroundForThis(string backgroundPageName)
         {
             this.visioPage.BackPage = "";
-            foreach (var page in Globals.ThisAddIn.Application.ActiveDocument.Pages.Cast<Page>()
+            // Im Dokument der eigenen Seite suchen, nicht im (evtl. inzwischen anderen) aktiven.
+            foreach (var page in this.visioPage.Document.Pages.Cast<Page>()
                          .Where(page => page.NameU.Equals(backgroundPageName)))
             {
                 this.visioPage.BackPage = page.NameU;
@@ -76,13 +77,17 @@ namespace ALPS_Visio_AddIn_rewrite
             // reset()/updateExtends) and each one is an expensive debugger notification — the main
             // source of the "everything feels slow" symptom. FirstOrDefault returns null instead.
             Master visioRectMaster = visioStencil.Masters.Cast<Master>()
-                .FirstOrDefault(master => master.NameU.Equals("alpsExtensionSeperator"));
+                .FirstOrDefault(master => master.NameU.Equals(Constants.ExtensionSeparatorMasterName));
             if (visioRectMaster == null) return;
 
             try
             {
-                Shape visioRectShape = visioPage.Drop(visioRectMaster, 1, 1);
-                visioPage.Layers.ItemU["BackgroundSeparatorLayer"].CellsC[7].Formula = "1";
+                visioPage.Drop(visioRectMaster, 1, 1);
+                // Den Trenn-Layer sperren, damit die Hintergrund-Flaeche nicht versehentlich
+                // ausgewaehlt wird (CellsC[7] war visLayerSnap, nicht das Sperren).
+                Layer backLayer = findBackLayer();
+                if (backLayer != null)
+                    backLayer.CellsC[(short)VisCellIndices.visLayerLock].FormulaU = "1";
             }
             catch (COMException)
             {
@@ -96,36 +101,34 @@ namespace ALPS_Visio_AddIn_rewrite
         protected void rearrangeBackRectangle(DiagramPage diagramPage)
         {
             Shape visioRectShape = getBackRectangle();
-
             DiagramPageController newPropC = getController(diagramPage);
+            // Kein Trenn-Rechteck (Master fehlte / vom Nutzer geloescht) oder Controller nicht
+            // (mehr) bekannt — frueher NullReferenceException im PageWidth-Event.
+            if (visioRectShape == null || newPropC == null) return;
 
             double pageWidth = newPropC.getWidth();
             double pageHeight = newPropC.getHeight();
 
-            visioRectShape.NameU = "alpsExtensionSeperator";
+            visioRectShape.NameU = Constants.ExtensionSeparatorMasterName;
 
-            visioRectShape.CellsU["PinX"].Formula = (pageWidth / 2) + "mm";
-            visioRectShape.CellsU["PinY"].Formula = (pageHeight / 2) + "mm";
-
-            visioRectShape.CellsU["Width"].Formula = pageWidth + " mm";
-            visioRectShape.CellsU["Height"].Formula = pageHeight + " mm";
+            // Kulturunabhaengig (FormulaU + InvariantCulture) statt "12,5mm" ueber .Formula.
+            VisioHelper.SetCellMM(visioRectShape, "PinX", pageWidth / 2);
+            VisioHelper.SetCellMM(visioRectShape, "PinY", pageHeight / 2);
+            VisioHelper.SetCellMM(visioRectShape, "Width", pageWidth);
+            VisioHelper.SetCellMM(visioRectShape, "Height", pageHeight);
 
             visioRectShape.SendToBack();
         }
 
         protected void deleteBackRectangle()
         {
-            Layer backLayer = visioPage.Layers.Cast<Layer>()
-                .FirstOrDefault(layer => layer.NameU.Equals("alpsExtensionSeperator"));
+            // Bisher wurde ein Layer namens "alpsExtensionSeperator" (= Shape-Name) gesucht,
+            // den es nie gibt — die Trenn-Flaeche blieb nach dem Entfernen von extends stehen.
+            Layer backLayer = findBackLayer();
 
             if (backLayer == null) return;
 
-            short row = backLayer.CellsC[7].Row;
-
-            Cell cell = visioPage.PageSheet.CellsSRC[(short)VisSectionIndices.visSectionLayer,
-                (short)(VisRowIndices.visRowLayer + row),
-                (short)VisCellIndices.visLayerLock];
-            cell.Formula = "0";
+            backLayer.CellsC[(short)VisCellIndices.visLayerLock].FormulaU = "0";
             backLayer.Delete(1);
         }
 
@@ -134,8 +137,18 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         protected bool backLayerExists()
         {
-            return visioPage.Layers.Cast<Layer>()
-                .Any(layer => layer.NameU.Equals("BackgroundSeperatorLayer"));
+            return findBackLayer() != null;
+        }
+
+        /// <summary>
+        /// Der Trenn-Layer heisst in bestehenden Dokumenten/Stencils "BackgroundSeperatorLayer"
+        /// (Tippfehler im Stencil), teils auch korrekt geschrieben — beide Namen akzeptieren.
+        /// </summary>
+        private Layer findBackLayer()
+        {
+            return visioPage.Layers.Cast<Layer>().FirstOrDefault(layer =>
+                layer.NameU.Equals(Constants.Layers.BackgroundSeparatorAlt) ||
+                layer.NameU.Equals(Constants.Layers.BackgroundSeparator));
         }
 
         /// <summary>
@@ -144,7 +157,7 @@ namespace ALPS_Visio_AddIn_rewrite
         protected Shape getBackRectangle()
         {
             return visioPage.Shapes.Cast<Shape>()
-                .FirstOrDefault(shape => shape.NameU.Equals("alpsExtensionSeperator"));
+                .FirstOrDefault(shape => shape.NameU.Equals(Constants.ExtensionSeparatorMasterName));
         }
 
         /// <summary>

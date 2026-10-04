@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace ALPS_Visio_AddIn_rewrite.NLChecker
@@ -58,8 +60,58 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         /// <summary>Aktiver LLM-Provider (fuer die Label-Vorschlaege).</summary>
         public string Provider { get; set; } = ProviderUniGpt;
 
-        /// <summary>API-Key je Provider.</summary>
+        /// <summary>
+        /// API-Key je Provider — nur im Speicher im Klartext. Auf Platte landet
+        /// <see cref="ProtectedApiKeys"/>; die Eigenschaft wird nur noch GELESEN
+        /// (Migration alter Settings-Dateien mit Klartext-Keys), nie geschrieben.
+        /// </summary>
         public Dictionary<string, string> ApiKeys { get; set; } = new Dictionary<string, string>();
+
+        public bool ShouldSerializeApiKeys() => false;
+
+        /// <summary>
+        /// API-Keys per DPAPI (CurrentUser) verschluesselt, Base64-kodiert. Nur unter demselben
+        /// Windows-Konto entschluesselbar — die Settings-Datei liegt im Roaming-Profil und kann
+        /// auf Netzlaufwerke synchronisiert werden. Nicht entschluesselbare Eintraege (anderes
+        /// Konto/Rechner) werden verworfen; der Nutzer gibt den Key dann neu ein.
+        /// </summary>
+        // Replace: sonst befuellt Json.NET das vom Getter gelieferte (berechnete) Dictionary
+        // und ruft den entschluesselnden Setter nie auf.
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
+        public Dictionary<string, string> ProtectedApiKeys
+        {
+            get
+            {
+                var result = new Dictionary<string, string>();
+                foreach (var entry in ApiKeys)
+                {
+                    if (string.IsNullOrEmpty(entry.Value)) continue;
+                    byte[] cipher = ProtectedData.Protect(Encoding.UTF8.GetBytes(entry.Value), KeyEntropy,
+                        DataProtectionScope.CurrentUser);
+                    result[entry.Key] = Convert.ToBase64String(cipher);
+                }
+                return result;
+            }
+            set
+            {
+                if (value == null) return;
+                foreach (var entry in value)
+                {
+                    try
+                    {
+                        byte[] plain = ProtectedData.Unprotect(Convert.FromBase64String(entry.Value), KeyEntropy,
+                            DataProtectionScope.CurrentUser);
+                        ApiKeys[entry.Key] = Encoding.UTF8.GetString(plain);
+                    }
+                    catch (Exception ex) when (ex is CryptographicException || ex is FormatException)
+                    {
+                        // Unter anderem Konto/Rechner verschluesselt oder beschaedigt — verwerfen.
+                    }
+                }
+            }
+        }
+
+        private static readonly byte[] KeyEntropy = Encoding.UTF8.GetBytes("ALPS_Visio_AddIn.NlChecker.ApiKeys");
 
         /// <summary>Modellname je Provider (leer = Default).</summary>
         public Dictionary<string, string> Models { get; set; } = new Dictionary<string, string>();
@@ -210,7 +262,8 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             {
                 if (File.Exists(SettingsPath))
                 {
-                    var loaded = JsonConvert.DeserializeObject<NlCheckerSettings>(File.ReadAllText(SettingsPath));
+                    string json = File.ReadAllText(SettingsPath);
+                    var loaded = JsonConvert.DeserializeObject<NlCheckerSettings>(json);
                     if (loaded != null)
                     {
                         loaded.ApiKeys = loaded.ApiKeys ?? new Dictionary<string, string>();
@@ -222,6 +275,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
                         // eigenen Provider, auf den Default zurueckfallen.
                         if (!loaded.ProviderExists(loaded.Provider))
                             loaded.Provider = ProviderUniGpt;
+                        // Alte Datei mit Klartext-Keys: sofort verschluesselt neu schreiben.
+                        if (json.Contains("\"ApiKeys\""))
+                            TrySave(loaded);
                         return loaded;
                     }
                 }
@@ -237,7 +293,12 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             try
             {
                 if (File.Exists(LegacyKeyPath))
+                {
                     settings.SetApiKey(ProviderUniGpt, File.ReadAllText(LegacyKeyPath).Trim());
+                    // Key verschluesselt uebernehmen und die Klartext-Datei erst danach entfernen.
+                    if (TrySave(settings))
+                        File.Delete(LegacyKeyPath);
+                }
             }
             catch
             {
@@ -245,6 +306,19 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             }
 
             return settings;
+        }
+
+        private static bool TrySave(NlCheckerSettings settings)
+        {
+            try
+            {
+                settings.Save();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void Save()

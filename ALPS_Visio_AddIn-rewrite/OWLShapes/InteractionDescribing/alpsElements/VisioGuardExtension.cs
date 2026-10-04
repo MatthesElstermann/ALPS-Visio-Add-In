@@ -9,10 +9,10 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioGuardExtension : GuardExtension, IVisioImportableWithShape
     {
-        // Uses the generic ActorExtension master: a dedicated "GuardExtension" master
-        // does not exist in the SID stencil (the legacy add-in used ActorExtension for all
-        // extension types). Dropping a non-existent master throws a COMException.
-        private const string shapeType = Constants.SIDMasters.ActorExtension;
+        // Eigener Master "Guard Extension" (Kategorie GuardExtension, extensionType "Guard
+        // Extension") — frueher wurden alle Extension-Typen als "Subject Extension" gezeichnet.
+        // Aeltere Schablonen ohne diesen Master fallen auf ActorExtension zurueck.
+        private static string shapeType => VH.MasterOrFallback(Constants.SIDMasters.GuardExtension, Constants.SIDMasters.ActorExtension);
 
         private readonly IShapeImport import;
         public VisioGuardExtension(IModelLayer layer) : base(layer) { import = new SubjectImport(this); }

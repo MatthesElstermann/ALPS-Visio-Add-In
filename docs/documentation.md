@@ -1,3 +1,9 @@
+> **Historischer Stand (vor dem Refactoring).** Mehrere hier beschriebene Dateien
+> (`ALPSConstants.cs`, `ALPSGlobalFunctions.cs`, `menu/…`, `OWL/OWLImporter.cs`,
+> `ExportFunctionality/*Export.cs`) existieren nicht mehr bzw. heißen inzwischen anders
+> (z. B. `OWLShapes/ImportFunctionality/*Import.cs`). Den aktuellen Aufbau beschreibt
+> die [README](../README.md#project-structure).
+
 # Documentation for ALPS_Visio_AddIn_rewrite
 This Visio AddIn adds an Importer for [Abstract Layered PASS (ALPS)](#abstract-layered-pass) diagrams.
 

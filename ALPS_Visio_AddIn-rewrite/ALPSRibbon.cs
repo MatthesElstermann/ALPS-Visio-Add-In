@@ -716,8 +716,14 @@ namespace ALPS_Visio_AddIn_rewrite
         /// bundled data) and asks an LLM for better labels where invalid. Ported from the standalone
         /// NLPPASSChecking add-in. Needs an LLM API key (prompted on first use).
         /// </summary>
+        private static bool _nlCheckerRunning;
+
         private async void PassNlChecker(object sender, RibbonControlEventArgs e)
         {
+            // Die Pruefung laeuft asynchron (LLM-Aufrufe bis 60 s) — ein zweiter Klick
+            // wuerde sonst einen parallelen Lauf ueber dasselbe Dokument starten.
+            if (_nlCheckerRunning) return;
+            _nlCheckerRunning = true;
             try
             {
                 var checker = new NLChecker.NlChecker();
@@ -728,7 +734,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 }
 
                 var progress = new NLChecker.ProcessingForm();
-                progress.Show();
+                progress.Show(UI.VisioOwner.Win32Window);
 
                 string report;
                 try
@@ -747,6 +753,10 @@ namespace ALPS_Visio_AddIn_rewrite
             {
                 UI.ResultDialog.ShowError("PASS NL Checker fehlgeschlagen",
                     "Die Prüfung konnte nicht abgeschlossen werden.", DescribeException(ex));
+            }
+            finally
+            {
+                _nlCheckerRunning = false;
             }
         }
 
@@ -783,12 +793,20 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         private void OpenNlCheckerSettings(object sender, RibbonControlEventArgs e)
         {
-            var settings = NLChecker.NlCheckerSettings.Load();
-            using (var dialog = new NLChecker.NlCheckerSettingsDialog(settings))
+            try
             {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                    UI.ResultDialog.ShowSuccess("Einstellungen gespeichert",
-                        "Die NL-Checker-Einstellungen wurden übernommen.");
+                var settings = NLChecker.NlCheckerSettings.Load();
+                using (var dialog = new NLChecker.NlCheckerSettingsDialog(settings))
+                {
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                        UI.ResultDialog.ShowSuccess("Einstellungen gespeichert",
+                            "Die NL-Checker-Einstellungen wurden übernommen.");
+                }
+            }
+            catch (Exception ex)
+            {
+                UI.ResultDialog.ShowError("Einstellungen nicht verfügbar",
+                    "Die NL-Checker-Einstellungen konnten nicht geöffnet werden.", DescribeException(ex));
             }
         }
 
@@ -797,7 +815,7 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         private void ArrangeTopDown(object sender, RibbonControlEventArgs e)
         {
-            AutoArranger.ArrangeActivePage(Globals.ThisAddIn.Application, AutoArranger.LayoutDirection.TopToBottom);
+            Arrange(AutoArranger.LayoutDirection.TopToBottom);
         }
 
         /// <summary>
@@ -805,7 +823,24 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         private void ArrangeLeftRight(object sender, RibbonControlEventArgs e)
         {
-            AutoArranger.ArrangeActivePage(Globals.ThisAddIn.Application, AutoArranger.LayoutDirection.LeftToRight);
+            Arrange(AutoArranger.LayoutDirection.LeftToRight);
+        }
+
+        /// <summary>
+        /// VSTO verschluckt Ausnahmen aus Ribbon-Handlern — ohne Dialog sah ein fehlgeschlagenes
+        /// Anordnen (Undo-Scope zurueckgerollt) fuer den Nutzer wie "nichts passiert" aus.
+        /// </summary>
+        private static void Arrange(AutoArranger.LayoutDirection direction)
+        {
+            try
+            {
+                AutoArranger.ArrangeActivePage(Globals.ThisAddIn.Application, direction);
+            }
+            catch (Exception ex)
+            {
+                UI.ResultDialog.ShowError("Anordnen fehlgeschlagen",
+                    "Die aktive Seite konnte nicht neu angeordnet werden.", DescribeException(ex));
+            }
         }
     }
 }

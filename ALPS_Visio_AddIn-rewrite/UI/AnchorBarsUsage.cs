@@ -27,6 +27,9 @@ namespace ALPS_Visio_AddIn_rewrite
         private const string customMergeId =
             "{91439584-A97D-46e8-92E3-AD10BA4C8B6B}";
 
+        /// <summary>The Visio anchor window created by the last <see cref="CreateAnchorBar"/> call.</summary>
+        public Microsoft.Office.Interop.Visio.Window AnchorWindow { get; private set; }
+
         /// <summary>This constructor is intentionally left blank.</summary>
         public AnchorBarsUsage(ThisAddIn addin, ModelController modelController)
         {
@@ -96,6 +99,7 @@ namespace ALPS_Visio_AddIn_rewrite
                 // than the window caption. The MergeCaption property value
                 // appears on the tab of the merged window.
                 anchorWindow.MergeCaption = anchorBarMergeTitle;
+                AnchorWindow = anchorWindow;
             }
             catch (Exception err)
             {

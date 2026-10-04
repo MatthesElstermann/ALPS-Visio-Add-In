@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY abstract-pass-ont "http://www.imi.kit.edu/abstract-pass-ont#" >
+    <!ENTITY standard-pass-ont "http://www.i2pm.net/standard-pass-ont#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<!--
+    Verifikations-Paar fuer Mehr-Ebenen-Modelle: SPEZIFIKATION
+    ==========================================================
+    Gegenstueck: [Verif]_Impl_ALPS_Layered.owl (implementiert alle Subjekte dieser Datei per
+    abstract-pass-ont:implements, verteilt auf ZWEI Ebenen).
+
+    Zwei Ebenen wie [Test]_ALPS_Layered.owl:
+      - Spec_Layer_Base : Spec_Worker (FullySpecifiedSubject), Spec_Customer (FullySpecifiedSubject)
+      - Spec_Layer_Audit: Spec_Auditor (FullySpecifiedSubject) — liegt bewusst auf der zweiten Ebene (Erweiterungsebene, KEINE Guard-Ebene),
+                          damit ein Verdict "BESTANDEN" nur moeglich ist, wenn die Verifikation
+                          BEIDE Ebenen des aktuellen Modells einliest.
+    Dazu eine Kommunikations-Restriktion: Customer und Auditor duerfen NICHT direkt kommunizieren.
+
+    Test in Visio:
+      1. [Verif]_Impl_ALPS_Layered.owl per "Import OWL" importieren.
+      2. "ALPS Verification -> Aktuelles Modell pruefen" und diese Datei als Spezifikation waehlen.
+      Erwartung: alle drei Subjekte "implemented", Restriktion eingehalten.
+-->
+
+<rdf:RDF
+    xmlns:abstract-pass-ont="http://www.imi.kit.edu/abstract-pass-ont#"
+    xmlns:standard-pass-ont="http://www.i2pm.net/standard-pass-ont#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns="http://alps-visio-test.example/alps-layered-verif#">
+
+    <owl:Ontology rdf:about="http://alps-visio-test.example/alps-layered-verif">
+        <owl:versionIRI rdf:resource="http://alps-visio-test.example/alps-layered-verif/2026-10-03"/>
+        <owl:imports rdf:resource="http://www.imi.kit.edu/abstract-pass-ont"/>
+        <owl:imports rdf:resource="http://www.i2pm.net/standard-pass-ont"/>
+    </owl:Ontology>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-verif#Spec_Model">
+        <rdf:type rdf:resource="&standard-pass-ont;PASSProcessModel"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Spec_Model</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">[Verif]_Spec_ALPS_Layered</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-verif#Spec_Layer_Base"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-verif#Spec_Layer_Audit"/>
+    </owl:NamedIndividual>
+
+    <!-- Ebene 1 -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-verif#Spec_Layer_Base">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Spec_Layer_Base</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Spec_Layer_Base</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-verif#Spec_Worker"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-verif#Spec_Customer"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-verif#Spec_Restriction"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-verif#Spec_Worker">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Spec_Worker</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Worker</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-verif#Spec_Customer">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Spec_Customer</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Customer</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-verif#Spec_Restriction">
+        <rdf:type rdf:resource="&abstract-pass-ont;CommunicationRestriction"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Spec_Restriction</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Customer may not talk to Auditor</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasCorrespondent rdf:resource="http://alps-visio-test.example/alps-layered-verif#Spec_Customer"/>
+        <standard-pass-ont:hasCorrespondent rdf:resource="http://alps-visio-test.example/alps-layered-verif#Spec_Auditor"/>
+    </owl:NamedIndividual>
+
+    <!-- Ebene 2 -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-verif#Spec_Layer_Audit">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Spec_Layer_Audit</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Spec_Layer_Audit</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">2</standard-pass-ont:hasPriorityNumber>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-verif#Spec_Auditor"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-verif#Spec_Auditor">
+        <rdf:type rdf:resource="&standard-pass-ont;FullySpecifiedSubject"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Spec_Auditor</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Auditor</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasMaximumSubjectInstanceRestriction rdf:datatype="&xsd;integer">1</standard-pass-ont:hasMaximumSubjectInstanceRestriction>
+    </owl:NamedIndividual>
+
+</rdf:RDF>

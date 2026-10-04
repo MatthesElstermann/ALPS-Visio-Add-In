@@ -9,10 +9,11 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
 {
     public class VisioMacroExtension : MacroExtension, IVisioImportableWithShape
     {
-        // Uses the generic ActorExtension master: a dedicated "MakroExtension" master
-        // does not exist in the SID stencil (the legacy add-in used ActorExtension for all
-        // extension types). Dropping a non-existent master throws a COMException.
-        private const string shapeType = Constants.SIDMasters.ActorExtension;
+        // Eigener Master "Specific Macro" (Kategorie MacroExtension, extensionType "Macro
+        // Extension") — frueher als "Subject Extension" gezeichnet; damit griff u. a. die
+        // Sonderbehandlung von Macro-Extensions beim Snapping (SidSnapHandler) nie.
+        // Aeltere Schablonen ohne diesen Master fallen auf ActorExtension zurueck.
+        private static string shapeType => VH.MasterOrFallback(Constants.SIDMasters.MacroExtension, Constants.SIDMasters.ActorExtension);
 
         private readonly IShapeImport import;
         public VisioMacroExtension(IModelLayer layer) : base(layer) { import = new SubjectImport(this); }

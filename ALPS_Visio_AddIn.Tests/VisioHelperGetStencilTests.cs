@@ -21,6 +21,8 @@ namespace ALPS_Visio_AddIn_rewrite.Tests
         // ALPS-SID-Elemente — genau die Master, deren Fehlen im Set frueher den
         // Import von Guard-/Subjekt-Extensions crashen liess.
         [TestCase(Constants.SIDMasters.ActorExtension)]
+        [TestCase(Constants.SIDMasters.GuardExtension)]
+        [TestCase(Constants.SIDMasters.MacroExtension)]
         [TestCase(Constants.SIDMasters.SubjectGroup)]
         [TestCase(Constants.SIDMasters.AbstractCommunicationChannel)]
         [TestCase(Constants.SIDMasters.SystemInterfaceSubject)]

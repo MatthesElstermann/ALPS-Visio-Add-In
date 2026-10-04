@@ -37,18 +37,22 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
             foreach (IBehaviorDescribingComponent component in components.Values.OrderBy(c => c is ITransition))
             {
                 if (!(component is IVisioImportable importable)) continue;
+                if (!(component is IState) && !(component is ITransition)) continue;
 
-                if (importable is IVisioImportableWithShape shapeImportable)
-                    if (shapeImportable.PrepareDimensions()) anyHadCoordinates = true;
-
-                if (component is IState state)
+                // Jede Komponente einzeln absichern: ein fehlerhafter State/eine fehlerhafte
+                // Transition (z. B. fehlende optionale Transition-Condition) brach frueher das
+                // ganze SBD ab — und darueber auch Import und Layout des besitzenden Subjekts.
+                try
                 {
+                    if (importable is IVisioImportableWithShape shapeImportable && shapeImportable.PrepareDimensions())
+                        anyHadCoordinates = true;
+
                     importable.ImportToVisio(page);
-                    importedStates.Add(state);
+                    if (component is IState state) importedStates.Add(state);
                 }
-                else if (component is ITransition)
+                catch (System.Exception ex)
                 {
-                    importable.ImportToVisio(page);
+                    ImportDiagnostics.Report(component.getModelComponentID(), ex);
                 }
             }
 

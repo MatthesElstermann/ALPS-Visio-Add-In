@@ -158,7 +158,9 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
         {
             PrepareNativeLibraryResolution();
             Directory.CreateDirectory(AppDataDir);
-            if (!File.Exists(ModelFilePath)) TrainModelFromBundledData();
+            // Neu trainieren, wenn das Modell fehlt ODER aus anderen Trainingsdaten stammt —
+            // sonst wirkte ein aktualisiertes training.tsv bei bestehenden Nutzern nie.
+            if (!File.Exists(ModelFilePath) || !TrainingDataMatchesModel()) TrainModelFromBundledData();
 
             try
             {
@@ -208,6 +210,33 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
             Directory.CreateDirectory(AppDataDir);
             _mlContext.Model.Save(_model, trainingDataView.Schema, ModelFilePath);
+            try { File.WriteAllText(ModelHashPath, TrainingDataHash()); }
+            catch (IOException) { /* ohne Hash wird beim naechsten Start erneut trainiert */ }
+        }
+
+        private static string ModelHashPath => ModelFilePath + ".sha256";
+
+        private static bool TrainingDataMatchesModel()
+        {
+            try
+            {
+                return File.Exists(ModelHashPath) && File.ReadAllText(ModelHashPath).Trim() == TrainingDataHash();
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>SHA-256 der eingebetteten Trainingsdaten (Hex).</summary>
+        private static string TrainingDataHash()
+        {
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(TrainingResourceName))
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                if (stream == null) return "";
+                return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
+            }
         }
 
         /// <summary>Writes the embedded training set to a temp file and returns its path.</summary>
@@ -240,16 +269,25 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
             int totalShapes = document.Pages.Cast<Visio.Page>().Sum(p => p.Shapes.Count);
             int processed = 0;
 
-            foreach (Visio.Page page in document.Pages)
+            // Seiten/Shapes vorab einsammeln: waehrend der (asynchronen) LLM-Aufrufe bleibt Visio
+            // bedienbar — eine live iterierte Shapes-Auflistung brach bei Aenderungen ab.
+            foreach (Visio.Page page in document.Pages.Cast<Visio.Page>().ToList())
             {
                 result.AppendLine($"#### Page: {page.Name} ####");
 
-                foreach (Visio.Shape shape in page.Shapes)
+                foreach (Visio.Shape shape in page.Shapes.Cast<Visio.Shape>().ToList())
                 {
                     processed++;
                     progress?.UpdateProgress(processed, totalShapes);
 
-                    result.Append(await ProcessShapeAsync(shape));
+                    try
+                    {
+                        result.Append(await ProcessShapeAsync(shape));
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        // Shape wurde waehrend der Pruefung geloescht — ueberspringen.
+                    }
                 }
             }
             return result.ToString();
@@ -261,9 +299,10 @@ namespace ALPS_Visio_AddIn_rewrite.NLChecker
 
             string label = GetShapePropertyValue(shape, "Prop.lable");
             string componentType = GetShapePropertyValue(shape, "Prop.modelComponentType");
-            string multiSubject = GetShapePropertyValue(shape, "Prop.multiSubject");
-
-            bool isMultiSubject = multiSubject.Equals("TRUE", StringComparison.OrdinalIgnoreCase) || multiSubject == "1";
+            // Boolesch auswerten: ResultStr liefert auf deutschem Visio "WAHR"/"FALSCH", der
+            // Vergleich mit "TRUE" erkannte MultiSubjects dort nie.
+            bool isMultiSubject = shape.CellExistsU["Prop.multiSubject", 0] != 0
+                && shape.CellsU["Prop.multiSubject"].Result[""] != 0;
             if (isMultiSubject) componentType = "MultiSubject";
 
             // Skip connectors / message boxes.

@@ -26,6 +26,18 @@
     Bewusst OHNE Koordinaten — so greift zusätzlich das Auto-Layout. Die ALPS-Subjekt-
     Typen sind alle subClassOf Subject und werden daher vom ISubject-Pfad gezeichnet;
     CommunicationChannel/Restriction laufen über den Catch-all-Pass im VisioModelLayer.
+
+    Aufbau (fachlich wie in ALPS vorgesehen):
+      - Layer_Base: Subjekte, SubjectGroup, SystemInterfaceSubject, Nachricht,
+                    CommunicationChannel (Customer <-> External System) und
+                    CommunicationRestriction (Service <-> External System) — beide mit
+                    Endpunkten (hasCorrespondent), damit die Verbinder angedockt werden.
+      - Layer_Ext / Layer_Guard / Layer_Macro: je Extension-Typ eine Erweiterungsebene
+                    (alle extends Layer_Base). Extensions gehoeren auf eine Erweiterungsebene
+                    (auf der Basisebene verwirft die Schablonen-VBA Guard-/Macro-Extensions),
+                    und alps.net.api laesst je Ebene nur EINEN Extension-Typ zu.
+    Erwartung: drei unterschiedlich aussehende Extensions ("Extension", "Guard Extension"
+    mit Blitz, "Specific Macro"), eingerastet auf Customer bzw. Service.
 -->
 
 <rdf:RDF
@@ -51,24 +63,24 @@
         <rdf:type rdf:resource="&standard-pass-ont;PASSProcessModel"/>
         <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">ALPS_Elements_Model</standard-pass-ont:hasModelComponentID>
         <standard-pass-ont:hasModelComponentLabel xml:lang="en">[Test]_ALPS_Elements</standard-pass-ont:hasModelComponentLabel>
-        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_SID"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_Base"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_Ext"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_Guard"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_Macro"/>
     </owl:NamedIndividual>
 
     <!-- =====================================================================
-         ModelLayer (SID) — enthält alle SID-Elemente
+         Basis-Ebene: Subjekte, Gruppe, System-Interface, Nachricht, Kanal, Restriktion
          ===================================================================== -->
-    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Layer_SID">
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Layer_Base">
         <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
-        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_SID</standard-pass-ont:hasModelComponentID>
-        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_SID</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_Base</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_Base</standard-pass-ont:hasModelComponentLabel>
         <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">1</standard-pass-ont:hasPriorityNumber>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Customer"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Service"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Group_Backend"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#SystemInterface_External"/>
-        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Subject_Customer"/>
-        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Guard_Service"/>
-        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Macro_Service"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Channel_Customer_Service"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Restriction_Service"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#MsgSpec_Request"/>
@@ -76,6 +88,38 @@
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#MsgExchangeList_Request"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Customer"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#SBD_Service"/>
+    </owl:NamedIndividual>
+
+    <!-- =====================================================================
+         Erweiterungs-Ebenen, je Extension-Typ eine (alle extends Layer_Base).
+         alps.net.api leitet den Ebenen-Typ (Extension/Guard/Macro) aus dem Inhalt ab und
+         laesst je Ebene nur EINEN Typ zu — gemischt fielen Guard/Macro beim Parsen weg.
+         ===================================================================== -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Layer_Ext">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_Ext</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_Ext</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">2</standard-pass-ont:hasPriorityNumber>
+        <abstract-pass-ont:extends rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_Base"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Subject_Customer"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Layer_Guard">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_Guard</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_Guard</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">3</standard-pass-ont:hasPriorityNumber>
+        <abstract-pass-ont:extends rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_Base"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Guard_Service"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Layer_Macro">
+        <rdf:type rdf:resource="&abstract-pass-ont;ModelLayer"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Layer_Macro</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Layer_Macro</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasPriorityNumber rdf:datatype="&xsd;positiveInteger">4</standard-pass-ont:hasPriorityNumber>
+        <abstract-pass-ont:extends rdf:resource="http://alps-visio-test.example/alps-elements-test#Layer_Base"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-elements-test#Ext_Macro_Service"/>
     </owl:NamedIndividual>
 
     <!-- =====================================================================
@@ -148,13 +192,17 @@
     <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Channel_Customer_Service">
         <rdf:type rdf:resource="&abstract-pass-ont;CommunicationChannel"/>
         <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Channel_Customer_Service</standard-pass-ont:hasModelComponentID>
-        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Customer ↔ Service Channel</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Customer ↔ External Channel</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasCorrespondent rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Customer"/>
+        <standard-pass-ont:hasCorrespondent rdf:resource="http://alps-visio-test.example/alps-elements-test#SystemInterface_External"/>
     </owl:NamedIndividual>
 
     <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-elements-test#Restriction_Service">
         <rdf:type rdf:resource="&abstract-pass-ont;CommunicationRestriction"/>
         <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">Restriction_Service</standard-pass-ont:hasModelComponentID>
         <standard-pass-ont:hasModelComponentLabel xml:lang="en">Service Restriction</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:hasCorrespondent rdf:resource="http://alps-visio-test.example/alps-elements-test#Subject_Service"/>
+        <standard-pass-ont:hasCorrespondent rdf:resource="http://alps-visio-test.example/alps-elements-test#SystemInterface_External"/>
     </owl:NamedIndividual>
 
     <!-- =====================================================================

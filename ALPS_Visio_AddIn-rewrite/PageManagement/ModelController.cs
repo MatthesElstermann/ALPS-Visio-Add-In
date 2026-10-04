@@ -44,24 +44,38 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             if (isSid(page))
             {
+                // Erst aus der Warteliste austragen, dann registrieren: die Registrierung schreibt
+                // selbst Zellen (PriorityOrderNumber) — mit noch aktivem Abo lief pageAdded
+                // re-entrant ein zweites Mal und legte einen doppelten Controller an.
+                stopWatching(page);
                 registerNewSidPage(page);
-                if (!possibleSidOrSbdPages.ContainsKey(page.ID)) return;
-                possibleSidOrSbdPages.Remove(page.ID);
-                page.CellChanged -= onCellChangedOnPossibleSidOrSbdPage;
             }
             else if (isSbd(page))
             {
-                registerNewSbdPage(page);
-                if (!possibleSidOrSbdPages.ContainsKey(page.ID)) return;
-                possibleSidOrSbdPages.Remove(page.ID);
-                page.CellChanged -= onCellChangedOnPossibleSidOrSbdPage;
+                // Eine SBD-Seite ist erst registrierbar, wenn ihr pageLayer gesetzt ist. Bis dahin
+                // in der Warteliste lassen, sonst ginge sie bis zum naechsten Reset verloren.
+                stopWatching(page);
+                if (!registerNewSbdPage(page))
+                    startWatching(page);
             }
             else
             {
-                if (possibleSidOrSbdPages.ContainsKey(page.ID)) return;
-                possibleSidOrSbdPages.Add(page.ID, page);
-                page.CellChanged += onCellChangedOnPossibleSidOrSbdPage;
+                startWatching(page);
             }
+        }
+
+        private void startWatching(Page page)
+        {
+            if (possibleSidOrSbdPages.ContainsKey(page.ID)) return;
+            possibleSidOrSbdPages.Add(page.ID, page);
+            page.CellChanged += onCellChangedOnPossibleSidOrSbdPage;
+        }
+
+        private void stopWatching(Page page)
+        {
+            if (!possibleSidOrSbdPages.ContainsKey(page.ID)) return;
+            possibleSidOrSbdPages.Remove(page.ID);
+            page.CellChanged -= onCellChangedOnPossibleSidOrSbdPage;
         }
 
         /// <summary>
@@ -87,8 +101,16 @@ namespace ALPS_Visio_AddIn_rewrite
 
         private void onCellChangedOnPossibleSidOrSbdPage(Cell cell)
         {
-            if (possibleSidOrSbdPages.ContainsKey(cell.ContainingPageID))
-                pageAdded(possibleSidOrSbdPages[cell.ContainingPageID]);
+            // COM-Event-Handler: Ausnahmen nicht nach Visio durchreichen.
+            try
+            {
+                if (possibleSidOrSbdPages.TryGetValue(cell.ContainingPageID, out Page page))
+                    pageAdded(page);
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine("[ModelController] page registration failed: " + e);
+            }
         }
 
         private void registerNewSidPage(Page page)
@@ -106,10 +128,12 @@ namespace ALPS_Visio_AddIn_rewrite
             sidPageToSbdController.Add(sidPageWrapper, new HashSet<SBDPageController>());
         }
 
-        private void registerNewSbdPage(Page sbdPage)
+        /// <returns>false, solange die Seite (noch) keinen pageLayer traegt.</returns>
+        private bool registerNewSbdPage(Page sbdPage)
         {
+            if (sbdPage.PageSheet.CellExistsU["Prop." + Constants.Properties.PageLayer, 1] == 0) return false;
             string pageLayer = sbdPage.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].Formula;
-            if (string.IsNullOrWhiteSpace(pageLayer)) return;
+            if (string.IsNullOrWhiteSpace(pageLayer.Trim('"'))) return false;
 
             foreach (IVisioProcessModel model in models)
             {
@@ -118,15 +142,16 @@ namespace ALPS_Visio_AddIn_rewrite
                     if (!sidPage.getLayer().Equals(pageLayer)) continue;
 
                     SIDPageController sidController = getSidPageController(sidPage);
-                    if (sidController.addSbdPageAndCreateNewController(sbdPage, out SBDPageController sbdController))
+                    if (sidController != null && sidController.addSbdPageAndCreateNewController(sbdPage, out SBDPageController sbdController))
                         sidPageToSbdController[sidPage].Add(sbdController);
                 }
             }
+            return true;
         }
 
         public void updateExtends(SIDPageController modifiedC, SIDPage modifiedP, string userInput)
         {
-            SIDPage extending = getSidPage(userInput);
+            SIDPage extending = getSidPage(userInput) ?? registerSidPageWithLayer(modifiedC.getPage().Document, userInput);
             SIDPage oldExtends = modifiedC.getExtends();
 
             if (extending != null || string.IsNullOrWhiteSpace(userInput))
@@ -137,7 +162,7 @@ namespace ALPS_Visio_AddIn_rewrite
 
                 if (oldExtends == null) return;
                 SIDPageController oldExtendsC = getSidPageController(oldExtends);
-                if (extendingC == null || !oldExtendsC.getNameU().Equals(extendingC.getNameU()))
+                if (oldExtendsC != null && (extendingC == null || !oldExtendsC.getNameU().Equals(extendingC.getNameU())))
                     oldExtendsC.setNotExtended();
             }
             else
@@ -146,6 +171,27 @@ namespace ALPS_Visio_AddIn_rewrite
                     "„" + userInput + "“ konnte nicht aufgelöst werden.",
                     "Ort der fehlerhaften Eingabe: „" + modifiedC.getNameU() + "“");
             }
+        }
+
+        /// <summary>
+        /// Sucht im Dokument eine noch nicht registrierte SID-Seite mit dem angegebenen pageLayer und
+        /// registriert sie nach (z. B. eine Seite, die die Schablone erst nachtraeglich zur SID-Seite
+        /// gemacht hat). Liefert die registrierte Seite oder null.
+        /// </summary>
+        private SIDPage registerSidPageWithLayer(Document document, string layerName)
+        {
+            if (document == null || string.IsNullOrWhiteSpace(layerName)) return null;
+            string wanted = layerName.Trim('\\', '"');
+            foreach (Page page in document.Pages)
+            {
+                if (!isSid(page)) continue;
+                string layer = page.PageSheet.CellsU["Prop." + Constants.Properties.PageLayer].ResultStr[""];
+                if (!wanted.Equals(layer)) continue;
+                stopWatching(page);
+                registerNewSidPage(page);
+                return getSidPage(layerName);
+            }
+            return null;
         }
 
         public SIDPage getSidPage(string layerName)
@@ -194,23 +240,41 @@ namespace ALPS_Visio_AddIn_rewrite
         public void setActivePage(SIDPage sidPage)
         {
             SIDPageController sidPageC = getSidPageController(sidPage);
-            if (sidPageC != null) addIn.Application.ActiveWindow.Page = sidPageC.getPage();
+            if (sidPageC != null) showPage(sidPageC.getPage());
         }
 
         public void setActivePage(SBDPage sbdPage)
         {
             SBDPageController sbdPageC = getSbdPageController(sbdPage);
-            if (sbdPageC != null) addIn.Application.ActiveWindow.Page = sbdPageC.getPage();
+            if (sbdPageC != null) showPage(sbdPageC.getPage());
+        }
+
+        /// <summary>
+        /// Zeigt die Seite im aktiven Fenster — nur, wenn sie zu dessen Dokument gehoert
+        /// (eine Seite eines anderen Dokuments loest sonst eine COMException im Klick-Handler aus).
+        /// </summary>
+        private void showPage(Page page)
+        {
+            try
+            {
+                Microsoft.Office.Interop.Visio.Window window = addIn.Application.ActiveWindow;
+                if (window?.Document == null || page.Document.ID != window.Document.ID) return;
+                window.Page = page;
+            }
+            catch (System.Runtime.InteropServices.COMException e)
+            {
+                Debug.WriteLine("[ModelController] could not activate page: " + e.Message);
+            }
         }
 
         public void changeLayerName(SIDPage changed, string newName)
         {
             SIDPageController pageController = getSidPageController(changed);
+            if (pageController == null) return;
             pageController.setLayerName(newName);
             if (changed.getForeground() != null)
             {
-                SIDPageController foregroundController = getSidPageController(changed.getForeground());
-                foregroundController.setExtendsCell(changed.getLayer());
+                getSidPageController(changed.getForeground())?.setExtendsCell(changed.getLayer());
             }
             addIn.refreshLayerExplorerTreeView();
         }
@@ -246,6 +310,8 @@ namespace ALPS_Visio_AddIn_rewrite
         /// </summary>
         internal void updateWholeController(Pages pages)
         {
+            detachSbdControllers();
+            SIDPageController.pruneClosedControllers();
             models = new HashSet<IVisioProcessModel>();
             this.modelToSidController = new Dictionary<IVisioProcessModel, ISet<SIDPageController>>();
             this.sidPageToSbdController = new Dictionary<SIDPage, ISet<SBDPageController>>();
@@ -253,9 +319,46 @@ namespace ALPS_Visio_AddIn_rewrite
             foreach (var page in pages.Cast<Page>().Where(isSid))
                 registerNewSidPage(page);
             foreach (var page in pages.Cast<Page>().Where(isSbd))
-                registerNewSbdPage(page);
+            {
+                if (!registerNewSbdPage(page)) startWatching(page);
+            }
+            // Auch schon vorhandene, (noch) leere Seiten beobachten: die Schablonen-VBA wandelt z. B.
+            // die Startseite einer neuen Zeichnung nachtraeglich in eine SID-Seite um. Ohne Abo
+            // wurde diese nie registriert — extends-Verweise darauf liefen ins Leere ("SID_1
+            // konnte nicht aufgeloest werden") und das Snapping fiel aus.
+            foreach (var page in pages.Cast<Page>().Where(page => !isSid(page) && !isSbd(page)))
+                startWatching(page);
             foreach (var sidPageC in modelToSidController.SelectMany(pair => pair.Value))
                 sidPageC.updateExtends();
+
+            // Hintergrund der SBD/GBD-Seiten aus den (jetzt bekannten) SID-Ebenen ableiten.
+            // Frueher geschah das nur bei einer Shape-Aenderung auf der Seite — nach einem Import
+            // blieb die GBD ohne Hintergrund, bis der Nutzer etwas verschob.
+            foreach (SBDPageController sbdPageC in sidPageToSbdController.Values.SelectMany(set => set).ToList())
+            {
+                try { sbdPageC.tryDeriveExtends(); }
+                catch (System.Exception e) { Debug.WriteLine("[ModelController] deriving SBD background failed: " + e.Message); }
+            }
+        }
+
+        private void detachSbdControllers()
+        {
+            foreach (SBDPageController controller in sidPageToSbdController.Values.SelectMany(set => set))
+                controller.detach();
+        }
+
+        /// <summary>
+        /// Meldet alle Visio-Events dieses Controllers ab, bevor ThisAddIn.reset() ihn ersetzt.
+        /// </summary>
+        internal void detach()
+        {
+            detachSbdControllers();
+            foreach (Page page in possibleSidOrSbdPages.Values)
+            {
+                try { page.CellChanged -= onCellChangedOnPossibleSidOrSbdPage; }
+                catch (System.Runtime.InteropServices.COMException) { /* Seite bereits geschlossen */ }
+            }
+            possibleSidOrSbdPages.Clear();
         }
 
         public int getCurrentPriority(string modelUri)

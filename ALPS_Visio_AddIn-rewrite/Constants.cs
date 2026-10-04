@@ -44,10 +44,13 @@ namespace ALPS_Visio_AddIn_rewrite
             public const string GenericReturnToOriginReference = "GenericReturnToOriginReference";
             public const string StandardTransition = "StandardTransition";
             public const string ReceiveTransition = "ReceiveTransition";
-            public const string SendingFailedTransition = "SendingFailedTransition";
+            // Universelle Namen exakt wie in der SBD-Schablone (v1.0.1-R) — mit Leerzeichen bzw.
+            // "TimeOut". Die frueheren Werte "SendingFailedTransition", "FlowRestrictor" und
+            // "TimeTransition" gibt es dort nicht; der Import dieser Transitionen schlug fehl.
+            public const string SendingFailedTransition = "Sending Failed Transition";
             public const string SendTransition = "SendTransition";
-            public const string FlowRestrictor = "FlowRestrictor";
-            public const string TimeTransition = "TimeTransition";
+            public const string FlowRestrictor = "Flow Restrictor";
+            public const string TimeTransition = "TimeOutTransition";
             public const string UserCancelTransition = "UserCancelTransition";
             public const string GeneralAbstractState = "GeneralAbstractState";
             public const string StatePlaceHolder = "StatePlaceHolder";
@@ -261,6 +264,8 @@ namespace ALPS_Visio_AddIn_rewrite
             public const string SBDLinkedSubjectID = "subjectShapeID";
             public const string PriorityOrderNumber = "priorityOrder";
             public const string SBDPage = "SubjectBehavior";
+            /// <summary>Seitentyp einer GBD, wie ihn die Schablonen-VBA selbst vergibt.</summary>
+            public const string GBDPage = "SubjectGuardBehavior";
             public const string SIDPage = "SubjectInteraction";
             public const string LinkedSBD = "linkedSBD";
             public const string LinkedSIDPage = "linkedSIDPage";

@@ -108,7 +108,7 @@ public class BpmnSerializer
                     {
                         XName? elementName = bpmnElement.Name != null ? CreateXName(bpmnElement.Name, bpmnElement.Namespace) : null;
 
-                        if (value is IEnumerable enumerable && obj is not string)
+                        if (value is IEnumerable enumerable && value is not string)
                         {
                             foreach (object item in enumerable)
                             {

@@ -22,7 +22,9 @@ public static class PassParser
 
         // Plain alps.net.api-Klassen statt der VisioClassFactory des OWL-Imports:
         // fuer die Konvertierung wird nur das Datenmodell gebraucht, keine Shapes.
-        io.setModelElementFactory(new BasicPASSProcessModelElementFactory());
+        // NullSafe-Variante wie in der Verifikation: die Basis-Factory wirft bei
+        // Abstract-/FinalizedMessageExchange eine NullReferenceException.
+        io.setModelElementFactory(new ALPS_Visio_AddIn_rewrite.Verification.NullSafeModelElementFactory());
 
         io.loadOWLParsingStructure(
             new List<string>
@@ -39,10 +41,8 @@ public static class PassParser
         return models;
     }
 
+    // Gleicher prozesseigener Temp-Ordner wie beim OWL-Import (keine Sperrkonflikte
+    // zwischen mehreren Visio-Instanzen).
     private static string ExtractOntology(string fileName, byte[] content)
-    {
-        string path = Path.Combine(Path.GetTempPath(), fileName);
-        File.WriteAllBytes(path, content);
-        return path;
-    }
+        => ALPS_Visio_AddIn_rewrite.OWLImporter.WriteOntologyToTempFile(fileName, content);
 }

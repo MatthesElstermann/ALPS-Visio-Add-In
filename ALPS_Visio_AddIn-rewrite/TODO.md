@@ -1,3 +1,10 @@
+> **Hinweis (Stand bei Abgabe):** Diese Notizen entstanden während des Refactorings.
+> Der Ordner `_old` existiert nicht mehr (Inhalte liegen jetzt in `PageManagement/` und
+> `UI/`), `ALPSConstants`/`ALPSGlobalFunctions` gibt es nicht mehr (Konstanten jetzt in
+> `Constants.cs`), der Import ohne Koordinaten funktioniert inzwischen (Auto-Layout)
+> und die `*Export`-Klassen heißen jetzt `*Import`. Maßgeblich für den aktuellen
+> Stand ist die [README](../README.md).
+
 # Hallo
 ... und herzlich Willkommen im Visio ALPS AddIn Repository!
 

@@ -181,7 +181,8 @@ away asks for confirmation / unsnaps it.
 ## Requirements
 
 - Windows
-- Visual Studio 2022 with the **Office/SharePoint development** workload
+- Visual Studio 2022 **17.8 or newer** (the project uses C# 12) with the
+  **Office/SharePoint development** workload
 - Microsoft Visio (desktop)
 - .NET Framework 4.8 developer pack
 - The **ALPS/PASS stencils** in Visio's *My Shapes* folder (see below)
@@ -213,7 +214,10 @@ restore (a `packages/` folder, not `<PackageReference>`).
 4. Press **F5** — Visual Studio launches Visio with the add-in registered and the
    debugger attached. There is no command-line entry point.
 
-The VSTO manifest is signed with a temporary key (`*_TemporaryKey.pfx`). End-user
+The VSTO manifest is signed with a temporary key (`*_TemporaryKey.pfx`). The `.pfx`
+files are **not** in the repository (`.gitignore`), so on a fresh clone the first build
+fails with a missing signing certificate: create one via *Project → Properties →
+Signing → Create Test Certificate* and rebuild. End-user
 installation — including the certificate steps — is described in the
 [installation guide](#end-user-installation-certificate-import) at the end of this
 README (with screenshots in
@@ -299,6 +303,9 @@ ALPS_Visio_AddIn-rewrite/            The add-in
 ├── VisioHelper.cs                    Visio COM helpers (shapes, pages, ShapeSheet)
 ├── ShapeFinder.cs                    Locates the newest stencils in My Shapes
 ├── Constants.cs                      Visio constants (page types, properties, stencils)
+├── VisioPassModelBuilder.cs          Builds a PASS model from the open Visio document
+├── BpmnVisioRenderer.cs              Draws a BPMN model as a Visio BPMN page
+├── BpmnConverter/                    PASS → BPMN converter, BPMN (de)serializer, layout
 ├── OWLShapes/                        Model object graph — the Visio* classes
 │   ├── IVisioImportable(.WithShape)  Rendering contract
 │   ├── VisualizationBounds.cs        Shared PrepareDimensions implementation
@@ -320,14 +327,16 @@ docs/                                 Diagrams, notes, install guide, test OWL m
 ## Current state & limitations
 
 This codebase is an active refactor. The German design notes in
-[ALPS_Visio_AddIn-rewrite/TODO.md](ALPS_Visio_AddIn-rewrite/TODO.md) are the
-authoritative overview of the architecture and the open tasks. Highlights:
+[ALPS_Visio_AddIn-rewrite/TODO.md](ALPS_Visio_AddIn-rewrite/TODO.md) give an
+overview of the architecture and the open tasks (written during the refactor — where
+they differ from this README, this README reflects the current state). Highlights:
 
 - Only the **first** model in an OWL file is imported (multi-model import is planned).
 - `FullySpecifiedSubject` is the most complete subject type; several ontology features
   (e.g. group states, subject execution mapping, some transition types) are not yet
   rendered, partly because the API does not always match the ontology.
-- The **PASS BPMN Converter** converts one-way (PASS → BPMN); Choice Segments,
+- The **PASS BPMN Converter** converts one-way (PASS → BPMN; BPMN files can be
+  displayed, but not converted back to PASS); Choice Segments,
   non-standard Send/Receive types and Data Objects are not converted yet.
 - The **ALPS Verification** is a prototype: SID checks only, SBD checks are empty.
 - The NL Checker's LLM side has UniGPT (Uni Münster), OpenAI and Anthropic built in;
@@ -335,8 +344,9 @@ authoritative overview of the architecture and the open tasks. Highlights:
   OpenAI-compatible or Anthropic-format endpoint) — no code change needed.
 - Performance during import is dominated by Visio itself.
 
-Additional notes and a deeper code walk-through live in
-[docs/documentation.md](docs/documentation.md), with shape-data details in
+An older code walk-through from before the refactor lives in
+[docs/documentation.md](docs/documentation.md) (historical — file names have since
+changed), with shape-data details in
 [docs/Data in ShapeSheet.md](docs/Data%20in%20ShapeSheet.md).
 
 ---

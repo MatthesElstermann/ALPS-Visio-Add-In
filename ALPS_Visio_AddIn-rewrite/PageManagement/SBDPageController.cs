@@ -29,6 +29,24 @@ namespace ALPS_Visio_AddIn_rewrite
             visioPage.ShapeAdded += shapeAdded;
         }
 
+        /// <summary>
+        /// Meldet die Visio-Events ab. ModelController baut die SBD-Controller bei jedem
+        /// reset()/updateWholeController neu — ohne Abmelden feuerten alle alten Controller
+        /// weiter (mehrfache Snap-Dialoge, wachsende Traegheit).
+        /// </summary>
+        internal void detach()
+        {
+            try
+            {
+                visioPage.CellChanged -= onCellChanged;
+                visioPage.ShapeAdded -= shapeAdded;
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                // Seite/Dokument bereits geschlossen — es gibt nichts mehr abzumelden.
+            }
+        }
+
         public Page getPage()
         {
             return visioPage;
@@ -80,14 +98,18 @@ namespace ALPS_Visio_AddIn_rewrite
         private void handleCellChanged(Cell cell)
         {
             SBDPage extends = sbdPage.getExtends();
-            if (cell.Name == "Prop." + Constants.Properties.Transition.Extends + ".Value")
+            // Visio meldet die Wertzelle einer Prop-Zeile als "Prop.extends" (ohne ".Value") —
+            // der fruehere Vergleich nur mit "...Value" griff bei manueller Eingabe nie.
+            string cellName = cell.Name;
+            if (cellName == "Prop." + Constants.Properties.Transition.Extends
+                || cellName == "Prop." + Constants.Properties.Transition.Extends + ".Value")
             {
                 if (extends != null)
                 {
                     snapHandler.snap(cell.Shape, cell.Formula);
                 }
             }
-            else if (cell.Name == "PinX" || cell.Name == "PinY")
+            else if (cellName == "PinX" || cellName == "PinY")
             {
                 tryDeriveExtends();
                 if (sbdPage.getExtends() != null)
@@ -99,7 +121,7 @@ namespace ALPS_Visio_AddIn_rewrite
                     sidController.sbdBackgroundShapeMoved(cell.Shape, sbdPage.getForeground());
                 }
             }
-            else if (cell.Name == "PageWidth" || cell.Name == "PageHeight")
+            else if (cellName == "PageWidth" || cellName == "PageHeight")
             {
                 if (extends != null)
                 {
@@ -148,9 +170,19 @@ namespace ALPS_Visio_AddIn_rewrite
         {
             SBDPage extends = sbdPage.getExtends();
 
+            if (newProperty != null && extends != null && extends.getLayer().Equals(newProperty.getLayer()))
+            {
+                // Unveraendertes Ziel (wiederholter Aufruf, z. B. erneutes SID-Snapping): nur den
+                // Hintergrund sicherstellen. Frueher wurde hier vorab der Hintergrund GELOESCHT und
+                // mangels Aenderung nicht neu gesetzt — die Basis-SBD verschwand von der GBD,
+                // waehrend die graue Trennflaeche stehen blieb.
+                Page unchangedBackPage = Globals.ThisAddIn.getModelController().getSbdPageController(newProperty)?.getPage();
+                if (unchangedBackPage != null) setBackgroundForThis(unchangedBackPage.NameU);
+                return;
+            }
+
             setBackgroundForThis("");
-            if (newProperty != null && extends != null && !extends.getLayer().Equals(newProperty.getLayer())
-                || extends == null && newProperty != null)
+            if (newProperty != null)
             {
                 Page backPage = Globals.ThisAddIn.getModelController().getSbdPageController(newProperty).visioPage;
                 setBackgroundForThis(backPage.NameU);
@@ -169,9 +201,8 @@ namespace ALPS_Visio_AddIn_rewrite
                     placeBackRectangle(newProperty);
                 }
             }
-            else if (newProperty == null)
+            else
             {
-                setBackgroundForThis("");
                 deleteBackRectangle();
                 sbdPage.setExtends(null);
             }
@@ -187,7 +218,7 @@ namespace ALPS_Visio_AddIn_rewrite
         /// Idempotent and cheap: it is safe to call on every shape interaction and does nothing
         /// once an extends is set or while the relationship cannot be derived yet.
         /// </summary>
-        private void tryDeriveExtends()
+        internal void tryDeriveExtends()
         {
             if (derivingExtends || sbdPage.getExtends() != null) return;
 

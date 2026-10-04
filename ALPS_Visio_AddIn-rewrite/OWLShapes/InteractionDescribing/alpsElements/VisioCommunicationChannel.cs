@@ -19,9 +19,9 @@ namespace ALPS_Visio_AddIn_rewrite.OWLShapes
         {
             import.Import(shapeType, page, VH.GetBounds(this));
 
-            // TODO: BiDirectional flag + glue BeginX/EndY to correspondents
-            // (was disabled in the legacy add-in pending an alps.net.api update;
-            //  see VisioCommunicationRestriction for the connector glue pattern)
+            // Mit den beiden Subjekten verbinden (frueher TODO — der Verbinder lag unverbunden
+            // bei (0,0) neben der Seite). TODO: Richtungs-Flag (isUniDirectional) ins Shape.
+            VH.GlueConnectorToSubjects(GetShape(), getCorrespondentA(), getCorrespondentB(), getModelComponentID());
         }
 
         public bool PrepareDimensions()

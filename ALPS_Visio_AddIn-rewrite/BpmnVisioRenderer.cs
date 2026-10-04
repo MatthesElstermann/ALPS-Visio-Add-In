@@ -57,6 +57,8 @@ namespace ALPS_Visio_AddIn_rewrite
             // die Gesamthoehe des Layouts gebraucht.
             double maxYPx = diShapes.Max(s => s.Bounds.Y + s.Bounds.Height);
             double maxXPx = diShapes.Max(s => s.Bounds.X + s.Bounds.Width);
+            double minYPx = diShapes.Min(s => s.Bounds.Y);
+            _originXPx = diShapes.Min(s => s.Bounds.X);
 
             Visio.Document stencil = OpenBpmnStencil(app);
             Visio.Document targetDoc = app.ActiveDocument;
@@ -67,8 +69,9 @@ namespace ALPS_Visio_AddIn_rewrite
             app.ScreenUpdating = 0;
             try
             {
-                page.PageSheet.CellsU["PageWidth"].ResultIU = maxXPx / PixelsPerInch + 2 * PageMarginInch;
-                page.PageSheet.CellsU["PageHeight"].ResultIU = maxYPx / PixelsPerInch + 2 * PageMarginInch;
+                // Seitengroesse aus der tatsaechlichen Ausdehnung (max - min), nicht ab Ursprung 0.
+                page.PageSheet.CellsU["PageWidth"].ResultIU = (maxXPx - _originXPx) / PixelsPerInch + 2 * PageMarginInch;
+                page.PageSheet.CellsU["PageHeight"].ResultIU = (maxYPx - minYPx) / PixelsPerInch + 2 * PageMarginInch;
 
                 var shapeByElementId = new Dictionary<string, Visio.Shape>();
                 var masterCache = new Dictionary<string, Visio.Master>();
@@ -80,10 +83,16 @@ namespace ALPS_Visio_AddIn_rewrite
                         DrawPool(page, di, participant, maxYPx, shapeByElementId);
                 }
 
-                // 2. Flow-Elemente (Tasks, Events, Gateways, Sub-Prozesse).
+                // 2. Flow-Elemente. Sub-Prozesse zuerst: ihre (aufgeklappte) Box umschliesst
+                //    die enthaltenen Elemente und darf sie nicht ueberdecken.
                 foreach (IBpmnShape di in diShapes)
                 {
-                    if (!(di.BpmnElement is IParticipant))
+                    if (di.BpmnElement is ISubProcess)
+                        DropFlowNode(page, stencil, masterCache, di, maxYPx, shapeByElementId, warnings);
+                }
+                foreach (IBpmnShape di in diShapes)
+                {
+                    if (!(di.BpmnElement is IParticipant) && !(di.BpmnElement is ISubProcess))
                         DropFlowNode(page, stencil, masterCache, di, maxYPx, shapeByElementId, warnings);
                 }
 
@@ -195,9 +204,16 @@ namespace ALPS_Visio_AddIn_rewrite
             return page;
         }
 
+        /// <summary>
+        /// Linker Rand des DI-Layouts in Pixeln. DI aus bpmn.io/Camunda beginnt oft nicht bei 0
+        /// (auch negativ) — ohne Verschiebung lagen Shapes links neben der Seite bzw. es blieb
+        /// ein grosser Leerraum. Wird vor dem Zeichnen gesetzt (Visio-UI-Thread, nicht parallel).
+        /// </summary>
+        private static double _originXPx;
+
         private static double ToVisioX(double xPx)
         {
-            return xPx / PixelsPerInch + PageMarginInch;
+            return (xPx - _originXPx) / PixelsPerInch + PageMarginInch;
         }
 
         private static double ToVisioY(double yPxTopBased, double maxYPx)

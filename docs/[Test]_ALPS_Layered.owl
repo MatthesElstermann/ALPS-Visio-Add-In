@@ -132,6 +132,17 @@
         <standard-pass-ont:belongsTo rdf:resource="http://alps-visio-test.example/alps-layered-test#Guard_Worker"/>
         <standard-pass-ont:hasInitialState rdf:resource="http://alps-visio-test.example/alps-layered-test#G_DoState"/>
         <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#G_DoState"/>
+        <standard-pass-ont:contains rdf:resource="http://alps-visio-test.example/alps-layered-test#G_WorkRef"/>
+    </owl:NamedIndividual>
+
+    <!-- State Reference im GBD: verweist auf den Basis-State W_DoState ("Work"). Wird als
+         Shape "State Reference" gezeichnet und rastet nach dem Import auf "Work" ein. -->
+    <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#G_WorkRef">
+        <rdf:type rdf:resource="&standard-pass-ont;StateReference"/>
+        <standard-pass-ont:hasModelComponentID rdf:datatype="&xsd;string">G_WorkRef</standard-pass-ont:hasModelComponentID>
+        <standard-pass-ont:hasModelComponentLabel xml:lang="en">Work (Reference)</standard-pass-ont:hasModelComponentLabel>
+        <standard-pass-ont:belongsTo rdf:resource="http://alps-visio-test.example/alps-layered-test#GBD_Worker"/>
+        <standard-pass-ont:references rdf:resource="http://alps-visio-test.example/alps-layered-test#W_DoState"/>
     </owl:NamedIndividual>
 
     <owl:NamedIndividual rdf:about="http://alps-visio-test.example/alps-layered-test#G_DoState">
